@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FunPay Tools - Революционное расширение для FunPay</title>
-    <meta name="description" content="Увеличьте свои продажи на FunPay с помощью FP Tools! Более 50 инструментов: ИИ-помощник, аналитика рынка, полная кастомизация, автоматизация и многое другое.">
-    <meta name="keywords" content="FunPay, FunPay Tools, расширение для FunPay, ИИ-помощник, аналитика FunPay, автоподнятие, кастомизация FunPay">
-
+    <title>FunPay Tools - Расширение и Приложение</title>
+    <meta name="description" content="Увеличьте свои продажи на FunPay! Chrome-расширение и Android-приложение: автоподнятие, автоответчик, аналитика и вечный онлайн.">
+    
     <meta name="google-site-verification" content="5-TUM46ELtzF7u0zHVpV5-on_Gkevmj7yrIrnHqDXi4" />
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,11 +33,15 @@
                     <span>FunPay Tools</span>
                 </a>
                 <ul class="nav-links">
-                    <li><a href="#showcase">Возможности</a></li>
+                    <li><a href="#showcase">Расширение</a></li>
+                    <li><a href="#android">Android</a></li>
                     <li><a href="#why">Преимущества</a></li>
                     <li><a href="https://t.me/FPTools" target="_blank">Сообщество</a></li>
                 </ul>
-                <a href="https://chromewebstore.google.com/detail/funpay-tools/pibmnjjfpojnakckilflcboodkndkibb" target="_blank" class="btn btn-primary btn-install-header">Установить</a>
+                <div class="header-buttons">
+                     <a href="https://chromewebstore.google.com/detail/funpay-tools/pibmnjjfpojnakckilflcboodkndkibb" target="_blank" class="btn btn-sm">Chrome</a>
+                     <a href="https://github.com/XaviersDev/FunPay-Tools-Android/releases/download/1.0/FunPay.Tools.apk" class="btn btn-primary btn-sm">APK</a>
+                </div>
             </nav>
         </div>
     </header>
@@ -49,25 +52,102 @@
             <div class="hero-vignette"></div>
             <div class="container">
                 <div class="hero-content">
-                    <div class="hero-badge">🚀 ЛУЧШЕЕ</div>
-                    <h1>Ваш FunPay. <span>На максималках.</span></h1>
+                    <div class="hero-badge">🚀 ТЕПЕРЬ И НА ANDROID</div>
+                    <h1>Ваш FunPay. <span>Везде.</span></h1>
                     <p class="hero-subtitle">
-                        Единственное расширение, которое вам понадобится. ИИ-ассистент, аналитика, кастомизация и автоматизация — всё в одном инструменте.
+                        Мощнейший комбайн для продавцов. Используйте расширение для ПК или приложение для Android, чтобы оставаться в топе 24/7.
                     </p>
-                    <a href="https://chromewebstore.google.com/detail/funpay-tools/pibmnjjfpojnakckilflcboodkndkibb" target="_blank" class="btn btn-primary btn-large">
-                        <span class="material-icons">get_app</span>
-                        Установить для Chrome
-                    </a>
-                    <span class="hero-cta-note">Бесплатно, безопасно и с открытым исходным кодом. Установка поддерживается на Edge, Opera и прочие Chromium-браузеры. Больше деталей на сайте расширения. Нажимайте кнопку выше, чтобы перейти на сайт.</span>
+                    
+                    <div class="hero-actions">
+                        <a href="https://chromewebstore.google.com/detail/funpay-tools/pibmnjjfpojnakckilflcboodkndkibb" target="_blank" class="btn btn-primary btn-large">
+                            <span class="material-icons">laptop_chromebook</span>
+                            Для Chrome
+                        </a>
+                        <a href="#android" class="btn btn-outline btn-large">
+                            <span class="material-icons">android</span>
+                            Для Android
+                        </a>
+                    </div>
+                    
+                    <span class="hero-cta-note">Бесплатно, безопасно, Open Source.</span>
                 </div>
             </div>
         </section>
 
+        <!-- Секция Расширения (оставили как есть, но изменили заголовок для контекста) -->
         <section id="showcase" class="showcase-section">
             <div class="container">
-                <h2 class="section-title">Инструменты, которые <span>изменят всё</span></h2>
+                <h2 class="section-title">Веб-версия: <span>Все под контролем</span></h2>
                 <div class="showcase-grid" id="showcase-grid-container">
-                    <!-- Скриншоты будут загружены сюда с помощью JS -->
+                    <!-- Сюда JS загрузит иконки и описания -->
+                </div>
+            </div>
+        </section>
+
+        <!-- НОВАЯ СЕКЦИЯ ANDROID -->
+        <section id="android" class="android-section">
+            <div class="container">
+                <div class="android-header">
+                    <h2 class="section-title">FunPay Tools <span>Android</span></h2>
+                    <p class="section-subtitle">Забудьте о включенном компьютере. Ваш смартфон теперь — полноценная станция продаж.</p>
+                </div>
+
+                <div class="android-content-wrapper">
+                    <!-- Левая колонка: Текст -->
+                    <div class="android-text">
+                        <div class="feature-block">
+                            <div class="fb-icon"><span class="material-icons">update</span></div>
+                            <div class="fb-content">
+                                <h3>Автоподнятие и Вечный онлайн</h3>
+                                <p>Работает в фоне (Foreground Service). Система не убивает приложение, ваши лоты всегда наверху.</p>
+                            </div>
+                        </div>
+
+                        <div class="feature-block">
+                            <div class="fb-icon"><span class="material-icons">waving_hand</span></div>
+                            <div class="fb-content">
+                                <h3>Умное автоприветствие</h3>
+                                <p>Пишет первым с защитой от спама (Anti-Spam кулдаун). Фильтрует системные уведомления.</p>
+                            </div>
+                        </div>
+
+                        <div class="feature-block">
+                            <div class="fb-icon"><span class="material-icons">question_answer</span></div>
+                            <div class="fb-content">
+                                <h3>Автоответчик и Отзывы</h3>
+                                <p>Настройка триггеров на фразы и мгновенные ответы на новые отзывы покупателей (шаблоны 1-5 звезд).</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-block">
+                            <div class="fb-icon"><span class="material-icons">security</span></div>
+                            <div class="fb-content">
+                                <h3>Безопасность и Технологии</h3>
+                                <p>Kotlin + Jetpack Compose. Вход через Golden Key, данные хранятся только локально.</p>
+                            </div>
+                        </div>
+
+                        <div class="android-cta">
+                            <a href="https://github.com/XaviersDev/FunPay-Tools-Android/releases/download/1.0/FunPay.Tools.apk" class="btn btn-primary btn-large">
+                                <span class="material-icons">download</span>
+                                Скачать .APK
+                            </a>
+                            <span class="version-info">Версия 1.0 • Android 8.0+</span>
+                        </div>
+                    </div>
+
+                    <!-- Правая колонка: Скриншоты -->
+                    <div class="android-visuals">
+                        <div class="phone-mockup p-left">
+                            <img src="https://github.com/user-attachments/assets/0a1fe869-0469-44b9-913c-025fd385fc94" alt="Список чатов">
+                        </div>
+                        <div class="phone-mockup p-center">
+                            <img src="https://github.com/user-attachments/assets/f83eb595-48c1-4f64-8ea8-90ebc79a74eb" alt="Функции">
+                        </div>
+                        <div class="phone-mockup p-right">
+                            <img src="https://github.com/user-attachments/assets/3d099638-c2c1-40d2-abfa-de945137ae97" alt="Консоль">
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -77,19 +157,19 @@
                 <h2 class="section-title">Почему <span>FP Tools?</span></h2>
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <span class="material-icons">functions</span>
-                        <div class="stat-number" data-target="50">0</div>
-                        <div class="stat-label">Более 50 инструментов</div>
+                        <span class="material-icons">devices</span>
+                        <div class="stat-number" data-target="2">0</div>
+                        <div class="stat-label">Платформы (Web + Android)</div>
                     </div>
                     <div class="stat-card">
-                        <span class="material-icons">psychology</span>
-                        <div class="stat-number" data-target="4">0</div>
-                        <div class="stat-label">Мощных ИИ-модели</div>
-                    </div>
-                    <div class="stat-card">
-                        <span class="material-icons">update</span>
+                        <span class="material-icons">bolt</span>
                         <div class="stat-number" data-target="100">0</div>
-                        <div class="stat-label">% Бесплатно навсегда</div>
+                        <div class="stat-label">% Автоматизация</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="material-icons">savings</span>
+                        <div class="stat-number" data-target="0">0</div>
+                        <div class="stat-label">Рублей стоимость</div>
                     </div>
                 </div>
             </div>
@@ -98,21 +178,24 @@
         <section class="cta-section">
             <div class="container">
                 <h2>Начните продавать эффективнее</h2>
-                <p>Присоединяйтесь к тысячам продавцов, которые уже прокачали свой FunPay.</p>
-                <a href="https://chromewebstore.google.com/detail/funpay-tools/pibmnjjfpojnakckilflcboodkndkibb" target="_blank" class="btn btn-primary btn-large">
-                    <span class="material-icons">get_app</span>
-                    Установить бесплатно
-                </a>
+                <p>Выбирайте удобный формат работы и выходите на новый уровень.</p>
+                <div class="cta-buttons-row">
+                    <a href="https://chromewebstore.google.com/detail/funpay-tools/pibmnjjfpojnakckilflcboodkndkibb" target="_blank" class="btn btn-primary">
+                        <span class="material-icons">laptop</span> Chrome
+                    </a>
+                    <a href="https://github.com/XaviersDev/FunPay-Tools-Android/releases/download/1.0/FunPay.Tools.apk" target="_blank" class="btn btn-outline">
+                        <span class="material-icons">android</span> Android APK
+                    </a>
+                </div>
             </div>
         </section>
     </main>
 
     <footer class="site-footer">
         <div class="container">
-            <p>&copy; 2025 FunPay Tools. Разработано с ❤️ AlliSighs.</p>
-            <p class="disclaimer">Это неофициальное расширение. FunPay Tools не связан с администрацией FunPay.</p>
+            <p>&copy; 2026 FunPay Tools. Разработано с ❤️ AlliSighs.</p>
+            <p class="disclaimer">Это неофициальное ПО (зато не вредное). FunPay Tools не связан с администрацией FunPay.</p>
         </div>
     </footer>
 </body>
-
 </html>

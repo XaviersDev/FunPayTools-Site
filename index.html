@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FunPay Tools - Расширение и Приложение</title>
-    <meta name="description" content="Увеличьте свои продажи на FunPay! Chrome-расширение и Android-приложение: автоподнятие, автоответчик, аналитика и вечный онлайн.">
+    <meta name="description" content="Увеличьте свои продажи на FunPay! Chrome-расширение и Android-приложение: чат с ИИ, уведомления, автоподнятие и автоответчик.">
     
     <meta name="google-site-verification" content="5-TUM46ELtzF7u0zHVpV5-on_Gkevmj7yrIrnHqDXi4" />
     
@@ -81,10 +81,10 @@
             <div class="hero-vignette"></div>
             <div class="container">
                 <div class="hero-content">
-                    <div class="hero-badge">🚀 ТЕПЕРЬ И НА ANDROID</div>
+                    <div class="hero-badge">🚀 ОБНОВЛЕНИЕ 1.1</div>
                     <h1>Ваш FunPay. <span>Везде.</span></h1>
                     <p class="hero-subtitle">
-                        Мощнейший комбайн для продавцов. Используйте расширение для ПК или приложение для Android, чтобы оставаться в топе 24/7.
+                        Мощнейший комбайн для продавцов. Теперь с полноценным чатом, ИИ-ассистентом и уведомлениями на Android.
                     </p>
                     
                     <div class="hero-actions">
@@ -114,41 +114,42 @@
         <section id="android" class="android-section">
             <div class="container">
                 <div class="android-header">
-                    <h2 class="section-title">FunPay Tools <span>Android</span></h2>
-                    <p class="section-subtitle">Забудьте о включенном компьютере. Ваш смартфон теперь — полноценная станция продаж.</p>
+                    <h2 class="section-title">FunPay Tools <span>Android 1.1</span></h2>
+                    <p class="section-subtitle">Глобальное обновление. Телефон теперь — полноценная станция продаж.</p>
                 </div>
 
                 <div class="android-content-wrapper">
+                    <!-- Левая колонка: Текст -->
                     <div class="android-text">
+                        <div class="feature-block">
+                            <div class="fb-icon"><span class="material-icons">chat</span></div>
+                            <div class="fb-content">
+                                <h3>Полноценный Чат и ИИ</h3>
+                                <p>История переписки, отправка фото и <b>ИИ-Ассистент</b>, который превратит "ку" в вежливое приветствие одним кликом.</p>
+                            </div>
+                        </div>
+
+                        <div class="feature-block">
+                            <div class="fb-icon"><span class="material-icons">notifications_active</span></div>
+                            <div class="fb-content">
+                                <h3>Уведомления и Звук</h3>
+                                <p>Push-уведомления с тем самым звуком «Дзинь!». Быстрый ответ клиенту прямо из шторки уведомлений.</p>
+                            </div>
+                        </div>
+
                         <div class="feature-block">
                             <div class="fb-icon"><span class="material-icons">update</span></div>
                             <div class="fb-content">
                                 <h3>Автоподнятие и Вечный онлайн</h3>
-                                <p>Работает в фоне (Foreground Service). Система не убивает приложение, ваши лоты всегда наверху.</p>
-                            </div>
-                        </div>
-
-                        <div class="feature-block">
-                            <div class="fb-icon"><span class="material-icons">waving_hand</span></div>
-                            <div class="fb-content">
-                                <h3>Умное автоприветствие</h3>
-                                <p>Пишет первым с защитой от спама (Anti-Spam кулдаун). Фильтрует системные уведомления.</p>
-                            </div>
-                        </div>
-
-                        <div class="feature-block">
-                            <div class="fb-icon"><span class="material-icons">question_answer</span></div>
-                            <div class="fb-content">
-                                <h3>Автоответчик и Отзывы</h3>
-                                <p>Настройка триггеров на фразы и мгновенные ответы на новые отзывы покупателей (шаблоны 1-5 звезд).</p>
+                                <p>Приложение работает в фоне (Service). Ваши лоты всегда наверху, а статус — "Онлайн".</p>
                             </div>
                         </div>
                         
                         <div class="feature-block">
-                            <div class="fb-icon"><span class="material-icons">security</span></div>
+                            <div class="fb-icon"><span class="material-icons">question_answer</span></div>
                             <div class="fb-content">
-                                <h3>Безопасность и Технологии</h3>
-                                <p>Kotlin + Jetpack Compose. Вход через Golden Key, данные хранятся только локально.</p>
+                                <h3>Автоответчик и Отзывы</h3>
+                                <p>Настройка триггеров на команды и мгновенные ответы на новые отзывы покупателей.</p>
                             </div>
                         </div>
 
@@ -251,6 +252,7 @@
                 })
                 .then(data => {
                     const apkAsset = data.assets.find(asset => asset.name.endsWith('.apk'));
+                    
                     if (apkAsset) {
                         const downloadUrl = apkAsset.browser_download_url;
                         document.querySelectorAll('.android-download-btn').forEach(btn => {
@@ -264,7 +266,9 @@
                         versionInfo.textContent = `Версия ${version} • Android 8.0+`;
                     }
                 })
-                .catch(error => console.error('Error fetching latest release:', error));
+                .catch(error => {
+                    console.error('Error fetching latest release:', error);
+                });
         });
     </script>
 </body>

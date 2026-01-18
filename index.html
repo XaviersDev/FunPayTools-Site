@@ -32,13 +32,13 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #ccc; /* Цвет текста */
+            color: #ccc;
             text-decoration: none;
             font-size: 0.9rem;
             transition: color 0.3s ease;
         }
         .github-link:hover {
-            color: #fff; /* Цвет при наведении */
+            color: #fff;
         }
         .github-link svg {
             fill: currentColor;
@@ -69,7 +69,7 @@
                 </ul>
                 <div class="header-buttons">
                      <a href="https://chromewebstore.google.com/detail/funpay-tools/pibmnjjfpojnakckilflcboodkndkibb" target="_blank" class="btn btn-sm">Chrome</a>
-                     <a href="https://github.com/XaviersDev/FunPay-Tools-Android/releases/download/1.0/FunPay.Tools.apk" class="btn btn-primary btn-sm">APK</a>
+                     <a href="#" class="btn btn-primary btn-sm android-download-btn">APK</a>
                 </div>
             </nav>
         </div>
@@ -103,17 +103,14 @@
             </div>
         </section>
 
-        <!-- Секция Расширения -->
         <section id="showcase" class="showcase-section">
             <div class="container">
                 <h2 class="section-title">Веб-версия: <span>Все под контролем</span></h2>
                 <div class="showcase-grid" id="showcase-grid-container">
-                    <!-- Сюда JS загрузит иконки и описания -->
                 </div>
             </div>
         </section>
 
-        <!-- СЕКЦИЯ ANDROID -->
         <section id="android" class="android-section">
             <div class="container">
                 <div class="android-header">
@@ -122,7 +119,6 @@
                 </div>
 
                 <div class="android-content-wrapper">
-                    <!-- Левая колонка: Текст -->
                     <div class="android-text">
                         <div class="feature-block">
                             <div class="fb-icon"><span class="material-icons">update</span></div>
@@ -157,15 +153,14 @@
                         </div>
 
                         <div class="android-cta">
-                            <a href="https://github.com/XaviersDev/FunPay-Tools-Android/releases/download/1.0/FunPay.Tools.apk" class="btn btn-primary btn-large">
+                            <a href="#" class="btn btn-primary btn-large android-download-btn">
                                 <span class="material-icons">download</span>
                                 Скачать .APK
                             </a>
-                            <span class="version-info">Версия 1.0 • Android 8.0+</span>
+                            <span class="version-info">Загрузка версии...</span>
                         </div>
                     </div>
 
-                    <!-- Правая колонка: Скриншоты -->
                     <div class="android-visuals">
                         <div class="phone-mockup p-left">
                             <img src="https://github.com/user-attachments/assets/0a1fe869-0469-44b9-913c-025fd385fc94" alt="Список чатов">
@@ -212,7 +207,7 @@
                     <a href="https://chromewebstore.google.com/detail/funpay-tools/pibmnjjfpojnakckilflcboodkndkibb" target="_blank" class="btn btn-primary">
                         <span class="material-icons">laptop</span> Chrome
                     </a>
-                    <a href="https://github.com/XaviersDev/FunPay-Tools-Android/releases/download/1.0/FunPay.Tools.apk" target="_blank" class="btn btn-outline">
+                    <a href="#" target="_blank" class="btn btn-outline android-download-btn">
                         <span class="material-icons">android</span> Android APK
                     </a>
                 </div>
@@ -225,10 +220,8 @@
             <p>&copy; 2026 FunPay Tools. Разработано с ❤️ AlliSighs.</p>
             <p class="disclaimer">Это неофициальное ПО (зато не вредное). FunPay Tools не связан с администрацией FunPay.</p>
             
-            <!-- Добавлены ссылки на GitHub -->
             <div class="footer-github-links">
                 <a href="https://github.com/XaviersDev/FunPay-Tools" target="_blank" class="github-link">
-                    <!-- Иконка GitHub (SVG) -->
                     <svg viewBox="0 0 16 16">
                         <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
                     </svg>
@@ -236,7 +229,6 @@
                 </a>
                 
                 <a href="https://github.com/XaviersDev/FunPay-Tools-Android" target="_blank" class="github-link">
-                    <!-- Иконка GitHub (SVG) -->
                     <svg viewBox="0 0 16 16">
                         <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
                     </svg>
@@ -246,5 +238,34 @@
             
         </div>
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const repo = 'XaviersDev/FunPay-Tools-Android';
+            const apiUrl = `https://api.github.com/repos/${repo}/releases/latest`;
+            
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    const apkAsset = data.assets.find(asset => asset.name.endsWith('.apk'));
+                    if (apkAsset) {
+                        const downloadUrl = apkAsset.browser_download_url;
+                        document.querySelectorAll('.android-download-btn').forEach(btn => {
+                            btn.href = downloadUrl;
+                        });
+                    }
+                    
+                    const versionInfo = document.querySelector('.version-info');
+                    if (versionInfo) {
+                        const version = data.tag_name.replace('v', '');
+                        versionInfo.textContent = `Версия ${version} • Android 8.0+`;
+                    }
+                })
+                .catch(error => console.error('Error fetching latest release:', error));
+        });
+    </script>
 </body>
 </html>

@@ -1,286 +1,266 @@
-:root {
-    --bg-dark: #0D1117;
-    --bg-light: #161B22;
-    --border-color: #30363d;
-    --text-primary: #c9d1d9;
-    --text-secondary: #8b949e;
-    --accent-primary: #58a6ff;
-    --accent-gradient: linear-gradient(45deg, #6B66FF, #FF6B6B);
-    --font-main: 'Inter', sans-serif;
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body {
-    background-color: var(--bg-dark);
-    color: var(--text-primary);
-    font-family: var(--font-main);
-    line-height: 1.6;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-}
-body.loaded { opacity: 1; }
-.container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
-.section-title { text-align: center; font-size: 2.5rem; font-weight: 700; margin-bottom: 60px; }
-.section-title span { background: var(--accent-gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
-
-#preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 9999; display: flex; justify-content: center; align-items: center; transition: opacity 0.5s ease; }
-#preloader.hidden { opacity: 0; pointer-events: none; }
-.preloader-logo { animation: pulse 1.5s infinite ease-in-out; }
-@keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } }
-
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 0.3s ease; cursor: pointer; border: none; }
-.btn-primary { background: var(--accent-gradient); color: white; box-shadow: 0 4px 20px rgba(107, 102, 255, 0.3); }
-.btn-primary:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 6px 25px rgba(255, 107, 107, 0.4); }
-.btn-large { padding: 16px 32px; font-size: 1.1rem; }
-
-.site-header { background: rgba(13, 17, 23, 0.8); backdrop-filter: blur(10px); padding: 15px 0; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-color); }
-.main-nav { display: flex; justify-content: space-between; align-items: center; }
-.logo { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: 700; color: var(--text-primary); text-decoration: none; }
-.logo img { height: 32px; }
-.nav-links { display: flex; list-style: none; gap: 30px; }
-.nav-links a { color: var(--text-secondary); text-decoration: none; font-weight: 500; transition: color 0.2s ease; }
-.nav-links a:hover { color: var(--text-primary); }
-
-.hero { padding: 100px 0; text-align: center; position: relative; overflow: hidden; }
-.hero-bg-parallax { position: absolute; top: 0; left: 0; width: 100%; height: 150%; z-index: -2; background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Cg fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.05"%3E%3Cpath d="M6 5V0h1v5h4v1H6v4H5V6H0V5h5V0h1v5h95v1H6v95h1v-95h94v-1H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E'); will-change: transform; }
-.hero-vignette { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(ellipse at center, transparent 50%, var(--bg-dark) 95%); }
-.hero-content { position: relative; z-index: 1; }
-
-.hero-badge { display: inline-block; background: rgba(88, 166, 255, 0.1); color: var(--accent-primary); padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; margin-bottom: 20px; border: 1px solid rgba(88, 166, 255, 0.3); }
-.hero h1 { font-size: 3.8rem; font-weight: 900; line-height: 1.1; margin-bottom: 20px; text-shadow: 0 5px 25px rgba(0,0,0,0.5); }
-.hero h1 span { background: var(--accent-gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.hero-subtitle { font-size: 1.2rem; color: var(--text-secondary); max-width: 650px; margin: 0 auto 30px; }
-.hero-cta-note { display: block; margin-top: 15px; color: var(--text-secondary); font-size: 0.9rem; }
-
-/* --- Секция Showcase --- */
-.showcase-section { padding: 100px 0; background-color: var(--bg-light); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
-.showcase-grid { display: flex; flex-direction: column; gap: 100px; }
-.showcase-item { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
-.showcase-item:nth-child(even) .showcase-image { grid-column: 1; grid-row: 1; }
-.showcase-text .material-icons { font-size: 2.5rem; margin-bottom: 15px; background: var(--accent-gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.showcase-text h3 { font-size: 2rem; margin-bottom: 15px; }
-.showcase-text p { font-size: 1.1rem; color: var(--text-secondary); }
-.showcase-image { perspective: 1000px; }
-.image-mockup { border-radius: 12px; border: 1px solid var(--border-color); background: #000; padding: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.4); transform: rotateX(10deg) rotateY(-15deg); transition: transform 0.5s ease; }
-.showcase-item:nth-child(even) .image-mockup { transform: rotateX(10deg) rotateY(15deg); }
-.image-mockup:hover { transform: rotateX(0) rotateY(0); }
-.image-mockup img { width: 100%; display: block; border-radius: 6px; }
-
-/* --- Секция "Почему мы" --- */
-.why-section { padding: 80px 0; }
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; }
-.stat-card { background-color: var(--bg-light); border: 1px solid var(--border-color); padding: 30px; border-radius: 12px; text-align: center; }
-.stat-card .material-icons { font-size: 3rem; color: var(--accent-primary); margin-bottom: 15px; }
-.stat-number { font-size: 3rem; font-weight: 700; line-height: 1; }
-.stat-label { color: var(--text-secondary); }
-
-/* --- Секция CTA и Подвал --- */
-.cta-section { padding: 80px 0; text-align: center; background: var(--bg-light); border-top: 1px solid var(--border-color); }
-.cta-section h2 { font-size: 2.5rem; margin-bottom: 15px; }
-.cta-section p { font-size: 1.2rem; color: var(--text-secondary); margin-bottom: 30px; }
-.site-footer { padding: 30px 0; text-align: center; font-size: 0.9rem; color: var(--text-secondary); border-top: 1px solid var(--border-color); }
-.disclaimer { font-size: 0.8rem; opacity: 0.7; margin-top: 10px; }
-
-/* --- Анимации и Адаптивность --- */
-.showcase-item { opacity: 0; transform: translateY(40px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
-.visible { opacity: 1; transform: translateY(0); }
-
-@media (max-width: 900px) {
-    .showcase-item, .showcase-item:nth-child(even) { grid-template-columns: 1fr; }
-    .showcase-item:nth-child(even) .showcase-image { grid-row: 1; }
-    .showcase-text { text-align: center; }
-    .image-mockup, .showcase-item:nth-child(even) .image-mockup { transform: rotateX(0) rotateY(0); }
-}
-@media (max-width: 768px) {
-    .section-title, .hero h1, .cta-section h2 { font-size: 2rem; }
-    .nav-links, .btn-install-header { display: none; }
-    .hero { padding: 80px 0; }
-
-}
-
-.hero-actions {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-}
-
-/* Кнопка с контуром (второстепенная) */
-.btn-outline {
-    background: transparent;
-    border: 2px solid var(--accent-primary);
-    color: var(--accent-primary);
-    box-shadow: none;
-}
-.btn-outline:hover {
-    background: rgba(88, 166, 255, 0.1);
-    transform: translateY(-3px);
-    color: #fff;
-    border-color: #fff;
-}
-.btn-sm {
-    padding: 8px 16px;
-    font-size: 0.9rem;
-}
-
-/* Шапка кнопки */
-.header-buttons {
-    display: flex;
-    gap: 10px;
-}
-
-/* --- НОВАЯ СЕКЦИЯ ANDROID --- */
-.android-section {
-    padding: 100px 0;
-    background: linear-gradient(180deg, var(--bg-dark) 0%, #10141b 100%);
-    overflow: hidden; /* Чтобы телефоны не вылезали */
-}
-.section-subtitle {
-    text-align: center;
-    color: var(--text-secondary);
-    max-width: 600px;
-    margin: -40px auto 60px;
-    font-size: 1.1rem;
-}
-
-.android-content-wrapper {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 50px;
-    align-items: center;
-}
-
-/* Список фич Android */
-.android-text {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-}
-
-.feature-block {
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
-}
-
-.fb-icon .material-icons {
-    background: rgba(88, 166, 255, 0.1);
-    color: var(--accent-primary);
-    padding: 12px;
-    border-radius: 12px;
-    font-size: 1.5rem;
-}
-
-.fb-content h3 {
-    font-size: 1.2rem;
-    margin-bottom: 5px;
-    color: #fff;
-}
-.fb-content p {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    line-height: 1.5;
-}
-
-.android-cta {
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-}
-.version-info {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    opacity: 0.7;
-    margin-left: 5px;
-}
-
-/* Визуал телефонов */
-.android-visuals {
-    position: relative;
-    height: 600px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.phone-mockup {
-    position: absolute;
-    width: 260px; /* Ограничиваем ширину скриншотов */
-    border-radius: 20px;
-    border: 8px solid #000;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-    transition: all 0.5s ease;
-}
-
-.phone-mockup img {
-    width: 100%;
-    height: auto;
-    display: block;
-}
-
-/* Расставляем телефоны веером */
-.p-center {
-    z-index: 3;
-    transform: translateY(0) scale(1.05);
-}
-.p-left {
-    z-index: 2;
-    transform: translateX(-140px) translateY(40px) rotate(-10deg) scale(0.9);
-    opacity: 0.8;
-}
-.p-right {
-    z-index: 2;
-    transform: translateX(140px) translateY(40px) rotate(10deg) scale(0.9);
-    opacity: 0.8;
-}
-
-/* Ховер эффект для телефонов */
-.android-visuals:hover .p-left {
-    transform: translateX(-160px) translateY(20px) rotate(-15deg) scale(0.95);
-    opacity: 1;
-}
-.android-visuals:hover .p-right {
-    transform: translateX(160px) translateY(20px) rotate(15deg) scale(0.95);
-    opacity: 1;
-}
-
-.cta-buttons-row {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-}
-
-/* Адаптив для Android секции */
-@media (max-width: 960px) {
-    .android-content-wrapper {
-        grid-template-columns: 1fr;
-    }
-    .android-text {
-        order: 2;
-    }
-    .android-visuals {
-        order: 1;
-        height: 400px;
-        transform: scale(0.8);
-    }
-}
-
-@media (max-width: 600px) {
-    .phone-mockup {
-        width: 180px;
-    }
-    .p-left { transform: translateX(-80px) translateY(20px) rotate(-5deg); }
-    .p-right { transform: translateX(80px) translateY(20px) rotate(5deg); }
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FunPay Tools - Расширение для Chrome и Android приложение для FunPay</title>
+    <meta name="description" content="Расширение для FunPay и Android приложение. Автоматизация продаж, ИИ-ассистент, автоподнятие лотов, уведомления. Бесплатно для продавцов FunPay.">
+    <meta name="keywords" content="funpay, funpay tools, расширение для funpay, funpay расширение, funpay android, автоматизация funpay, funpay бот, funpay помощник, фанпей расширение, фп расширение, фанпей на телефон, фанпей андроид, funpay андроид, funpay android">
     
-    .hero-actions, .cta-buttons-row {
-        flex-direction: column;
-        width: 100%;
+    <meta name="google-site-verification" content="5-TUM46ELtzF7u0zHVpV5-on_Gkevmj7yrIrnHqDXi4" />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" as="style">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="preload" href="https://fonts.googleapis.com/icon?family=Material+Icons" as="style">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="logo.svg" type="image/svg+xml">
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "FunPay Tools",
+      "applicationCategory": "BrowserExtension",
+      "operatingSystem": "Chrome, Android",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "RUB"
+      },
+      "description": "Расширение для FunPay: с автоматизацией продаж, ИИ-ассистентом и уведомлениями",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "170"
+      }
     }
-    .btn { width: 100%; }
-    .header-buttons { display: none; } /* Скрываем кнопки в шапке на совсем малых экранах */
-}
+    </script>
+
+    <style>
+        .footer-github-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            flex-wrap: wrap;
+        }
+        .github-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ccc;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+        .github-link:hover {
+            color: #fff;
+        }
+        .github-link svg {
+            fill: currentColor;
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="preloader">
+        <div class="preloader-logo">
+            <img src="logo.svg" alt="FunPay Tools Логотип" width="80" height="80">
+        </div>
+    </div>
+
+    <header class="site-header">
+        <div class="container">
+            <nav class="main-nav">
+                <a href="#" class="logo">
+                    <img src="logo.svg" alt="FunPay Tools" width="32" height="32">
+                    <span>FunPay Tools</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a href="#showcase">Расширение</a></li>
+                    <li><a href="#android">Android</a></li>
+                    <li><a href="#why">Преимущества</a></li>
+                    <li><a href="https://t.me/FPTools" target="_blank" rel="noopener">Сообщество</a></li>
+                </ul>
+                <div class="header-buttons">
+                     <a href="https://chromewebstore.google.com/detail/funpay-tools/pibmnjjfpojnakckilflcboodkndkibb" target="_blank" rel="noopener" class="btn btn-sm">Chrome</a>
+                     <a href="#android" class="btn btn-primary btn-sm android-download-btn">APK</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-bg-parallax"></div>
+            <div class="hero-vignette"></div>
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-badge">🚀 ОБНОВЛЕНИЕ 1.1 ANDROID</div>
+                    <h1>Расширение для FunPay. <span>Везде.</span></h1>
+                    <p class="hero-subtitle">
+                        Мощное расширение для FunPay и Android приложение. ИИ-ассистент, автоподнятие лотов, уведомления и полная автоматизация продаж на FunPay.
+                    </p>
+                    
+                    <div class="hero-actions">
+                        <a href="https://chromewebstore.google.com/detail/funpay-tools/pibmnjjfpojnakckilflcboodkndkibb" target="_blank" rel="noopener" class="btn btn-primary btn-large">
+                            <span class="material-icons">laptop_chromebook</span>
+                            Расширение для Chrome
+                        </a>
+                        <a href="#android" class="btn btn-outline btn-large">
+                            <span class="material-icons">android</span>
+                            Приложение для Android
+                        </a>
+                    </div>
+                    
+                    <span class="hero-cta-note">Бесплатно, безопасно, Open Source.</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="showcase" class="showcase-section">
+            <div class="container">
+                <h2 class="section-title">Расширение FunPay Tools: <span>Все под контролем</span></h2>
+                <div class="showcase-grid" id="showcase-grid-container">
+                </div>
+            </div>
+        </section>
+
+        <section id="android" class="android-section">
+            <div class="container">
+                <div class="android-header">
+                    <h2 class="section-title">FunPay Tools <span>Android 1.1</span></h2>
+                    <p class="section-subtitle">Приложение для управления FunPay с телефона. Полноценный чат и автоматизация.</p>
+                </div>
+
+                <div class="android-content-wrapper">
+                    <div class="android-text">
+                        <div class="feature-block">
+                            <div class="fb-icon"><span class="material-icons">chat</span></div>
+                            <div class="fb-content">
+                                <h3>Полноценный Чат и ИИ для FunPay</h3>
+                                <p>100% переписки с клиентами и <b>ИИ-Ассистент</b>, который превратит "ку" в вежливое приветствие одним кликом</p>
+                            </div>
+                        </div>
+
+                        <div class="feature-block">
+                            <div class="fb-icon"><span class="material-icons">notifications_active</span></div>
+                            <div class="fb-content">
+                                <h3>Уведомления FunPay на Android</h3>
+                                <p>Push-уведомления с фирменным звуком. Быстрый ответ клиенту прямо из шторки уведомлений.</p>
+                            </div>
+                        </div>
+
+                        <div class="feature-block">
+                            <div class="fb-icon"><span class="material-icons">update</span></div>
+                            <div class="fb-content">
+                                <h3>Автоподнятие лотов FunPay</h3>
+                                <p>Приложение работает в фоне. Ваши лоты всегда наверху, а статус — "Онлайн".</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-block">
+                            <div class="fb-icon"><span class="material-icons">question_answer</span></div>
+                            <div class="fb-content">
+                                <h3>Автоответчик для FunPay</h3>
+                                <p>Настройка триггеров на команды и мгновенные ответы на новые отзывы покупателей.</p>
+                            </div>
+                        </div>
+
+                        <div class="android-cta">
+                            <a href="#" class="btn btn-primary btn-large android-download-btn">
+                                <span class="material-icons">download</span>
+                                Скачать APK
+                            </a>
+                            <span class="version-info">Загрузка версии...</span>
+                        </div>
+                    </div>
+
+                    <div class="android-visuals">
+                        <div class="phone-mockup p-left">
+                            <img src="https://github.com/user-attachments/assets/0a1fe869-0469-44b9-913c-025fd385fc94" alt="Список чатов FunPay" width="260" height="auto" loading="lazy">
+                        </div>
+                        <div class="phone-mockup p-center">
+                            <img src="https://github.com/user-attachments/assets/f83eb595-48c1-4f64-8ea8-90ebc79a74eb" alt="Функции приложения" width="260" height="auto" loading="lazy">
+                        </div>
+                        <div class="phone-mockup p-right">
+                            <img src="https://github.com/user-attachments/assets/3d099638-c2c1-40d2-abfa-de945137ae97" alt="Консоль управления" width="260" height="auto" loading="lazy">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="why" class="why-section">
+            <div class="container">
+                <h2 class="section-title">Почему <span>расширение FunPay Tools?</span></h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="material-icons">devices</span>
+                        <div class="stat-number" data-target="2">0</div>
+                        <div class="stat-label">Платформы (Расширение + Android)</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="material-icons">bolt</span>
+                        <div class="stat-number" data-target="100">0</div>
+                        <div class="stat-label">% Автоматизация FunPay</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="material-icons">savings</span>
+                        <div class="stat-number" data-target="0">0</div>
+                        <div class="stat-label">Рублей стоимость</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-section">
+            <div class="container">
+                <h2>Начните продавать на FunPay эффективнее</h2>
+                <p>Выбирайте расширение для Chrome или приложение для Android и выходите на новый уровень.</p>
+                <div class="cta-buttons-row">
+                    <a href="https://chromewebstore.google.com/detail/funpay-tools/pibmnjjfpojnakckilflcboodkndkibb" target="_blank" rel="noopener" class="btn btn-primary">
+                        <span class="material-icons">laptop</span> Расширение Chrome
+                    </a>
+                    <a href="#android" class="btn btn-outline android-download-btn">
+                        <span class="material-icons">android</span> Android APK
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; 2025 FunPay Tools. Расширение для FunPay разработано с ❤️ AlliSighs.</p>
+            <p class="disclaimer">Неофициальное расширение для FunPay. FunPay Tools не связан с администрацией FunPay.</p>
+            
+            <div class="footer-github-links">
+                <a href="https://github.com/XaviersDev/FunPay-Tools" target="_blank" rel="noopener" class="github-link">
+                    <svg viewBox="0 0 16 16" aria-label="GitHub расширение">
+                        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                    </svg>
+                    GitHub - Расширение
+                </a>
+                
+                <a href="https://github.com/XaviersDev/FunPay-Tools-Android" target="_blank" rel="noopener" class="github-link">
+                    <svg viewBox="0 0 16 16" aria-label="GitHub приложение">
+                        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                    </svg>
+                    GitHub - Приложение
+                </a>
+            </div>
+            
+        </div>
+    </footer>
+
+    <script src="script.js" defer></script>
+</body>
+</html>

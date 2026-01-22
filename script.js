@@ -1,7 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 1. Внедряем новые стили для шоукейса с иконками ---
-    // Это позволяет нам менять только JS-файл, как вы и просили.
     function injectShowcaseStyles() {
         const style = document.createElement('style');
         style.textContent = `
@@ -15,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 transform: translateY(0);
             }
             .showcase-image {
-                perspective: none; /* Убираем 3D-эффект, он не нужен для иконок */
+                perspective: none;
             }
             .showcase-icon-container {
                 display: flex;
@@ -26,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 min-height: 300px;
             }
             .showcase-icon-container .material-icons {
-                font-size: 140px; /* Делаем иконки ОЧЕНЬ большими */
+                font-size: 140px;
                 background: var(--accent-gradient);
                 -webkit-background-clip: text;
                 background-clip: text;
@@ -37,7 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
             .showcase-item:hover .showcase-icon-container .material-icons {
                 transform: scale(1.1) rotate(-8deg);
             }
-            /* Меняем порядок для четных элементов, чтобы текст был справа */
             .showcase-item:nth-child(even) .showcase-text {
                 grid-column: 2;
             }
@@ -45,10 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.head.appendChild(style);
     }
 
-    // --- 2. Заменяем данные о скриншотах на данные об иконках ---
     function getShowcaseData() {
-        // Здесь мы просто возвращаем массив данных. Никаких запросов к серверу.
-        // Вы можете легко поменять иконки, заголовки и описания здесь.
         return [
             {
                 icon: 'auto_awesome',
@@ -57,12 +51,12 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             {
                 icon: 'palette',
-                title: 'Полная кастомизация интерфейса',
+                title: 'Полная кастомизация интерфейса FunPay',
                 description: 'Измените FunPay до неузнаваемости. Настройте анимированные фоны, цвета, шрифты, и даже расположение элементов, создав уникальное рабочее пространство.'
             },
             {
                 icon: 'monitoring',
-                title: 'Глубокая аналитика продаж',
+                title: 'Глубокая аналитика продаж на FunPay',
                 description: 'Получайте полную картину вашего бизнеса. Анализируйте доход, средний чек, количество заказов и самых активных покупателей за любой выбранный период.'
             },
             {
@@ -73,16 +67,14 @@ document.addEventListener('DOMContentLoaded', () => {
         ];
     }
     
-    // --- 3. Строим HTML для шоукейса на основе новых данных ---
     const showcaseGrid = document.getElementById('showcase-grid-container');
     if (showcaseGrid) {
         const itemsData = getShowcaseData();
-        showcaseGrid.innerHTML = ''; // Очищаем контейнер
+        showcaseGrid.innerHTML = '';
         
         itemsData.forEach(itemData => {
             const item = document.createElement('div');
             item.className = 'showcase-item';
-            // Создаем HTML с иконкой вместо изображения
             item.innerHTML = `
                 <div class="showcase-text">
                     <h3>${itemData.title}</h3>
@@ -95,24 +87,29 @@ document.addEventListener('DOMContentLoaded', () => {
             showcaseGrid.appendChild(item);
         });
     }
-
-    // --- Весь остальной код остается прежним ---
     
-    injectShowcaseStyles(); // Вызываем нашу новую функцию для стилей
+    injectShowcaseStyles();
 
     const preloader = document.getElementById('preloader');
-    window.addEventListener('load', () => {
+    setTimeout(() => {
         preloader.classList.add('hidden');
         document.body.classList.add('loaded');
-    });
+    }, 100);
 
     const parallaxBg = document.querySelector('.hero-bg-parallax');
+    let ticking = false;
     window.addEventListener('scroll', () => {
-        const offset = window.pageYOffset;
-        if (parallaxBg) {
-            parallaxBg.style.transform = `translateY(${offset * 0.3}px)`;
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                const offset = window.pageYOffset;
+                if (parallaxBg) {
+                    parallaxBg.style.transform = `translateY(${offset * 0.3}px)`;
+                }
+                ticking = false;
+            });
+            ticking = true;
         }
-    });
+    }, { passive: true });
 
     function animateValue(element, start, end, duration) {
         let startTimestamp = null;
@@ -155,4 +152,34 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.hero-content, .section-title, .stats-grid, .cta-section, .showcase-item').forEach(section => {
         observer.observe(section);
     });
+
+    const repo = 'XaviersDev/FunPay-Tools-Android';
+    const apiUrl = `https://api.github.com/repos/${repo}/releases/latest`;
+    
+    setTimeout(() => {
+        fetch(apiUrl)
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                const apkAsset = data.assets.find(asset => asset.name.endsWith('.apk'));
+                
+                if (apkAsset) {
+                    const downloadUrl = apkAsset.browser_download_url;
+                    document.querySelectorAll('.android-download-btn').forEach(btn => {
+                        btn.href = downloadUrl;
+                    });
+                }
+                
+                const versionInfo = document.querySelector('.version-info');
+                if (versionInfo) {
+                    const version = data.tag_name.replace('v', '');
+                    versionInfo.textContent = `Версия ${version} • Android 8.0+`;
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching latest release:', error);
+            });
+    }, 500);
 });

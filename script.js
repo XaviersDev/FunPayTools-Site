@@ -1,186 +1,230 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    function injectShowcaseStyles() {
-        const style = document.createElement('style');
-        style.textContent = `
-            .showcase-item {
-                opacity: 0;
-                transform: translateY(40px);
-                transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-            }
-            .visible {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            .showcase-image {
-                perspective: none;
-            }
-            .showcase-icon-container {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                background: linear-gradient(145deg, rgba(30, 36, 45, 0.5), rgba(22, 27, 34, 0.5));
-                border-radius: 24px;
-                min-height: 300px;
-            }
-            .showcase-icon-container .material-icons {
-                font-size: 140px;
-                background: var(--accent-gradient);
-                -webkit-background-clip: text;
-                background-clip: text;
-                color: transparent;
-                text-shadow: 0 0 40px rgba(107, 102, 255, 0.4);
-                transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-            }
-            .showcase-item:hover .showcase-icon-container .material-icons {
-                transform: scale(1.1) rotate(-8deg);
-            }
-            .showcase-item:nth-child(even) .showcase-text {
-                grid-column: 2;
-            }
-        `;
-        document.head.appendChild(style);
-    }
-
-    function getShowcaseData() {
-        return [
-            {
-                icon: 'auto_awesome',
-                title: 'Магия Искусственного Интеллекта',
-                description: 'Превращайте короткие заметки в профессиональные ответы. ИИ анализирует контекст диалога для создания идеального сообщения, экономя ваше время и нервы.'
-            },
-            {
-                icon: 'palette',
-                title: 'Полная кастомизация интерфейса FunPay',
-                description: 'Измените FunPay до неузнаваемости. Настройте анимированные фоны, цвета, шрифты, и даже расположение элементов, создав уникальное рабочее пространство.'
-            },
-            {
-                icon: 'analytics',
-                title: 'Глубокая аналитика продаж на FunPay',
-                description: 'Получайте полную картину вашего бизнеса. Анализируйте доход, средний чек, количество заказов и самых активных покупателей за любой выбранный период.'
-            },
-            {
-                icon: 'rocket_launch',
-                title: 'Автоматизация рутины',
-                description: 'Экономьте часы времени с помощью авто-поднятия, авто-приветствий, массового управления ценами и уведомлений в Discord.'
-            }
-        ];
-    }
-    
-    const showcaseGrid = document.getElementById('showcase-grid-container');
-    if (showcaseGrid) {
-        const itemsData = getShowcaseData();
-        showcaseGrid.innerHTML = '';
-        
-        itemsData.forEach(itemData => {
-            const item = document.createElement('div');
-            item.className = 'showcase-item';
-            item.innerHTML = `
-                <div class="showcase-text">
-                    <h3>${itemData.title}</h3>
-                    <p>${itemData.description}</p>
-                </div>
-                <div class="showcase-image showcase-icon-container">
-                    <span class="material-icons">${itemData.icon}</span>
-                </div>
-            `;
-            showcaseGrid.appendChild(item);
-        });
-    }
-    
-    injectShowcaseStyles();
-
+    // ─── PRELOADER ─────────────────────────────────────────────────
     const preloader = document.getElementById('preloader');
     setTimeout(() => {
         preloader.classList.add('hidden');
         document.body.classList.add('loaded');
-    }, 100);
+    }, 900);
 
-    const parallaxBg = document.querySelector('.hero-bg-parallax');
-    let ticking = false;
-    window.addEventListener('scroll', () => {
-        if (!ticking) {
-            window.requestAnimationFrame(() => {
-                const offset = window.pageYOffset;
-                if (parallaxBg) {
-                    parallaxBg.style.transform = `translateY(${offset * 0.3}px)`;
-                }
-                ticking = false;
-            });
-            ticking = true;
+    // ─── HERO CANVAS (particle field) ──────────────────────────────
+    const canvas = document.getElementById('hero-canvas');
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let W, H;
+
+        function resize() {
+            W = canvas.width = canvas.offsetWidth;
+            H = canvas.height = canvas.offsetHeight;
         }
-    }, { passive: true });
+        resize();
+        window.addEventListener('resize', resize);
 
-    function animateValue(element, start, end, duration) {
-        let startTimestamp = null;
-        const step = (timestamp) => {
-            if (!startTimestamp) startTimestamp = timestamp;
-            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-            let value = Math.floor(progress * (end - start) + start);
-            element.innerHTML = value.toLocaleString() + (element.dataset.target.includes('%') ? '%' : '+');
-            if (progress < 1) {
-                window.requestAnimationFrame(step);
+        function Particle() {
+            this.reset = function () {
+                this.x = Math.random() * W;
+                this.y = Math.random() * H;
+                this.r = Math.random() * 1.5 + 0.3;
+                this.alpha = Math.random() * 0.4 + 0.1;
+                this.vx = (Math.random() - 0.5) * 0.3;
+                this.vy = (Math.random() - 0.5) * 0.3;
+            };
+            this.reset();
+        }
+
+        for (let i = 0; i < 120; i++) particles.push(new Particle());
+
+        function drawParticles() {
+            ctx.clearRect(0, 0, W, H);
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                if (p.x < 0 || p.x > W || p.y < 0 || p.y > H) p.reset();
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(139,92,246,${p.alpha})`;
+                ctx.fill();
+            });
+
+            // draw connecting lines
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 90) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(139,92,246,${0.08 * (1 - dist / 90)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
             }
-        };
-        window.requestAnimationFrame(step);
+
+            requestAnimationFrame(drawParticles);
+        }
+        drawParticles();
     }
 
-    const statsObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const counter = entry.target;
-                const targetValue = parseInt(counter.dataset.target, 10);
-                animateValue(counter, 0, targetValue, 1500);
-                statsObserver.unobserve(counter);
-            }
-        });
-    }, { threshold: 0.8 });
+    // ─── HEADER SCROLL ─────────────────────────────────────────────
+    const header = document.getElementById('site-header');
+    window.addEventListener('scroll', () => {
+        header.classList.toggle('scrolled', window.scrollY > 40);
+    }, { passive: true });
 
-    document.querySelectorAll('.stat-number').forEach(counter => {
-        statsObserver.observe(counter);
+    // ─── BURGER MENU ───────────────────────────────────────────────
+    const burger = document.getElementById('burger');
+    const mobileMenu = document.getElementById('mobile-menu');
+    burger && burger.addEventListener('click', () => {
+        mobileMenu.classList.toggle('open');
+        burger.classList.toggle('open');
+    });
+    mobileMenu && mobileMenu.querySelectorAll('a').forEach(a => {
+        a.addEventListener('click', () => {
+            mobileMenu.classList.remove('open');
+            burger.classList.remove('open');
+        });
     });
 
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-                observer.unobserve(entry.target);
+    // ─── REVEAL ON SCROLL ──────────────────────────────────────────
+    const revealEls = document.querySelectorAll('.reveal, .reveal-delay');
+    const revealObs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                e.target.classList.add('visible');
+                revealObs.unobserve(e.target);
             }
         });
-    }, { threshold: 0.1 });
+    }, { threshold: 0.08 });
+    revealEls.forEach(el => revealObs.observe(el));
 
-    document.querySelectorAll('.hero-content, .section-title, .stats-grid, .cta-section, .showcase-item').forEach(section => {
-        observer.observe(section);
+    // ─── STAT COUNTERS ─────────────────────────────────────────────
+    function animateNum(el, target, duration = 1400) {
+        const start = performance.now();
+        const update = (now) => {
+            const progress = Math.min((now - start) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            el.textContent = Math.floor(eased * target);
+            if (progress < 1) requestAnimationFrame(update);
+            else el.textContent = target;
+        };
+        requestAnimationFrame(update);
+    }
+
+    const statObs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                const target = parseInt(e.target.dataset.target, 10);
+                animateNum(e.target, target);
+                statObs.unobserve(e.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.stat-num').forEach(el => statObs.observe(el));
+
+    // ─── ANDROID TABS ──────────────────────────────────────────────
+    const atabs = document.querySelectorAll('.atab');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+    atabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            atabs.forEach(t => t.classList.remove('active'));
+            tabPanes.forEach(p => p.classList.remove('active'));
+            tab.classList.add('active');
+            const target = document.getElementById('tab-' + tab.dataset.tab);
+            if (target) target.classList.add('active');
+        });
     });
 
-    const repo = 'XaviersDev/FunPay-Tools-Android';
-    const apiUrl = `https://api.github.com/repos/${repo}/releases/latest`;
-    
+    // ─── FEATURES TABS ─────────────────────────────────────────────
+    const ftabs = document.querySelectorAll('.ftab');
+    const fpanes = document.querySelectorAll('.fpane');
+    ftabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            ftabs.forEach(t => t.classList.remove('active'));
+            fpanes.forEach(p => p.classList.remove('active'));
+            tab.classList.add('active');
+            const target = document.getElementById('fpane-' + tab.dataset.ftab);
+            if (target) target.classList.add('active');
+        });
+    });
+
+    // ─── FAQ ACCORDION ─────────────────────────────────────────────
+    document.querySelectorAll('.faq-item').forEach(item => {
+        const btn = item.querySelector('.faq-q');
+        btn && btn.addEventListener('click', () => {
+            const isOpen = item.classList.contains('open');
+            document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+            if (!isOpen) item.classList.add('open');
+        });
+    });
+
+    // ─── FETCH LATEST RELEASE FROM GITHUB ──────────────────────────
+    const REPO = 'XaviersDev/FunPay-Tools-Android';
     setTimeout(() => {
-        fetch(apiUrl)
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.json();
-            })
+        fetch(`https://api.github.com/repos/${REPO}/releases/latest`)
+            .then(r => { if (!r.ok) throw new Error(); return r.json(); })
             .then(data => {
-                const apkAsset = data.assets.find(asset => asset.name.endsWith('.apk'));
-                
-                if (apkAsset) {
-                    const downloadUrl = apkAsset.browser_download_url;
+                const apk = data.assets.find(a => a.name.endsWith('.apk'));
+                const version = data.tag_name || 'v1.2';
+
+                if (apk) {
                     document.querySelectorAll('.android-download-btn').forEach(btn => {
-                        btn.href = downloadUrl;
+                        btn.href = apk.browser_download_url;
+                    });
+                } else {
+                    // fallback to releases page
+                    document.querySelectorAll('.android-download-btn').forEach(btn => {
+                        btn.href = `https://github.com/${REPO}/releases/latest`;
                     });
                 }
-                
-                const versionInfo = document.querySelector('.version-info');
-                if (versionInfo) {
-                    const version = data.tag_name.replace('v', '');
-                    versionInfo.textContent = `Версия ${version} • Android 8.0+`;
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching latest release:', error);
-            });
-    }, 500);
-});
 
+                // update hero badge
+                const heroBadge = document.querySelector('.badge-new');
+                if (heroBadge) heroBadge.textContent = `🔥 Новинка ${version}`;
+
+                // update version badge in download block
+                const vb = document.querySelector('.version-badge');
+                if (vb) vb.textContent = version;
+            })
+            .catch(() => {
+                document.querySelectorAll('.android-download-btn').forEach(btn => {
+                    if (btn.getAttribute('href') === '#') {
+                        btn.href = `https://github.com/${REPO}/releases/latest`;
+                    }
+                });
+            });
+    }, 600);
+
+    // ─── ACTIVE NAV LINK ON SCROLL ─────────────────────────────────
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const navObs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                navLinks.forEach(link => {
+                    link.classList.toggle('active',
+                        link.getAttribute('href') === '#' + e.target.id
+                    );
+                });
+            }
+        });
+    }, { threshold: 0.35 });
+    sections.forEach(s => navObs.observe(s));
+
+    // ─── SMOOTH MOBILE MENU LINK SCROLL ───────────────────────────
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+            const id = a.getAttribute('href');
+            if (id === '#') return;
+            const target = document.querySelector(id);
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+
+});

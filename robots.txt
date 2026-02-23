@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://funpaytools.vercel.app/sitemap.xml
+Sitemap: https://funpay.tools/sitemap.xml

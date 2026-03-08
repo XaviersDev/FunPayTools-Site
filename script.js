@@ -2,10 +2,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ─── PRELOADER ─────────────────────────────────────────────────
     const preloader = document.getElementById('preloader');
-    setTimeout(() => {
-        preloader.classList.add('hidden');
+    if (preloader) {
+        setTimeout(() => {
+            preloader.classList.add('hidden');
+            document.body.classList.add('loaded');
+        }, 900);
+    } else {
         document.body.classList.add('loaded');
-    }, 900);
+    }
 
     // ─── HERO CANVAS (particle field) ──────────────────────────────
     const canvas = document.getElementById('hero-canvas');

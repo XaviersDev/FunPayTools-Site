@@ -1,0 +1,23 @@
+{
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "www.funpay.tools" }],
+      "destination": "https://funpay.tools/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "funpay-extension.vercel.app" }],
+      "destination": "https://funpay.tools/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "funpay-chrome-extension.vercel.app" }],
+      "destination": "https://funpay.tools/$1",
+      "permanent": true
+    }
+  ],
+  "trailingSlash": false
+}

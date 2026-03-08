@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FP Tools — расширение для Chrome на FunPay | 100+ инструментов | Бесплатно</title>
+    <meta name="description" content="FP Tools — бесплатное расширение для Chrome. ИИ-ассистент, генератор лотов, аналитика продаж, кастомизация FunPay, авто-поднятие, автоответчик. Установить бесплатно.">
+    <meta name="keywords" content="fp tools, fp tools расширение, funpay tools chrome, расширение для funpay, funpay extension, фп тулс хром, funpay tools установить, funpay chrome расширение">
+    <link rel="canonical" href="https://funpay.tools/extension">
+    <meta property="og:title" content="FP Tools — расширение для Chrome на FunPay | Бесплатно">
+    <meta property="og:url" content="https://funpay.tools/extension">
+    <meta property="og:type" content="website">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;900&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+    <link rel="icon" href="../logo.svg" type="image/svg+xml">
+    <style>
+        .page-hero { padding: 120px 0 64px; text-align: center; }
+        .page-hero h1 { font-family: var(--font-head); font-size: clamp(1.8rem, 4.5vw, 3.2rem); font-weight: 900; line-height: 1.15; margin-bottom: 18px; }
+        .page-hero .hero-sub { font-size: 1.05rem; color: var(--text2); max-width: 640px; margin: 0 auto 32px; line-height: 1.7; }
+        .page-hero .hero-cta { justify-content: center; }
+        .page-hero .hero-note { margin-top: 14px; }
+        .breadcrumb { font-size: .82rem; color: var(--text3); margin-bottom: 20px; }
+        .breadcrumb a { color: var(--text3); text-decoration: none; }
+        .breadcrumb a:hover { color: var(--text); }
+        .breadcrumb span { margin: 0 6px; opacity: .5; }
+        .install-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 18px; margin-top: 40px; }
+        .install-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px; text-align: center; }
+        .install-num { width: 44px; height: 44px; border-radius: 50%; background: var(--grad); color: #fff; font-family: var(--font-head); font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; }
+        .install-card h3 { font-size: .93rem; margin-bottom: 6px; }
+        .install-card p { font-size: .84rem; color: var(--text2); line-height: 1.55; }
+        .new-b { display: inline-block; font-size: .65rem; background: rgba(249,115,22,.18); color: #fb923c; border-radius: 6px; padding: 1px 6px; margin-left: 5px; vertical-align: middle; font-weight: 600; }
+        .cmp-section { padding: 100px 0; background: var(--bg2); border-top: 1px solid var(--border); }
+        .cmp-wrap { overflow-x: auto; margin-top: 40px; border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+        .cmp-table { width: 100%; border-collapse: collapse; background: var(--bg2); font-size: .9rem; }
+        .cmp-table th { padding: 18px 16px; border-bottom: 1px solid var(--border); font-weight: 700; }
+        .cmp-table th:first-child { text-align: left; color: var(--text2); font-weight: 500; width: 44%; padding-left: 20px; }
+        .cmp-table th.th-chrome { background: rgba(66,133,244,.06); min-width: 130px; text-align: center; }
+        .cmp-table th.th-android { background: rgba(139,92,246,.08); min-width: 130px; text-align: center; }
+        .th-inner { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .th-inner .material-icons-round { font-size: 20px; }
+        .th-tag { font-size: .68rem; border-radius: 10px; padding: 2px 8px; margin-top: 2px; }
+        .cmp-table tbody tr { border-bottom: 1px solid rgba(255,255,255,.04); }
+        .cmp-table tbody tr:nth-child(even) { background: rgba(255,255,255,.012); }
+        .cmp-table tbody tr:last-child { border-bottom: none; }
+        .cmp-table td { padding: 12px 16px; }
+        .cmp-table td:first-child { color: var(--text2); font-size: .87rem; padding-left: 20px; }
+        .cmp-table td.tc { text-align: center; background: rgba(66,133,244,.03); }
+        .cmp-table td.ta { text-align: center; background: rgba(139,92,246,.04); }
+        .cv-y { color: var(--accent-green); font-size: 1.15rem; font-weight: 700; }
+        .cv-n { color: rgba(255,255,255,.22); font-size: 1.15rem; }
+        .cv-p { color: #f59e0b; font-size: .82rem; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<header class="site-header" id="site-header">
+    <div class="container">
+        <nav class="main-nav">
+            <a href="/" class="logo">
+                <img src="../logo.svg" alt="FunPay Tools" width="30" height="30">
+                <span>FunPay<b> Tools</b></span>
+            </a>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="/android" class="nav-link">Android</a></li>
+                <li><a href="/extension" class="nav-link active">Chrome</a></li>
+                <li><a href="/#bot" class="nav-link">Telegram Bot</a></li>
+                <li><a href="/#faq" class="nav-link">FAQ</a></li>
+                <li><a href="https://t.me/fptools" target="_blank" rel="noopener" class="nav-link">Сообщество</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="https://t.me/fptoolsbot" target="_blank" rel="noopener" class="btn btn-ghost btn-sm">
+                    <span class="material-icons-round">smart_toy</span> Бот
+                </a>
+                <a href="https://chromewebstore.google.com/detail/funpay-tools/pibmnjjfpojnakckilflcboodkndkibb" target="_blank" rel="noopener" class="btn btn-primary btn-sm">
+                    <span class="material-icons-round">extension</span> Установить
+                </a>
+                <button class="burger" id="burger" aria-label="Меню"><span></span><span></span><span></span></button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="mobile-menu" id="mobile-menu">
+    <ul>
+        <li><a href="/android">📱 Android App</a></li>
+        <li><a href="/extension">🌐 Chrome расширение</a></li>
+        <li><a href="/#bot">🤖 Telegram Bot</a></li>
+        <li><a href="/#faq">❓ FAQ</a></li>
+        <li><a href="https://t.me/fptools" target="_blank">💬 Сообщество</a></li>
+    </ul>
+    <div class="mobile-menu-cta">
+        <a href="https://chromewebstore.google.com/detail/funpay-tools/pibmnjjfpojnakckilflcboodkndkibb" target="_blank" class="btn btn-primary">Установить расширение</a>
+    </div>
+</div>
+
+<main>
+
+    <!-- HERO -->
+    <section class="page-hero">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="/">FunPay Tools</a><span>›</span>Расширение Chrome
+            </div>
+            <div class="hero-badge-row" style="justify-content:center">
+                <span class="badge badge-free">Бесплатно</span>
+                <span class="badge badge-open">Open Source</span>
+                <span class="badge badge-new">🔥 v2.7</span>
+            </div>
+            <h1><span class="gradient-text">FP Tools</span> — расширение для Chrome на FunPay</h1>
+            <p class="hero-sub">100+ инструментов: ИИ-ассистент, генератор лотов, кастомизация FunPay, аналитика продаж, автоответчик, уведомления в Discord. Всё в одном расширении — бесплатно.</p>
+            <div class="hero-cta">
+                <a href="https://chromewebstore.google.com/detail/funpay-tools/pibmnjjfpojnakckilflcboodkndkibb" target="_blank" rel="noopener" class="btn btn-primary btn-xl">
+                    <span class="material-icons-round">extension</span>
+                    Установить в Chrome — бесплатно
+                </a>
+                <a href="https://github.com/XaviersDev/FunPay-Tools" target="_blank" rel="noopener" class="btn btn-ghost btn-xl">
+                    <span class="material-icons-round">code</span>
+                    GitHub
+                </a>
+            </div>
+            <p class="hero-note">Chrome · Yandex · Edge · Opera · Brave &nbsp;|&nbsp; Устанавливается в 1 клик</p>
+        </div>
+    </section>
+
+    <!-- КАК УСТАНОВИТЬ -->
+    <section style="padding:0 0 80px">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="label-tag">🔧 Установка</div>
+                <h2 class="section-title">Как установить <span class="gradient-text">FP Tools</span></h2>
+            </div>
+            <div class="install-grid reveal">
+                <div class="install-card">
+                    <div class="install-num">1</div>
+                    <h3>Открой Chrome Web Store</h3>
+                    <p>Нажми «Установить в Chrome» — откроется страница расширения в магазине</p>
+                </div>
+                <div class="install-card">
+                    <div class="install-num">2</div>
+                    <h3>Добавь расширение</h3>
+                    <p>Нажми «Добавить в Chrome» → «Добавить расширение»</p>
+                </div>
+                <div class="install-card">
+                    <div class="install-num">3</div>
+                    <h3>Открой FunPay</h3>
+                    <p>Перейди на funpay.com — в шапке появится кнопка «FP Tools»</p>
+                </div>
+                <div class="install-card">
+                    <div class="install-num">4</div>
+                    <h3>Настрой под себя</h3>
+                    <p>Нажми «FP Tools» в шапке и включи нужные функции — всё работает сразу</p>
+                </div>
+            </div>
+            <div style="text-align:center;margin-top:32px">
+                <a href="https://chromewebstore.google.com/detail/funpay-tools/pibmnjjfpojnakckilflcboodkndkibb" target="_blank" rel="noopener" class="btn btn-primary btn-xl">
+                    <span class="material-icons-round">extension</span>
+                    Установить FP Tools бесплатно
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ФУНКЦИИ ТАБЫ -->
+    <section class="features-section">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="label-tag">⚡ Функции</div>
+                <h2 class="section-title">Что умеет <span class="gradient-text">FP Tools</span></h2>
+                <p class="section-sub">100+ инструментов — выбери категорию</p>
+            </div>
+            <div class="features-tabs reveal">
+                <button class="ftab active" data-ftab="ai">🤖 ИИ</button>
+                <button class="ftab" data-ftab="auto">🚀 Автоматизация</button>
+                <button class="ftab" data-ftab="lots">📦 Лоты</button>
+                <button class="ftab" data-ftab="ui">🎨 Интерфейс</button>
+                <button class="ftab" data-ftab="analytics">📊 Аналитика</button>
+            </div>
+            <div class="features-content reveal">
+
+                <div class="fpane active" id="fpane-ai">
+                    <div class="feat-cards">
+                        <div class="feat-card">
+                            <span class="material-icons-round">auto_awesome</span>
+                            <h4>ИИ-ассистент в чате</h4>
+                            <p>Напишите черновик — ИИ мгновенно перепишет в профессиональный ответ. Исправляет ошибки, добавляет эмодзи, подстраивает тон под ситуацию.</p>
+                        </div>
+                        <div class="feat-card">
+                            <span class="material-icons-round">inventory_2</span>
+                            <h4>ИИ-генератор лотов</h4>
+                            <p>Опиши идею — ИИ создаст привлекательное название и описание в твоём уникальном стиле, проанализировав другие твои лоты.</p>
+                        </div>
+                        <div class="feat-card">
+                            <span class="material-icons-round">image</span>
+                            <h4>ИИ-генератор изображений</h4>
+                            <p>Напишите текстом что хочешь («огненный значок, текст FIRE SQUAD») — ИИ создаст стильное превью для лота.</p>
+                        </div>
+                        <div class="feat-card">
+                            <span class="material-icons-round">star_rate</span>
+                            <h4>ИИ-ответ на отзывы</h4>
+                            <p>На странице заказа — кнопка генерации вежливого ответа с упоминанием товара покупателя. Одним кликом.</p>
+                        </div>
+                        <div class="feat-card">
+                            <span class="material-icons-round">translate</span>
+                            <h4>ИИ-переводчик</h4>
+                            <p>Встроенный переводчик названий, описаний и сообщений. Быстрый перевод лота на английский в один клик.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="fpane" id="fpane-auto">
+                    <div class="feat-cards">
+                        <div class="feat-card">
+                            <span class="material-icons-round">update</span>
+                            <h4>Авто-поднятие лотов</h4>
+                            <p>Автоматически поднимает предложения по таймеру. Выбери конкретные категории или только лоты с автовыдачей.</p>
+                        </div>
+                        <div class="feat-card">
+                            <span class="material-icons-round">waving_hand</span>
+                            <h4>Авто-приветствие <span class="new-b">2.6</span></h4>
+                            <p>Автоматически отправляет приветствие покупателям, которые пишут впервые. С Anti-Spam кулдауном.</p>
+                        </div>
+                        <div class="feat-card">
+                            <span class="material-icons-round">reply</span>
+                            <h4>Ответы на команды <span class="new-b">2.6</span></h4>
+                            <p>Настрой ключевые слова («!реквизиты», «/цена») — расширение мгновенно ответит нужным текстом.</p>
+                        </div>
+                        <div class="feat-card">
+                            <span class="material-icons-round">rate_review</span>
+                            <h4>Авто-ответ на отзывы <span class="new-b">2.6</span></h4>
+                            <p>Разные шаблоны для оценок 1–5 звёзд. Расширение отвечает само сразу после получения отзыва.</p>
+                        </div>
+                        <div class="feat-card">
+                            <span class="material-icons-round">celebration</span>
+                            <h4>Бонус за 5★ <span class="new-b">2.7</span></h4>
+                            <p>Автоматически отправляет бонус (текст, промокод или картинку) за пятизвёздочный отзыв покупателя.</p>
+                        </div>
+                        <div class="feat-card">
+                            <span class="material-icons-round">discord</span>
+                            <h4>Уведомления в Discord</h4>
+                            <p>Webhook-интеграция: новые сообщения и заказы приходят в твой Discord-канал. С поддержкой пинга @everyone.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="fpane" id="fpane-lots">
+                    <div class="feat-cards">
+                        <div class="feat-card">
+                            <span class="material-icons-round">import_export</span>
+                            <h4>Экспорт и импорт лотов</h4>
+                            <p>Полные резервные копии всех лотов в один файл. Перенос между аккаунтами, восстановление после удаления.</p>
+                        </div>
+                        <div class="feat-card">
+                            <span class="material-icons-round">content_copy</span>
+                            <h4>Копирование любого лота <span class="new-b">2.7</span></h4>
+                            <p>На странице любого, даже чужого лота — кнопка «Скопировать». Данные вставятся при создании своего.</p>
+                        </div>
+                        <div class="feat-card">
+                            <span class="material-icons-round">select_all</span>
+                            <h4>Массовое управление</h4>
+                            <p>Выделяй, удаляй, дублируй, включай и редактируй цены пачками. Выбор всей категории одним кликом.</p>
+                        </div>
+                        <div class="feat-card">
+                            <span class="material-icons-round">difference</span>
+                            <h4>Продвинутое клонирование</h4>
+                            <p>Копируй лот сразу в несколько категорий — десятки вариаций за раз для разных серверов и регионов.</p>
+                        </div>
+                        <div class="feat-card">
+                            <span class="material-icons-round">push_pin</span>
+                            <h4>Закрепление лотов</h4>
+                            <p>Закрепляй важные предложения вверху страницы профиля для привлечения внимания покупателей.</p>
+                        </div>
+                        <div class="feat-card">
+                            <span class="material-icons-round">swap_horiz</span>
+                            <h4>Конвертер Cardinal</h4>
+                            <p>Переносишь лоты с Cardinal? Конвертер преобразует весь бэкап в формат FP Tools за один клик.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="fpane" id="fpane-ui">
+                    <div class="feat-cards">
+                        <div class="feat-card">
+                            <span class="material-icons-round">palette</span>
+                            <h4>Темы и GIF-фоны</h4>
+                            <p>Полный редизайн FunPay. Анимированные GIF-фоны, кастомные цвета, прозрачность, размытие. Каталог тем в Telegram-боте.</p>
+                        </div>
+                        <div class="feat-card">
+                            <span class="material-icons-round">auto_fix_high</span>
+                            <h4>Live Styler — волшебная палочка</h4>
+                            <p>Кликай на любой элемент FunPay и меняй цвет, размер, скрывай блоки в реальном времени. Сохраняй свой дизайн.</p>
+                        </div>
+                        <div class="feat-card">
+                            <span class="material-icons-round">quickreply</span>
+                            <h4>Шаблоны-кнопки в чате</h4>
+                            <p>Заготовки с переменными ({buyername}) и ИИ ({ai:пожелай хорошего дня}). Перемещай, перекрашивай, отключай.</p>
+                        </div>
+                        <div class="feat-card">
+                            <span class="material-icons-round">label</span>
+                            <h4>Метки пользователей</h4>
+                            <p>Создавай метки с уникальными именами и цветами (мошенник, постоянный клиент). Фильтрация чатов по меткам.</p>
+                        </div>
+                        <div class="feat-card">
+                            <span class="material-icons-round">emoji_emotions</span>
+                            <h4>Эффекты курсора и шрифты</h4>
+                            <p>Анимированные частицы (искры, снег). Unicode-шрифты и спецсимволы для оформления лотов.</p>
+                        </div>
+                        <div class="feat-card">
+                            <span class="material-icons-round">people_alt</span>
+                            <h4>Опознаватель «Свой-Чужой» <span class="new-b">2.7</span></h4>
+                            <p>Видишь метку в шапке чата, если собеседник тоже пользуется FP Tools.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="fpane" id="fpane-analytics">
+                    <div class="feat-cards">
+                        <div class="feat-card">
+                            <span class="material-icons-round">analytics</span>
+                            <h4>Статистика продаж</h4>
+                            <p>Подробная аналитика за любой период: доход, средний чек, популярные товары, лучшие покупатели. Графики.</p>
+                        </div>
+                        <div class="feat-card">
+                            <span class="material-icons-round">store</span>
+                            <h4>Аналитика рынка</h4>
+                            <p>Сводка по любой категории: количество лотов, продавцов, средняя цена, число конкурентов онлайн прямо сейчас.</p>
+                        </div>
+                        <div class="feat-card">
+                            <span class="material-icons-round">savings</span>
+                            <h4>Копилки — финансовые цели</h4>
+                            <p>Установи цель (например 50 000 ₽) и отслеживай прогресс. Синхронизируется с балансом, видна в шапке сайта.</p>
+                        </div>
+                        <div class="feat-card">
+                            <span class="material-icons-round">calculate</span>
+                            <h4>Калькулятор комиссий</h4>
+                            <p>Точная цена с учётом комиссии СБП. Видишь сразу, за сколько реально выставлен лот для покупателя.</p>
+                        </div>
+                        <div class="feat-card">
+                            <span class="material-icons-round">sort</span>
+                            <h4>Сортировка по отзывам</h4>
+                            <p>Анализируй конкурентов — сортируй предложения по количеству отзывов у продавцов, не только по цене.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- СРАВНЕНИЕ -->
+    <section class="cmp-section">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2 class="section-title">Chrome vs <span class="gradient-text">Android</span> — что выбрать?</h2>
+                <p class="section-sub">Лучший вариант — использовать оба. Они дополняют друг друга</p>
+            </div>
+            <div class="cmp-wrap reveal">
+                <table class="cmp-table">
+                    <thead>
+                        <tr>
+                            <th>Функция</th>
+                            <th class="th-chrome">
+                                <div class="th-inner">
+                                    <span class="material-icons-round" style="color:#60a5fa">laptop_chromebook</span>
+                                    <b>FP Tools Chrome</b>
+                                    <span class="th-tag" style="background:rgba(66,133,244,.2);color:#60a5fa">Для ПК</span>
+                                </div>
+                            </th>
+                            <th class="th-android">
+                                <div class="th-inner">
+                                    <span class="material-icons-round" style="color:#a78bfa">android</span>
+                                    <b>Android App</b>
+                                    <span class="th-tag" style="background:rgba(139,92,246,.25);color:#a78bfa">Рекомендуем</span>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Авто-поднятие лотов</td><td class="tc"><span class="cv-y">✓</span></td><td class="ta"><span class="cv-y">✓</span></td></tr>
+                        <tr><td>ИИ-ассистент для ответов</td><td class="tc"><span class="cv-y">✓</span></td><td class="ta"><span class="cv-y">✓</span></td></tr>
+                        <tr><td>Автоответчик и авто-приветствие</td><td class="tc"><span class="cv-y">✓</span></td><td class="ta"><span class="cv-y">✓</span></td></tr>
+                        <tr><td>Мультиаккаунты</td><td class="tc"><span class="cv-y">✓</span></td><td class="ta"><span class="cv-y">✓</span></td></tr>
+                        <tr><td>Управление лотами</td><td class="tc"><span class="cv-y">✓</span></td><td class="ta"><span class="cv-y">✓</span></td></tr>
+                        <tr><td>Аналитика продаж</td><td class="tc"><span class="cv-y">✓</span></td><td class="ta"><span class="cv-p">частично</span></td></tr>
+                        <tr><td>Кастомизация FunPay (темы, GIF)</td><td class="tc"><span class="cv-y">✓</span></td><td class="ta"><span class="cv-n">✗</span></td></tr>
+                        <tr><td>ИИ-генератор лотов и изображений</td><td class="tc"><span class="cv-y">✓</span></td><td class="ta"><span class="cv-n">✗</span></td></tr>
+                        <tr><td>Уведомления в Discord</td><td class="tc"><span class="cv-y">✓</span></td><td class="ta"><span class="cv-n">✗</span></td></tr>
+                        <tr><td>XD Демпер цен (парсинг конкурентов)</td><td class="tc"><span class="cv-n">✗</span></td><td class="ta"><span class="cv-y">✓</span></td></tr>
+                        <tr><td>Полноценный мессенджер с телефона</td><td class="tc"><span class="cv-n">✗</span></td><td class="ta"><span class="cv-y">✓</span></td></tr>
+                        <tr><td>Виджеты на рабочий стол</td><td class="tc"><span class="cv-n">✗</span></td><td class="ta"><span class="cv-y">✓</span></td></tr>
+                        <tr><td>Работа при выключенном экране / без ПК</td><td class="tc"><span class="cv-n">✗</span></td><td class="ta"><span class="cv-y">✓</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="text-align:center;margin-top:28px">
+                <a href="/android" class="btn btn-primary btn-xl">
+                    <span class="material-icons-round">android</span>
+                    Скачать Android APK тоже
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq-section">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="label-tag">❓ FAQ</div>
+                <h2 class="section-title">Частые вопросы про <span class="gradient-text">FP Tools</span></h2>
+            </div>
+            <div class="faq-list reveal">
+                <div class="faq-item">
+                    <button class="faq-q">Что такое FP Tools? <span class="material-icons-round">expand_more</span></button>
+                    <div class="faq-a">FP Tools — сокращённое название FunPay Tools, бесплатного расширения для Chrome. Добавляет ИИ-ассистента, аналитику продаж, авто-поднятие лотов, автоответчик и полную кастомизацию на сайт FunPay. 100+ функций для продавцов.</div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-q">Как установить FP Tools в Chrome? <span class="material-icons-round">expand_more</span></button>
+                    <div class="faq-a">Нажмите «Установить в Chrome» — откроется Chrome Web Store. Нажмите «Добавить в Chrome» → «Добавить расширение». После установки перейдите на funpay.com — в шапке сайта появится кнопка «FP Tools».</div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-q">Это бесплатно? <span class="material-icons-round">expand_more</span></button>
+                    <div class="faq-a">Да, полностью бесплатно. Без подписок, без рекламы, без скрытых платежей. Исходный код открыт на GitHub.</div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-q">Работает в Yandex Browser, Edge, Opera? <span class="material-icons-round">expand_more</span></button>
+                    <div class="faq-a">Да. Работает в любом Chromium-браузере: Chrome, Yandex Browser, Microsoft Edge, Opera, Brave. Для Firefox отдельной версии нет.</div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-q">Это безопасно? <span class="material-icons-round">expand_more</span></button>
+                    <div class="faq-a">Код полностью открыт на GitHub — проверьте сами. Расширение не отправляет данные на сторонние серверы. Опубликовано в официальном Chrome Web Store и прошло проверку Google.</div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-q">Чем отличается от Android-приложения? <span class="material-icons-round">expand_more</span></button>
+                    <div class="faq-a">Расширение даёт: полную кастомизацию FunPay (темы, GIF), ИИ-генератор лотов и изображений, аналитику рынка, Discord-уведомления. Android уникален: демпером цен, мессенджером с телефона, виджетами и работой без ПК. Идеально использовать оба.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="final-cta">
+        <div class="container">
+            <div class="final-cta-inner reveal">
+                <h2>Установи FP Tools в Chrome<br><span class="gradient-text">прямо сейчас — бесплатно</span></h2>
+                <p>Бесплатно · Безопасно · Open Source · 100+ функций</p>
+                <div class="final-cta-buttons">
+                    <a href="https://chromewebstore.google.com/detail/funpay-tools/pibmnjjfpojnakckilflcboodkndkibb" target="_blank" rel="noopener" class="btn btn-primary btn-xl">
+                        <span class="material-icons-round">extension</span>
+                        Установить расширение Chrome
+                    </a>
+                    <a href="/android" class="btn btn-ghost btn-xl">
+                        <span class="material-icons-round">android</span>
+                        Android приложение
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer class="site-footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="/" class="logo"><img src="../logo.svg" alt="FunPay Tools" width="28" height="28"><span>FunPay<b> Tools</b></span></a>
+                <p>Лучший инструмент для продавцов на FunPay. Бесплатно, с открытым кодом.</p>
+                <div class="footer-socials">
+                    <a href="https://t.me/fptools" target="_blank" rel="noopener" title="Telegram"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg></a>
+                    <a href="https://github.com/XaviersDev/FunPay-Tools" target="_blank" rel="noopener" title="GitHub"><svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+                </div>
+            </div>
+            <div class="footer-links-col">
+                <h5>Продукты</h5>
+                <a href="/android">Android App v1.2.5</a>
+                <a href="/extension">Chrome Расширение</a>
+                <a href="https://t.me/fptoolsbot" target="_blank">Telegram Bot</a>
+            </div>
+            <div class="footer-links-col">
+                <h5>Ресурсы</h5>
+                <a href="https://github.com/XaviersDev/FunPay-Tools" target="_blank">GitHub Расширение</a>
+                <a href="https://github.com/XaviersDev/FunPay-Tools-Android" target="_blank">GitHub Android</a>
+                <a href="https://github.com/XaviersDev/FunPay-Tools-Android/issues" target="_blank">Сообщить о баге</a>
+                <a href="/#faq">FAQ</a>
+            </div>
+            <div class="footer-links-col">
+                <h5>Сообщество</h5>
+                <a href="https://t.me/fptools" target="_blank">Telegram канал</a>
+                <a href="https://t.me/fptoolsbot" target="_blank">Telegram Bot</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 FunPay Tools — сделано с ❤️ AlliSighs</p>
+            <p class="disclaimer">Неофициальное ПО для FunPay. Не связано с администрацией FunPay.</p>
+        </div>
+    </div>
+</footer>
+
+<script src="../script.js" defer></script>
+</body>
+</html>

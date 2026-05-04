@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>XD Intelligence - ИИ-автопилот для FunPay</title>
+<link rel="icon" type="image/png" href="intelligence.png">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0,0&display=block">
+<style>
+:root{
+  --bg:#040406;--bg2:#07070b;--bg3:#0d0d14;--bg4:#111119;
+  --border:#1c1c28;--border2:#252535;--border3:#333348;
+  --txt:#e8e8f0;--txt2:#888899;--txt3:#555568;--txt4:#333345;
+  --acc:#FF4D00;--acc2:#FF7A00;--acc3:#ff9a3c;
+  --acc-glow:rgba(255,77,0,.25);--acc-soft:rgba(255,77,0,.08);--acc-border:rgba(255,77,0,.25);
+  --green:#22c55e;--yellow:#f59e0b;--blue:#3b82f6;--purple:#8b5cf6;--tg:#2AABEE;
+  --r:14px;--r2:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:15px}
+body{background:var(--bg);color:var(--txt);font-family:'Golos Text',sans-serif;line-height:1.6;overflow-x:hidden}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
+.mi{font-family:'Material Symbols Rounded';font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24;font-size:20px;line-height:1;display:inline-block;vertical-align:middle;user-select:none}
+.mi-f{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24}
+.ub{font-family:'Unbounded',sans-serif}
+.mono{font-family:'JetBrains Mono',monospace}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");opacity:.025;pointer-events:none;z-index:9999}
+.aurora{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.aurora-orb{position:absolute;border-radius:50%;filter:blur(120px);animation:aurora-drift 20s ease-in-out infinite alternate}
+.ao1{width:700px;height:700px;background:radial-gradient(ellipse,rgba(255,77,0,.12),transparent 70%);top:-200px;right:-150px;animation-delay:0s;animation-duration:25s}
+.ao2{width:500px;height:500px;background:radial-gradient(ellipse,rgba(139,92,246,.08),transparent 70%);bottom:-100px;left:-100px;animation-delay:-8s;animation-duration:20s}
+.ao3{width:400px;height:400px;background:radial-gradient(ellipse,rgba(255,120,0,.06),transparent 70%);top:50%;left:50%;animation-delay:-15s;animation-duration:30s}
+@keyframes aurora-drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(80px,60px) scale(1.2)}}
+.grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,77,0,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,77,0,.03) 1px,transparent 1px);background-size:60px 60px}
+.wrap{max-width:1280px;margin:0 auto;padding:0 32px;position:relative;z-index:1}
+nav{position:fixed;top:0;left:0;right:0;z-index:900;padding:16px 0;transition:all .4s}
+nav.scrolled{background:rgba(4,4,6,.85);backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);border-bottom:1px solid rgba(255,255,255,.04)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.nav-logo{display:flex;align-items:center;gap:11px;text-decoration:none;font-family:'Unbounded',sans-serif;font-weight:800;font-size:14px;color:#fff;letter-spacing:-.4px}
+.nav-logo-ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:transparent}
+.nav-logo-ico img{width:100%;height:100%;object-fit:cover}
+.nav-logo-ico .mi{font-size:19px;color:#fff}
+.nav-badge{background:rgba(255,77,0,.15);border:1px solid rgba(255,77,0,.3);color:var(--acc);font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;letter-spacing:.5px;text-transform:uppercase}
+.nav-links{display:flex;align-items:center;gap:2px}
+.nav-link{padding:7px 13px;border-radius:8px;color:var(--txt3);font-size:12px;font-weight:700;text-decoration:none;transition:all .15s;border:none;background:none;cursor:pointer;font-family:'Golos Text',sans-serif;letter-spacing:.2px}
+.nav-link:hover{color:var(--txt);background:rgba(255,255,255,.05)}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:9px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'Golos Text',sans-serif;transition:all .2s;text-decoration:none;letter-spacing:.1px}
+.btn .mi{font-size:16px}
+.btn-p{background:var(--acc);color:#fff;box-shadow:0 4px 20px rgba(255,77,0,.35)}
+.btn-p:hover{background:var(--acc2);box-shadow:0 6px 30px rgba(255,77,0,.5);transform:translateY(-1px)}
+.btn-ghost{background:rgba(255,255,255,.05);color:var(--txt2);border:1px solid var(--border2)}
+.btn-ghost:hover{border-color:var(--border3);color:#fff;background:rgba(255,255,255,.08)}
+.btn-lg{padding:14px 28px;font-size:14px;border-radius:11px}
+.hero{padding:160px 0 80px;text-align:center;position:relative}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--acc-soft);border:1px solid var(--acc-border);border-radius:999px;padding:5px 14px 5px 8px;font-size:11px;font-weight:700;color:var(--acc);margin-bottom:32px;font-family:'Unbounded',sans-serif;letter-spacing:.5px}
+.hero-eyebrow-dot{width:18px;height:18px;background:var(--acc);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hero-eyebrow-dot .mi{font-size:11px;color:#fff}
+h1.hero-title{font-family:'Unbounded',sans-serif;font-size:clamp(38px,6.5vw,88px);font-weight:900;letter-spacing:-4px;line-height:.98;margin-bottom:28px;color:#fff}
+h1.hero-title em{font-style:normal;color:var(--acc);position:relative;display:inline-block}
+h1.hero-title em::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--acc),var(--acc2));border-radius:999px;transform:scaleX(0);transform-origin:left;animation:underline-in .8s .6s forwards cubic-bezier(.2,0,0,1)}
+@keyframes underline-in{to{transform:scaleX(1)}}
+.hero-sub{font-size:17px;color:var(--txt2);max-width:560px;margin:0 auto 48px;line-height:1.75}
+.hero-sub b{color:var(--txt);font-weight:700}
+.hero-cta{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:64px}
+.hero-stats{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.hstat{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:14px 22px;display:flex;align-items:center;gap:12px;transition:border-color .2s}
+.hstat:hover{border-color:var(--border2)}
+.hstat-val{font-family:'Unbounded',sans-serif;font-size:26px;font-weight:900;color:#fff;letter-spacing:-1px;line-height:1}
+.hstat-lbl{font-size:11px;color:var(--txt3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+.hstat-ico .mi{font-size:22px;color:var(--acc)}
+.section{padding:100px 0;position:relative;z-index:1}
+.s-tag{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--acc);margin-bottom:14px}
+.s-tag .mi{font-size:13px}
+.s-title{font-family:'Unbounded',sans-serif;font-size:clamp(26px,4vw,50px);font-weight:900;letter-spacing:-2.5px;line-height:1.05;color:#fff;margin-bottom:14px}
+.s-sub{font-size:15px;color:var(--txt2);line-height:1.75;max-width:560px}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s cubic-bezier(.2,0,0,1),transform .7s cubic-bezier(.2,0,0,1)}
+.reveal.in{opacity:1;transform:translateY(0)}
+.reveal[data-delay="1"]{transition-delay:.1s}
+.reveal[data-delay="2"]{transition-delay:.2s}
+.reveal[data-delay="3"]{transition-delay:.3s}
+/* DEMO */
+.demo-wrap{margin-top:60px;background:var(--bg2);border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:0 60px 120px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.03),0 0 80px rgba(255,77,0,.06)}
+.demo-titlebar{background:var(--bg);border-bottom:1px solid var(--border);padding:12px 18px;display:flex;align-items:center;gap:12px}
+.demo-dots{display:flex;gap:5px}
+.demo-dot{width:11px;height:11px;border-radius:50%}
+.dd-r{background:#ff5f57}.dd-y{background:#febc2e}.dd-g{background:#28c840}
+.demo-bar-title{font-size:11px;font-weight:600;color:var(--txt4);margin:0 auto;font-family:'JetBrains Mono',monospace;letter-spacing:.3px}
+.demo-layout{display:grid;grid-template-columns:220px 1fr 280px;height:640px}
+.dscenes{background:#030305;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.dscenes-hd{padding:16px 14px 10px;font-size:9px;font-weight:700;color:var(--txt4);letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;gap:6px;border-bottom:1px solid rgba(255,255,255,.03)}
+.dscenes-hd .mi{font-size:13px;color:var(--acc)}
+.dscenes-list{padding:8px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+.dscenes-list::-webkit-scrollbar{width:2px}
+.scene-btn{display:flex;align-items:center;gap:9px;padding:9px 11px;background:transparent;border:1px solid transparent;color:var(--txt3);border-radius:8px;cursor:pointer;transition:all .15s;font-family:'Golos Text',sans-serif;font-size:12px;font-weight:600;text-align:left;width:100%;line-height:1.3}
+.scene-btn .mi{font-size:15px;flex-shrink:0}
+.scene-btn:hover{background:var(--bg3);color:var(--txt2)}
+.scene-btn.active{background:var(--bg3);border-color:var(--border2);color:#fff}
+.scene-btn.active .mi{color:var(--acc)}
+.scene-btn .scene-badge{margin-left:auto;font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;font-family:'JetBrains Mono',monospace;flex-shrink:0}
+.sb-new{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.25)}
+.sb-hot{background:rgba(255,77,0,.12);color:var(--acc);border:1px solid var(--acc-border)}
+.dchat{display:flex;flex-direction:column;background:var(--bg2);position:relative}
+.dchat-hd{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg);flex-shrink:0}
+.dchat-user{display:flex;align-items:center;gap:9px}
+.dchat-av{width:30px;height:30px;background:var(--bg3);border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--border2);overflow:hidden;flex-shrink:0}
+.dchat-av img{width:100%;height:100%;object-fit:cover}
+.dchat-name{font-weight:700;font-size:12px}
+.dchat-online{font-size:10px;color:var(--green);display:flex;align-items:center;gap:3px;margin-top:1px}
+.dchat-online::before{content:'';width:5px;height:5px;background:var(--green);border-radius:50%;display:inline-block}
+.dchat-mode{font-size:10px;padding:3px 9px;border-radius:999px;background:var(--bg3);border:1px solid var(--border);color:var(--txt3);font-weight:600}
+.dchat-msgs{flex:1;padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
+.dchat-msgs::-webkit-scrollbar{width:2px}
+.msg{max-width:82%;display:flex;flex-direction:column;gap:4px;animation:msg-in .3s cubic-bezier(.2,0,0,1) both;opacity:0}
+@keyframes msg-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.msg.them{align-self:flex-start}
+.msg.me{align-self:flex-end;align-items:flex-end}
+.msg-author{font-size:10px;font-weight:700;color:var(--txt4)}
+.msg.me .msg-author{color:var(--txt3)}
+.msg-bubble{padding:10px 14px;font-size:12.5px;line-height:1.5;border-radius:11px}
+.msg.them .msg-bubble{background:var(--bg3);border:1px solid var(--border);border-bottom-left-radius:3px;color:var(--txt)}
+.msg.me .msg-bubble{background:#191921;border:1px solid var(--border2);border-bottom-right-radius:3px;color:#fff}
+.sys-chip{align-self:center;border:1px solid var(--border);padding:4px 11px;border-radius:6px;font-size:10.5px;font-weight:600;color:var(--txt3);display:flex;align-items:center;gap:5px;animation:msg-in .3s both;opacity:0;margin:2px 0;font-family:'JetBrains Mono',monospace}
+.sys-chip .mi{font-size:12px}
+.sys-chip.ok{color:#22c55e;border-color:rgba(34,197,94,.25);background:rgba(34,197,94,.04)}
+.sys-chip.warn{color:#f59e0b;border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.04)}
+.sys-chip.info{color:var(--tg);border-color:rgba(42,171,238,.25);background:rgba(42,171,238,.04)}
+.sys-chip.err{color:#ef4444;border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.04)}
+.sys-chip.proc .mi{animation:spin 1.5s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.typing-dots{display:inline-flex;gap:3px;align-items:center}
+.typing-dots span{width:4px;height:4px;background:var(--txt3);border-radius:50%;animation:tdot 1.2s infinite ease-in-out}
+.typing-dots span:nth-child(1){animation-delay:-.32s}
+.typing-dots span:nth-child(2){animation-delay:-.16s}
+@keyframes tdot{0%,80%,100%{transform:scale(0)}40%{transform:scale(1)}}
+.dtg{border-left:1px solid var(--border);background:#020204;display:flex;flex-direction:column;overflow:hidden}
+.dtg-hd{background:#0a0a10;border-bottom:1px solid rgba(255,255,255,.05);padding:14px 12px;display:flex;align-items:center;gap:8px;flex-shrink:0;padding-top:24px}
+.dtg-hd-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2AABEE,#1e8ed0);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dtg-hd-av .mi{font-size:16px;color:#fff}
+.dtg-hd-t{font-weight:700;font-size:12px}
+.dtg-hd-s{font-size:10px;color:#555;margin-top:1px}
+.dtg-msgs{flex:1;padding:10px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;background:#080810}
+.dtg-msgs::-webkit-scrollbar{width:2px}
+.tg-notif{background:#0c0c18;border:1px solid #1a1a28;border-radius:10px;padding:10px 11px;font-size:11px;animation:msg-in .3s both;opacity:0}
+.tg-notif-hd{display:flex;align-items:center;gap:5px;font-weight:700;font-size:11px;margin-bottom:6px}
+.tg-notif-hd .mi{font-size:13px}
+.tg-notif-body{color:var(--txt3);line-height:1.45;font-size:10.5px}
+.tg-btns{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:8px}
+.tg-btn{background:#141420;border:1px solid #202030;color:#666;padding:6px 8px;border-radius:6px;text-align:center;font-size:10px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Golos Text',sans-serif;position:relative;overflow:hidden}
+.tg-btn:hover{background:#1a1a2a;color:#aaa}
+.tg-btn.prim{color:var(--tg);border-color:rgba(42,171,238,.3);background:rgba(42,171,238,.06)}
+.tg-btn.prim:hover{background:rgba(42,171,238,.12)}
+.tg-btn.green-btn{color:var(--green);border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.06)}
+.tg-btn-ring{position:absolute;inset:-1px;border-radius:7px;border:2px solid var(--tg);animation:ring-pulse 2.5s infinite;opacity:0}
+@keyframes ring-pulse{0%{opacity:.5;transform:scale(.97)}100%{opacity:0;transform:scale(1.06)}}
+.dtg-empty{flex:1;display:flex;align-items:center;justify-content:center;color:var(--txt4);font-size:11px;text-align:center;padding:20px}
+.order-mock{background:#070710;border:1px solid #1a1a28;border-radius:10px;padding:12px;margin-top:8px}
+.order-mock-hd{font-size:10px;font-weight:700;color:#555;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.order-mock-reply{background:#0d0d1e;border:1px solid rgba(34,197,94,.2);border-radius:7px;padding:8px 10px;font-size:10.5px;color:#22c55e;line-height:1.4}
+.order-mock-reply-lbl{font-size:9px;color:#22c55e;font-weight:700;margin-bottom:3px;opacity:.7}
+/* FEATURES */
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:56px}
+.feat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:26px;position:relative;overflow:hidden;transition:all .2s;cursor:default}
+.feat-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at top right,rgba(255,77,0,.06),transparent 60%);opacity:0;transition:opacity .3s}
+.feat-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.feat-card:hover::before{opacity:1}
+.feat-card-badge{display:inline-block;background:var(--acc-soft);border:1px solid var(--acc-border);color:var(--acc);font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;margin-bottom:12px;font-family:'Unbounded',sans-serif;letter-spacing:.4px}
+.feat-ico{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;border:1px solid var(--border2)}
+.feat-ico .mi{font-size:22px}
+.feat-card h3{font-size:13px;font-weight:700;margin-bottom:8px;color:#fff;font-family:'Unbounded',sans-serif;letter-spacing:-.3px}
+.feat-card p{font-size:12.5px;color:var(--txt2);line-height:1.65}
+/* MODES */
+.modes-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:48px}
+.mode-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:20px;display:flex;gap:14px;align-items:flex-start;transition:all .2s}
+.mode-card:hover{border-color:var(--border2);background:var(--bg3)}
+.mode-ico{width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mode-ico .mi{font-size:20px}
+.mode-card h4{font-weight:700;font-size:13px;margin-bottom:5px;color:#fff;font-family:'Unbounded',sans-serif;letter-spacing:-.2px}
+.mode-card p{font-size:12px;color:var(--txt2);line-height:1.55}
+.mode-card code{font-family:'JetBrains Mono',monospace;background:var(--bg3);border:1px solid var(--border);padding:1px 5px;border-radius:4px;font-size:10.5px;color:var(--acc)}
+/* ADVANCED TABS */
+.big-demo{background:var(--bg2);border:1px solid var(--border);border-radius:22px;overflow:hidden;margin-top:56px}
+.big-demo-tabs{display:flex;border-bottom:1px solid var(--border);overflow-x:auto;background:var(--bg)}
+.big-demo-tabs::-webkit-scrollbar{height:2px}
+.bdt{padding:14px 20px;font-size:12px;font-weight:700;color:var(--txt3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:6px;font-family:'Golos Text',sans-serif}
+.bdt .mi{font-size:15px}
+.bdt:hover{color:var(--txt2)}
+.bdt.active{color:#fff;border-bottom-color:var(--acc)}
+.big-demo-content{padding:32px}
+.bdp{display:none}
+.bdp.active{display:block;animation:fadein .2s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* HIER */
+.hier-list{display:flex;flex-direction:column;gap:0}
+.hier-item{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--border)}
+.hier-item:last-child{border-bottom:none}
+.hier-num{width:28px;height:28px;background:var(--acc-soft);border:1px solid var(--acc-border);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--acc);font-family:'Unbounded',sans-serif;flex-shrink:0}
+.hier-title{font-weight:700;font-size:13px;color:#fff}
+.hier-sub{font-size:11px;color:var(--txt3);margin-top:2px}
+.hier-badge{margin-left:auto;font-size:9px;font-weight:700;padding:3px 9px;border-radius:5px;font-family:'Unbounded',sans-serif;letter-spacing:.2px;white-space:nowrap}
+.hb-chat{background:rgba(255,77,0,.1);color:var(--acc);border:1px solid var(--acc-border)}
+.hb-lot{background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.3)}
+.hb-cat{background:rgba(139,92,246,.1);color:var(--purple);border:1px solid rgba(139,92,246,.3)}
+.hb-global{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+/* SILENCE */
+.silence-rows{display:flex;flex-direction:column;gap:6px}
+.srow{display:flex;align-items:center;gap:10px;padding:9px 13px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;font-size:12px}
+.srow-msg{flex:1;font-family:'JetBrains Mono',monospace;color:var(--txt2)}
+.srow-result{font-size:10px;font-weight:700;display:flex;align-items:center;gap:4px;padding:3px 8px;border-radius:5px}
+.srow-result.speak{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.srow-result.silent{background:rgba(255,77,0,.1);color:var(--acc);border:1px solid var(--acc-border)}
+.srow-result .mi{font-size:12px}
+/* QR */
+.qr-item{background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:12px;margin-bottom:8px}
+.qr-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.qr-name{font-size:12px;font-weight:700;color:#fff}
+.qr-keys{display:flex;gap:4px;flex-wrap:wrap}
+.qr-key{background:var(--bg4);border:1px solid var(--border);padding:1px 6px;border-radius:4px;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--acc)}
+.qr-ans{font-size:11.5px;color:var(--txt2);line-height:1.45}
+.qr-trigger-badge{margin-left:auto;font-size:9px;font-weight:700;color:var(--green);display:flex;align-items:center;gap:3px}
+.qr-trigger-badge .mi{font-size:11px}
+/* BLACKLIST */
+.bl-list-inner{display:flex;flex-direction:column;gap:6px}
+.bl-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px}
+.bl-item .mi{font-size:18px;color:#ef4444;flex-shrink:0}
+.bl-item-name{font-size:13px;font-weight:700;color:#fff;flex:1}
+.bl-item-reason{font-size:11px;color:var(--txt3)}
+.bl-item-badge{font-size:9px;background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.25);padding:2px 8px;border-radius:5px;font-weight:700}
+/* SCHEDULE */
+.sched-items{display:flex;flex-direction:column;gap:7px}
+.sched-item{display:flex;align-items:center;gap:12px;padding:11px 13px;background:var(--bg2);border:1px solid var(--border);border-radius:9px}
+.sched-emoji{font-size:24px;flex-shrink:0;width:36px;text-align:center}
+.sched-name{font-size:13px;font-weight:700;color:#fff}
+.sched-when{font-size:11px;color:var(--txt3);margin-top:2px}
+.sched-status-on{font-size:10px;font-weight:700;padding:3px 9px;border-radius:5px;margin-left:auto;background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.sched-status-off{font-size:10px;font-weight:700;padding:3px 9px;border-radius:5px;margin-left:auto;background:var(--bg4);color:var(--txt4);border:1px solid var(--border)}
+/* REFUND */
+.rfsteps{display:flex;flex-direction:column;gap:10px}
+.rfstep{display:flex;gap:12px;align-items:flex-start;padding:12px;background:var(--bg2);border:1px solid var(--border);border-radius:10px}
+.rfstep-num{width:26px;height:26px;border-radius:50%;background:var(--bg4);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:var(--acc);font-family:'Unbounded',sans-serif;flex-shrink:0;margin-top:2px}
+.rfstep-t{font-size:12px;font-weight:700;color:#fff;margin-bottom:3px}
+.rfstep-s{font-size:11.5px;color:var(--txt2);line-height:1.4}
+.rfstep-chk{width:22px;height:22px;border-radius:50%;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rfstep-chk .mi{font-size:13px;color:var(--green)}
+/* VISION */
+.vision-box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start}
+.vision-img-wrap{width:90px;height:68px;background:var(--bg4);border-radius:8px;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;flex-shrink:0}
+.vision-img-wrap .mi{font-size:28px;color:var(--txt4)}
+.vision-scan{position:absolute;left:0;right:0;height:2px;background:var(--acc);box-shadow:0 0 10px var(--acc);top:0;animation:scan 2s ease-in-out infinite}
+@keyframes scan{0%{top:0%}100%{top:100%}}
+.vision-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--acc);margin-bottom:5px;display:flex;align-items:center;gap:4px}
+.vision-label .mi{font-size:11px}
+.vision-text{font-size:12px;color:var(--txt2);line-height:1.5}
+/* TG CMDS */
+.tg-cmds{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:36px}
+.tg-cmd{background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:13px 15px;transition:border-color .2s}
+.tg-cmd:hover{border-color:var(--border2)}
+.tg-cmd-name{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--acc);font-weight:600;margin-bottom:4px}
+.tg-cmd-desc{font-size:11.5px;color:var(--txt2)}
+/* BACKENDS */
+.be-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:44px}
+.be-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:24px;text-align:center;transition:all .2s;position:relative;overflow:hidden}
+.be-card:hover{border-color:var(--border2);transform:translateY(-3px)}
+.be-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--be-color);opacity:0;transition:opacity .3s}
+.be-card:hover::after{opacity:1}
+.be-card[data-color="orange"]{--be-color:var(--acc)}
+.be-card[data-color="purple"]{--be-color:var(--purple)}
+.be-card[data-color="green"]{--be-color:var(--green)}
+.be-card-ico{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;border:1px solid var(--border2);background:var(--bg3)}
+.be-card-ico .mi{font-size:26px}
+.be-card h4{font-size:13px;font-weight:700;margin-bottom:8px;color:#fff;font-family:'Unbounded',sans-serif;letter-spacing:-.2px}
+.be-card p{font-size:12px;color:var(--txt2);line-height:1.6}
+.be-badge{display:inline-block;margin-top:12px;font-size:9px;font-weight:700;padding:3px 9px;border-radius:5px;font-family:'Unbounded',sans-serif;letter-spacing:.4px}
+/* PRICING */
+.pricing-wrap{max-width:480px;margin:48px auto 0}
+.pricing-card{background:var(--bg2);border:1px solid var(--border);border-radius:22px;padding:48px 40px;text-align:center;position:relative;overflow:hidden}
+.pricing-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--acc),transparent)}
+.pricing-card::after{content:'';position:absolute;bottom:-60px;left:50%;transform:translateX(-50%);width:280px;height:200px;background:var(--acc);opacity:.05;border-radius:50%;filter:blur(50px);pointer-events:none}
+.pricing-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--txt3);font-family:'Unbounded',sans-serif;margin-bottom:20px}
+.pricing-price{font-family:'Unbounded',sans-serif;font-size:62px;font-weight:900;color:#fff;letter-spacing:-4px;line-height:1;margin-bottom:8px}
+.pricing-price sup{font-size:26px;color:var(--txt3);vertical-align:top;margin-top:14px;display:inline-block;letter-spacing:-1px}
+.pricing-equiv{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:32px}
+.pricing-eq{background:var(--bg3);border:1px solid var(--border);padding:4px 11px;border-radius:6px;font-size:11px;font-weight:600;color:var(--txt3);font-family:'JetBrains Mono',monospace}
+.pricing-features{display:flex;flex-direction:column;gap:10px;margin-bottom:32px;text-align:left}
+.pricing-feat{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--txt2)}
+.pricing-feat .mi{font-size:15px;color:var(--green);flex-shrink:0}
+.pay-methods{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin-top:18px}
+.pay-badge{background:var(--bg3);border:1px solid var(--border);padding:5px 11px;border-radius:7px;font-size:11px;font-weight:600;color:var(--txt2);display:flex;align-items:center;gap:5px}
+.pay-badge .mi{font-size:14px}
+/* REVIEWS */
+.reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:48px}
+.review-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:22px;transition:border-color .2s}
+.review-card:hover{border-color:var(--border2)}
+.review-stars{display:flex;gap:3px;margin-bottom:14px}
+.review-stars .mi{font-size:15px;color:var(--yellow)}
+.review-text{font-size:12.5px;color:var(--txt2);line-height:1.65;margin-bottom:16px}
+.review-user{display:flex;align-items:center;gap:10px}
+.review-av{width:34px;height:34px;border-radius:50%;overflow:hidden;border:1px solid var(--border2);flex-shrink:0}
+.review-av img{width:100%;height:100%;object-fit:cover}
+.review-name{font-size:12px;font-weight:700;color:#fff}
+.review-sub{font-size:10.5px;color:var(--txt3);margin-top:1px}
+/* CODE */
+.code-block{background:#020205;border:1px solid var(--border);border-radius:12px;padding:22px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.9;overflow-x:auto;position:relative}
+.code-block-hd{display:flex;align-items:center;gap:7px;font-size:10px;color:var(--txt4);font-weight:600;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.code-block-hd .mi{font-size:13px;color:var(--acc)}
+.kw{color:#569cd6}.str{color:#ce9178}.cm{color:#4a5568}.fn{color:#dcdcaa}.num{color:#b5cea8}.op{color:#c586c0}
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:64px}
+.stat-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:22px;position:relative;overflow:hidden;transition:border-color .2s}
+.stat-box:hover{border-color:var(--border2)}
+.stat-box-val{font-family:'Unbounded',sans-serif;font-size:34px;font-weight:900;color:var(--acc);letter-spacing:-2px;line-height:1}
+.stat-box-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--txt3);margin-top:5px}
+.stat-box-ico{position:absolute;bottom:14px;right:14px;font-size:26px;color:var(--border2)}
+.stat-box-ico.mi{font-size:26px}
+/* MINI CHART */
+.mini-chart{display:flex;align-items:flex-end;gap:2.5px;height:48px;padding-top:4px}
+.mc-bar{flex:1;background:linear-gradient(180deg,var(--acc),rgba(255,77,0,.2));border-radius:2px 2px 0 0;min-height:2px;transition:opacity .15s}
+.mc-bar:hover{opacity:.65}
+/* HIGHLIGHT */
+.highlight-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:48px;margin-top:60px;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;position:relative;overflow:hidden}
+.highlight-wrap::before{content:'';position:absolute;top:-100px;right:-100px;width:400px;height:400px;background:radial-gradient(ellipse,rgba(255,77,0,.06),transparent 70%);pointer-events:none}
+.badge{display:inline-flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--border);padding:5px 11px;border-radius:7px;font-size:11px;font-weight:600;color:var(--txt2)}
+.badge .mi{font-size:13px;color:var(--acc)}
+.badge-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}
+/* FULL FEATURES */
+.ff-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:40px}
+.ff-item{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;transition:border-color .2s;display:flex;align-items:flex-start;gap:12px}
+.ff-item:hover{border-color:var(--border2)}
+.ff-ico{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--bg3);border:1px solid var(--border)}
+.ff-ico .mi{font-size:17px;color:var(--acc)}
+.ff-t{font-size:12px;font-weight:700;color:#fff;margin-bottom:3px}
+.ff-s{font-size:11px;color:var(--txt3);line-height:1.55}
+/* SCREENSHOTS */
+.screenshots-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:48px;align-items:start}
+.screenshot-card{background:var(--bg);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color .35s,box-shadow .35s,transform .35s}
+.screenshot-card:hover{border-color:var(--acc-border);box-shadow:0 30px 80px rgba(0,0,0,.75),0 0 0 1px var(--acc-border),0 0 40px var(--acc-glow);transform:scale(1.02);z-index:10;position:relative}
+.screenshot-card img{width:100%;height:220px;object-fit:cover;object-position:top;display:block;border-bottom:1px solid var(--border);background:var(--bg3);transition:height .45s cubic-bezier(.2,0,0,1),object-fit .45s}
+.screenshot-card:hover img{height:auto;max-height:800px;object-fit:contain;object-position:top}
+.screenshot-lbl{padding:12px 16px;font-size:12px;font-weight:700;color:var(--txt2);display:flex;align-items:center;gap:8px}
+.screenshot-lbl .mi{font-size:15px;color:var(--acc)}
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:40px 0;margin-top:60px}
+.footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
+.footer-logo{display:flex;align-items:center;gap:10px;font-family:'Unbounded',sans-serif;font-weight:800;font-size:14px;color:#fff;text-decoration:none}
+.footer-logo-ico{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;background:transparent}
+.footer-logo-ico img{width:100%;height:100%;object-fit:cover}
+.footer-links{display:flex;gap:20px;flex-wrap:wrap}
+.footer-links a{color:var(--txt4);text-decoration:none;font-size:12px;font-weight:600;transition:color .15s}
+.footer-links a:hover{color:var(--txt2)}
+.footer-disc{font-size:11px;color:var(--txt4);margin-top:14px;text-align:center}
+@keyframes glow-pulse{0%,100%{box-shadow:0 4px 20px rgba(255,77,0,.35)}50%{box-shadow:0 4px 40px rgba(255,77,0,.6)}}
+.btn-glow{animation:glow-pulse 3s ease-in-out infinite}
+.scroll-hint{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--txt4);font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;cursor:pointer;margin-top:60px}
+.scroll-mouse{width:20px;height:32px;border:1px solid var(--border2);border-radius:10px;position:relative;display:flex;justify-content:center;padding-top:6px}
+.scroll-mouse::after{content:'';width:2px;height:6px;background:var(--txt4);border-radius:2px;animation:scroll-down 2s infinite}
+@keyframes scroll-down{0%,100%{transform:translateY(0);opacity:1}50%{transform:translateY(5px);opacity:.3}}
+/* RESPONSIVE */
+@media(max-width:1100px){.demo-layout{grid-template-columns:180px 1fr 240px}}
+@media(max-width:900px){
+  .demo-layout{grid-template-columns:1fr;grid-template-rows:auto 320px 280px;height:auto}
+  .dscenes{border-right:none;border-bottom:1px solid var(--border)}
+  .dscenes-list{flex-direction:row;overflow-x:auto;padding:6px}
+  .dtg{border-left:none;border-top:1px solid var(--border)}
+  .feat-grid{grid-template-columns:repeat(2,1fr)}
+  .modes-grid{grid-template-columns:1fr}
+  .be-grid{grid-template-columns:1fr 1fr}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .tg-cmds{grid-template-columns:1fr}
+  .reviews-grid{grid-template-columns:1fr}
+  .screenshots-grid{grid-template-columns:1fr}
+  .ff-grid{grid-template-columns:repeat(2,1fr)}
+  .highlight-wrap{grid-template-columns:1fr;gap:32px;padding:28px 20px}
+}
+@media(max-width:600px){
+  .nav-links{display:none}
+  .hero{padding:120px 0 60px}
+  .feat-grid{grid-template-columns:1fr}
+  .be-grid{grid-template-columns:1fr}
+  .pricing-card{padding:32px 22px}
+  .stats-row{grid-template-columns:1fr 1fr}
+  .tg-cmds{grid-template-columns:1fr}
+  .ff-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="aurora">
+  <div class="aurora-orb ao1"></div>
+  <div class="aurora-orb ao2"></div>
+  <div class="aurora-orb ao3"></div>
+</div>
+<div class="grid-bg"></div>
+
+<!-- NAV -->
+<nav id="main-nav">
+<div class="wrap nav-inner">
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-ico">
+      <img src="intelligence.png" alt="XD" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <span class="mi mi-f" style="display:none">smart_toy</span>
+    </div>
+    XD Intelligence
+    <span class="nav-badge">v3.0</span>
+  </a>
+  <div class="nav-links">
+    <button class="nav-link" onclick="scrollTo('#demo')">Симулятор</button>
+    <button class="nav-link" onclick="scrollTo('#features')">Функции</button>
+    <button class="nav-link" onclick="scrollTo('#all-features')">Все функции</button>
+    <button class="nav-link" onclick="scrollTo('#modes')">Режимы</button>
+    <button class="nav-link" onclick="scrollTo('#screenshots')">Скриншоты</button>
+    <button class="nav-link" onclick="scrollTo('#pricing')">Цена</button>
+  </div>
+  <a href="https://t.me/FPToolsBot?start=buy_xdai" target="_blank" class="btn btn-p btn-glow">
+    <span class="mi">send</span> Купить
+  </a>
+</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" style="z-index:1;position:relative">
+<div class="wrap">
+  <div class="hero-eyebrow reveal">
+    <div class="hero-eyebrow-dot"><span class="mi mi-f" style="font-size:11px;color:#fff">verified</span></div>
+    XaviersDev - FunPay Tools
+  </div>
+  <h1 class="hero-title reveal" data-delay="1">
+    ИИ, который<br>торгует <em>за тебя</em>
+  </h1>
+  <p class="hero-sub reveal" data-delay="2">
+    Полный автопилот для продавца FunPay.<br>
+    <b>Отвечает, оформляет возвраты, реагирует на отзывы</b> - уведомляет тебя только когда нужна живая голова.
+  </p>
+  <div class="hero-cta reveal" data-delay="3">
+    <a href="#demo" class="btn btn-p btn-lg btn-glow" onclick="scrollTo('#demo');return false">
+      <span class="mi">play_circle</span> Смотреть симулятор
+    </a>
+    <a href="https://t.me/FPToolsBot?start=buy_xdai" target="_blank" class="btn btn-ghost btn-lg">
+      <span class="mi">send</span> Купить в Telegram
+    </a>
+  </div>
+  <div class="hero-stats reveal" data-delay="3">
+    <div class="hstat"><div class="hstat-ico"><span class="mi mi-f">bolt</span></div><div><div class="hstat-val">7+</div><div class="hstat-lbl">Режимов</div></div></div>
+    <div class="hstat"><div class="hstat-ico"><span class="mi mi-f">smart_toy</span></div><div><div class="hstat-val">3</div><div class="hstat-lbl">AI бэкенда</div></div></div>
+    <div class="hstat"><div class="hstat-ico"><span class="mi mi-f">timer_off</span></div><div><div class="hstat-val">0</div><div class="hstat-lbl">Подписок</div></div></div>
+    <div class="hstat"><div class="hstat-ico"><span class="mi mi-f">schedule</span></div><div><div class="hstat-val">24/7</div><div class="hstat-lbl">Работает</div></div></div>
+  </div>
+  <div class="scroll-hint reveal" data-delay="3" onclick="scrollTo('#demo')">
+    <div class="scroll-mouse"></div>
+    смотреть как работает
+  </div>
+</div>
+</section>
+
+<!-- DEMO SIMULATOR -->
+<section id="demo" class="section" style="padding-top:40px">
+<div class="wrap">
+  <div class="reveal">
+    <div class="s-tag"><span class="mi">play_circle</span> Живой симулятор</div>
+    <div class="s-title">Кликай - видишь как работает</div>
+    <p class="s-sub">Выбирай сценарии слева и наблюдай как ИИ, чат и Telegram взаимодействуют в реальном времени.</p>
+  </div>
+  <div class="demo-wrap reveal" data-delay="1">
+    <div class="demo-titlebar">
+      <div class="demo-dots"><div class="demo-dot dd-r"></div><div class="demo-dot dd-y"></div><div class="demo-dot dd-g"></div></div>
+      <div class="demo-bar-title">FunPay Chat - XD Intelligence v3.0</div>
+    </div>
+    <div class="demo-layout">
+      <div class="dscenes">
+        <div class="dscenes-hd"><span class="mi">tune</span> Сценарии</div>
+        <div class="dscenes-list">
+          <button class="scene-btn active" onclick="runScene('refund',this)"><span class="mi">currency_exchange</span><span>Авто-возврат</span><span class="scene-badge sb-hot">АВТО</span></button>
+          <button class="scene-btn" onclick="runScene('escalate',this)"><span class="mi">support_agent</span><span>Эскалация</span></button>
+          <button class="scene-btn" onclick="runScene('suggest',this)"><span class="mi">tips_and_updates</span><span>Suggest</span><span class="scene-badge sb-new">TG</span></button>
+          <button class="scene-btn" onclick="runScene('silence',this)"><span class="mi">volume_off</span><span>Умный игнор</span></button>
+          <button class="scene-btn" onclick="runScene('stopword',this)"><span class="mi">warning_amber</span><span>Стоп-слово</span></button>
+          <button class="scene-btn" onclick="runScene('review',this)"><span class="mi">star</span><span>Авто-отзыв</span><span class="scene-badge sb-new">NEW</span></button>
+          <button class="scene-btn" onclick="runScene('vision',this)"><span class="mi">image_search</span><span>Vision API</span></button>
+          <button class="scene-btn" onclick="runScene('blacklist',this)"><span class="mi">block</span><span>Блэклист</span></button>
+          <button class="scene-btn" onclick="runScene('qr',this)"><span class="mi">bolt</span><span>Шаблон ответа</span></button>
+          <button class="scene-btn" onclick="runScene('order',this)"><span class="mi">shopping_bag</span><span>Новый заказ</span></button>
+        </div>
+      </div>
+      <div class="dchat">
+        <div class="dchat-hd">
+          <div class="dchat-user">
+            <div class="dchat-av" id="d-av"><span class="mi">person</span></div>
+            <div><div class="dchat-name" id="d-buyer">sad_buyer</div><div class="dchat-online">онлайн</div></div>
+          </div>
+          <div class="dchat-mode" id="d-mode">режим: auto</div>
+        </div>
+        <div class="dchat-msgs" id="d-msgs"></div>
+      </div>
+      <div class="dtg">
+        <div class="dtg-hd">
+          <div class="dtg-hd-av"><span class="mi mi-f">robot_2</span></div>
+          <div><div class="dtg-hd-t">XD Intelligence Bot</div><div class="dtg-hd-s">уведомления</div></div>
+        </div>
+        <div class="dtg-msgs" id="d-tg">
+          <div class="dtg-empty"><div><span class="mi" style="font-size:32px;display:block;margin-bottom:6px;color:var(--border2)">send</span>Уведомления появятся здесь</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- STATS -->
+<section class="section" style="padding-top:60px;padding-bottom:60px">
+<div class="wrap reveal">
+  <div class="stats-row">
+    <div class="stat-box"><div class="stat-box-val" id="c-msgs">0</div><div class="stat-box-lbl">Сообщений обработано</div><span class="mi stat-box-ico">forum</span></div>
+    <div class="stat-box"><div class="stat-box-val" id="c-orders">0</div><div class="stat-box-lbl">Режимов работы</div><span class="mi stat-box-ico">power_settings_new</span></div>
+    <div class="stat-box"><div class="stat-box-val" id="c-subs">0</div><div class="stat-box-lbl">Подписок не нужно</div><span class="mi stat-box-ico">credit_card_off</span></div>
+    <div class="stat-box"><div class="stat-box-val" id="c-backends">0</div><div class="stat-box-lbl">AI бэкенда на выбор</div><span class="mi stat-box-ico">hub</span></div>
+  </div>
+</div>
+</section>
+
+<!-- KEY FEATURES -->
+<section id="features" class="section" style="padding-top:40px">
+<div class="wrap">
+  <div class="reveal">
+    <div class="s-tag"><span class="mi">star</span> Ключевые возможности</div>
+    <div class="s-title">Всё что нужно<br>продавцу</div>
+    <p class="s-sub">Плагин покрывает весь цикл: от входящего сообщения до ответа на отзыв. Настрой один раз - работает само.</p>
+  </div>
+  <div class="feat-grid">
+    <div class="feat-card reveal" data-delay="1">
+      <div class="feat-card-badge">ЯДРО</div>
+      <div class="feat-ico" style="background:rgba(255,77,0,.1);border-color:var(--acc-border)"><span class="mi" style="color:var(--acc)">psychology</span></div>
+      <h3>Самообучение</h3>
+      <p>ИИ присылает решения в Telegram - ты ставишь оценку. Одобрил: интервал растёт, ИИ становится самостоятельнее. Поправил: добавляет в базу знаний, учтёт в следующий раз.</p>
+    </div>
+    <div class="feat-card reveal" data-delay="2">
+      <div class="feat-card-badge">БЕЗОПАСНО</div>
+      <div class="feat-ico" style="background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.2)"><span class="mi" style="color:var(--green)">currency_exchange</span></div>
+      <h3>Авто-возврат</h3>
+      <p>Написал «случайно оплатил»? Ключевые слова совпали, товар не выдан, сумма в лимите - деньги вернутся через API автоматически. С уведомлением тебе.</p>
+    </div>
+    <div class="feat-card reveal" data-delay="3">
+      <div class="feat-card-badge">VISION</div>
+      <div class="feat-ico" style="background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.2)"><span class="mi" style="color:var(--blue)">image_search</span></div>
+      <h3>Читает скриншоты</h3>
+      <p>Покупатель скинул картинку с ошибкой - ИИ прочитает текст через Vision API и ответит правильной инструкцией. Работает с Anthropic и OpenAI бэкендами.</p>
+    </div>
+    <div class="feat-card reveal" data-delay="1">
+      <div class="feat-card-badge">SUGGEST</div>
+      <div class="feat-ico" style="background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.2)"><span class="mi" style="color:var(--yellow)">tips_and_updates</span></div>
+      <h3>Режим Suggest</h3>
+      <p>ИИ генерирует ответ и шлёт тебе в Telegram. Три кнопки: Отправить, Отредактировать, Отклонить. Полный контроль без необходимости открывать сайт.</p>
+    </div>
+    <div class="feat-card reveal" data-delay="2">
+      <div class="feat-card-badge">WEB UI</div>
+      <div class="feat-ico" style="background:rgba(139,92,246,.1);border-color:rgba(139,92,246,.2)"><span class="mi" style="color:var(--purple)">desktop_windows</span></div>
+      <h3>Веб-панель</h3>
+      <p>Полноценный интерфейс в браузере. Настройка промптов, статистика с графиками за 30 дней, история чатов, логи в реальном времени - всё в одном месте. Работает на ПК, VPS, Raspberry Pi.</p>
+    </div>
+    <div class="feat-card reveal" data-delay="3">
+      <div class="feat-card-badge">SMART</div>
+      <div class="feat-ico" style="background:rgba(255,77,0,.08);border-color:var(--acc-border)"><span class="mi" style="color:var(--acc)">filter_alt</span></div>
+      <h3>Умные фильтры</h3>
+      <p>Список игнорируемых пользователей, стоп-слова, префиксы молчания, белый список. ИИ не отвечает на команды автовыдачи (!acc, !code) и не дублирует других ботов.</p>
+    </div>
+    <div class="feat-card reveal" data-delay="1">
+      <div class="feat-card-badge">АВТО</div>
+      <div class="feat-ico" style="background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.2)"><span class="mi" style="color:var(--yellow)">star</span></div>
+      <h3>Ответы на отзывы</h3>
+      <p>После закрытия заказа ИИ сам пишет ответ на отзыв. Настраивается длина, стиль, упоминание товара - отдельно для каждого количества звёзд.</p>
+    </div>
+    <div class="feat-card reveal" data-delay="2">
+      <div class="feat-card-badge">РАСПИСАНИЕ</div>
+      <div class="feat-ico" style="background:rgba(255,120,0,.08);border-color:rgba(255,120,0,.2)"><span class="mi" style="color:var(--acc2)">calendar_month</span></div>
+      <h3>Стиль по дням</h3>
+      <p>Хэллоуин? Новый год? Пятница? Задай расписание - ИИ автоматически переключится на другую манеру общения в нужный день или период.</p>
+    </div>
+    <div class="feat-card reveal" data-delay="3">
+      <div class="feat-card-badge">ГИБКО</div>
+      <div class="feat-ico" style="background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.2)"><span class="mi" style="color:var(--green)">layers</span></div>
+      <h3>Настройки по уровням</h3>
+      <p>Переопредели режим для конкретного чата, лота, категории. Глобально Auto, для категории Adobe - выключен, для одного лота внутри - снова включён.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- MODES -->
+<section id="modes" class="section" style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+<div class="wrap">
+  <div class="reveal">
+    <div class="s-tag"><span class="mi">power_settings_new</span> Режимы</div>
+    <div class="s-title">7 режимов работы</div>
+    <p class="s-sub">Выбери как ИИ обрабатывает входящие - от полного автопилота до режима наблюдателя.</p>
+  </div>
+  <div class="modes-grid">
+    <div class="mode-card reveal" data-delay="1">
+      <div class="mode-ico" style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2)"><span class="mi" style="color:var(--green)">bolt</span></div>
+      <div><h4>Авто</h4><p>ИИ отвечает на каждое сообщение автоматически. Дефолт - работает без тебя 24/7.</p></div>
+    </div>
+    <div class="mode-card reveal" data-delay="2">
+      <div class="mode-ico" style="background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2)"><span class="mi" style="color:#06b6d4">psychology</span></div>
+      <div><h4>Умный (Smart)</h4><p>Молчит на «ок», «понял», «спасибо». Пишет только при реальных вопросах. Сложное - переадресует тебе с уведомлением в TG.</p></div>
+    </div>
+    <div class="mode-card reveal" data-delay="1">
+      <div class="mode-ico" style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2)"><span class="mi" style="color:var(--yellow)">tips_and_updates</span></div>
+      <div><h4>Предложение (Suggest)</h4><p>Генерирует ответ и шлёт тебе в Telegram с кнопками. Ты решаешь - отправить, отредактировать или отклонить.</p></div>
+    </div>
+    <div class="mode-card reveal" data-delay="2">
+      <div class="mode-ico" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2)"><span class="mi" style="color:var(--purple)">monitoring</span></div>
+      <div><h4>Анализ</h4><p>Следит за твоими ответами и обучается на них. Пополняет базу примеров - покупателям сам ничего не пишет.</p></div>
+    </div>
+    <div class="mode-card reveal" data-delay="1">
+      <div class="mode-ico" style="background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2)"><span class="mi" style="color:var(--blue)">shopping_bag</span></div>
+      <div><h4>Только заказ</h4><p>Пишет только приветствие при новой оплате. На последующие сообщения - молчит. Для лотов с автовыдачей.</p></div>
+    </div>
+    <div class="mode-card reveal" data-delay="2">
+      <div class="mode-ico" style="background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.2)"><span class="mi" style="color:#a855f7">person</span></div>
+      <div><h4>Триггер продавца</h4><p>ИИ молчит пока ты не напишешь в чате <code>!ai</code>. После - подключается до закрытия заказа.</p></div>
+    </div>
+    <div class="mode-card reveal" data-delay="1">
+      <div class="mode-ico" style="background:rgba(251,146,60,.1);border:1px solid rgba(251,146,60,.2)"><span class="mi" style="color:#fb923c">person_raised_hand</span></div>
+      <div><h4>Триггер покупателя</h4><p>Молчит пока покупатель не напишет <code>!помощь</code>. Пропиши в описании лота.</p></div>
+    </div>
+    <div class="mode-card reveal" data-delay="2">
+      <div class="mode-ico" style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2)"><span class="mi" style="color:#ef4444">pause_circle</span></div>
+      <div><h4>Выключен</h4><p>ИИ полностью выключен. Настраивается глобально или для конкретного чата/лота/категории независимо.</p></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ADVANCED DETAILS -->
+<section id="advanced" class="section">
+<div class="wrap">
+  <div class="reveal">
+    <div class="s-tag"><span class="mi">labs</span> Детали</div>
+    <div class="s-title">Фичи которые важны</div>
+    <p class="s-sub">Всё что отличает рабочий инструмент от сырой поделки.</p>
+  </div>
+  <div class="big-demo reveal" data-delay="1">
+    <div class="big-demo-tabs">
+      <div class="bdt active" onclick="bigTab('hierarchy',this)"><span class="mi">layers</span> <span>Уровни настроек</span></div>
+      <div class="bdt" onclick="bigTab('silence',this)"><span class="mi">volume_off</span> <span>Умное молчание</span></div>
+      <div class="bdt" onclick="bigTab('refund',this)"><span class="mi">currency_exchange</span> <span>Авто-возврат</span></div>
+      <div class="bdt" onclick="bigTab('qr',this)"><span class="mi">bolt</span> <span>Шаблоны</span></div>
+      <div class="bdt" onclick="bigTab('schedule',this)"><span class="mi">calendar_month</span> <span>Расписание стиля</span></div>
+      <div class="bdt" onclick="bigTab('blacklist',this)"><span class="mi">block</span> <span>Список игнора</span></div>
+      <div class="bdt" onclick="bigTab('vision',this)"><span class="mi">image_search</span> <span>Vision</span></div>
+      <div class="bdt" onclick="bigTab('tgcmds',this)"><span class="mi">send</span> <span>TG команды</span></div>
+    </div>
+    <div class="big-demo-content">
+      <!-- HIERARCHY -->
+      <div class="bdp active" id="bdp-hierarchy">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start">
+          <div>
+            <div style="font-size:13px;color:var(--txt2);margin-bottom:18px;line-height:1.65">Настройки применяются каскадом - первая непустая выигрывает. Так можно глобально поставить «авто», а для конкретной категории - выключить, и для одного конкретного лота внутри неё - снова включить. Плюс для каждого уровня можно задать отдельный extra prompt для ИИ.</div>
+            <div class="hier-list">
+              <div class="hier-item"><div class="hier-num">1</div><div><div class="hier-title">Настройка чата</div><div class="hier-sub">Индивидуально для одного диалога</div></div><div class="hier-badge hb-chat">ВЫСШИЙ</div></div>
+              <div class="hier-item"><div class="hier-num">2</div><div><div class="hier-title">Настройка лота</div><div class="hier-sub">Для конкретного товара / группы лотов</div></div><div class="hier-badge hb-lot">ЛОТ</div></div>
+              <div class="hier-item"><div class="hier-num">3</div><div><div class="hier-title">Настройка категории</div><div class="hier-sub">Для всей категории FunPay</div></div><div class="hier-badge hb-cat">КАТЕГ.</div></div>
+              <div class="hier-item"><div class="hier-num">4</div><div><div class="hier-title">Глобальные настройки</div><div class="hier-sub">Применяется ко всему остальному</div></div><div class="hier-badge hb-global">ГЛОБ.</div></div>
+            </div>
+          </div>
+          <div class="code-block">
+            <div class="code-block-hd"><span class="mi">code</span> Пример иерархии</div>
+<div><span class="cm"># Глобально - авто</span></div>
+<div><span class="kw">global</span>: mode = <span class="str">"auto"</span></div>
+<div>&nbsp;</div>
+<div><span class="cm"># Категория Adobe - выкл</span></div>
+<div><span class="fn">category</span>[<span class="str">"Adobe"</span>]: mode = <span class="str">"off"</span></div>
+<div>&nbsp;</div>
+<div><span class="cm"># Конкретный лот - снова авто</span></div>
+<div><span class="fn">lot</span>[<span class="str">"Adobe Lightroom"</span>]: mode = <span class="str">"auto"</span></div>
+<div>&nbsp;</div>
+<div><span class="cm"># Конкретный чат - всегда выкл</span></div>
+<div><span class="fn">chat</span>[<span class="str">"toxic_buyer"</span>]: mode = <span class="str">"off"</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- SILENCE -->
+      <div class="bdp" id="bdp-silence">
+        <div style="font-size:13px;color:var(--txt2);margin-bottom:18px;line-height:1.65">Детерминированная фильтрация без участия ИИ - работает мгновенно и не тратит токены. Проверяется первое слово сообщения. Whitelist позволяет создавать исключения - например команду <span style="font-family:monospace;color:var(--acc)">!помощь</span>, которую ИИ обработает несмотря на фильтры.</div>
+        <div class="silence-rows">
+          <div class="srow"><div class="srow-msg">!acc key123</div><div class="srow-result silent"><span class="mi">volume_off</span> молчание</div></div>
+          <div class="srow"><div class="srow-msg">!code abc-def</div><div class="srow-result silent"><span class="mi">volume_off</span> молчание</div></div>
+          <div class="srow"><div class="srow-msg">ок понял спасибо</div><div class="srow-result silent"><span class="mi">smart_toy</span> [silent]</div></div>
+          <div class="srow"><div class="srow-msg">!помощь нужна помощь</div><div class="srow-result speak"><span class="mi">check_circle</span> белый список</div></div>
+          <div class="srow"><div class="srow-msg">как долго ждать активацию?</div><div class="srow-result speak"><span class="mi">check_circle</span> отвечает ИИ</div></div>
+          <div class="srow"><div class="srow-msg">когда придёт доступ?</div><div class="srow-result speak"><span class="mi">check_circle</span> отвечает ИИ</div></div>
+        </div>
+      </div>
+      <!-- REFUND -->
+      <div class="bdp" id="bdp-refund">
+        <div style="font-size:13px;color:var(--txt2);margin-bottom:20px;line-height:1.65">Полностью автоматический возврат «случайной оплаты» - без твоего участия. Все условия проверяются перед выполнением. Ключевые слова, лимит суммы и текст ответа покупателю - всё настраивается.</div>
+        <div class="rfsteps">
+          <div class="rfstep"><div class="rfstep-num">1</div><div><div class="rfstep-t">Покупатель пишет ключевое слово</div><div class="rfstep-s">«случайно», «передумал», «ошибся», «отмени» - список настраивается вручную</div></div><div class="rfstep-chk"><span class="mi">check</span></div></div>
+          <div class="rfstep"><div class="rfstep-num">2</div><div><div class="rfstep-t">Проверка условий</div><div class="rfstep-s">Товар ещё не выдан + сумма не превышает лимит + нет флага «подтверждение»</div></div><div class="rfstep-chk"><span class="mi">check</span></div></div>
+          <div class="rfstep"><div class="rfstep-num">3</div><div><div class="rfstep-t">Возврат через API</div><div class="rfstep-s">Деньги возвращаются, ИИ пишет покупателю от твоего лица</div></div><div class="rfstep-chk"><span class="mi">check</span></div></div>
+          <div class="rfstep"><div class="rfstep-num">4</div><div><div class="rfstep-t">Уведомление тебе</div><div class="rfstep-s">В Telegram приходит сводка - кто, что, на какую сумму</div></div><div class="rfstep-chk"><span class="mi">check</span></div></div>
+        </div>
+      </div>
+      <!-- QR -->
+      <div class="bdp" id="bdp-qr">
+        <div style="font-size:13px;color:var(--txt2);margin-bottom:18px;line-height:1.65">Если входящее сообщение содержит все ключевые слова - бот отвечает шаблоном без запроса к ИИ. Экономит токены, даёт идеальные ответы на типовые вопросы. Шаблон срабатывает когда ВСЕ ключи найдены в сообщении.</div>
+        <div>
+          <div class="qr-item"><div class="qr-head"><div class="qr-name">Как продлить</div><div class="qr-keys"><span class="qr-key">продлить</span><span class="qr-key">продление</span></div><div class="qr-trigger-badge"><span class="mi">bolt</span> сработало</div></div><div class="qr-ans">Чтобы продлить - напиши !продлить, бот выдаст инструкцию автоматически.</div></div>
+          <div class="qr-item"><div class="qr-head"><div class="qr-name">Гарантия</div><div class="qr-keys"><span class="qr-key">гарантия</span><span class="qr-key">срок</span></div></div><div class="qr-ans">Гарантия 30 дней, меняем без вопросов - просто напиши мне.</div></div>
+          <div class="qr-item"><div class="qr-head"><div class="qr-name">Инструкция</div><div class="qr-keys"><span class="qr-key">инструкция</span><span class="qr-key">активировать</span></div></div><div class="qr-ans">Инструкция по активации: 1) Зайди на сайт, 2) Мой аккаунт, 3) Активировать ключ. Вставь свой код из заказа.</div></div>
+        </div>
+      </div>
+      <!-- SCHEDULE -->
+      <div class="bdp" id="bdp-schedule">
+        <div style="font-size:13px;color:var(--txt2);margin-bottom:18px;line-height:1.65">ИИ автоматически меняет стиль общения по дням недели, точным датам (ММ-ДД) или периодам. Переопределяет эмодзи, юмор, эмпатию и добавляет тематический промпт. Готовые пресеты в комплекте.</div>
+        <div class="sched-items">
+          <div class="sched-item"><div class="sched-emoji">🎃</div><div><div class="sched-name">Хэллоуин</div><div class="sched-when">31 октября - мрачный стиль с тематическими отсылками</div></div><div class="sched-status-off">ожидание</div></div>
+          <div class="sched-item"><div class="sched-emoji">🕺</div><div><div class="sched-name">Пятница</div><div class="sched-when">Каждую пятницу - расслабленный, чуть веселее обычного</div></div><div class="sched-status-on">активно</div></div>
+          <div class="sched-item"><div class="sched-emoji">🎆</div><div><div class="sched-name">Новый год</div><div class="sched-when">31 дек - 1 янв, праздничные отсылки, больше эмодзи</div></div><div class="sched-status-off">ожидание</div></div>
+          <div class="sched-item"><div class="sched-emoji">💝</div><div><div class="sched-name">14 февраля</div><div class="sched-when">День влюблённых - чуть теплее и нежнее обычного</div></div><div class="sched-status-off">ожидание</div></div>
+        </div>
+      </div>
+      <!-- BLACKLIST -->
+      <div class="bdp" id="bdp-blacklist">
+        <div style="font-size:13px;color:var(--txt2);margin-bottom:18px;line-height:1.65">ИИ никогда не отвечает этим покупателям - ни в одном чате. Добавляется через кнопки в Telegram, команду /aiblock в боте или <span style="font-family:monospace;color:var(--acc)">!aiblock</span> прямо в чате FunPay.</div>
+        <div class="bl-list-inner">
+          <div class="bl-item"><span class="mi mi-f">person_off</span><div class="bl-item-name">toxic_buyer</div><div class="bl-item-reason">неадекватное поведение</div><div class="bl-item-badge">ИИ молчит</div></div>
+          <div class="bl-item"><span class="mi mi-f">person_off</span><div class="bl-item-name">scammer99</div><div class="bl-item-reason">попытка мошенничества</div><div class="bl-item-badge">ИИ молчит</div></div>
+        </div>
+        <div style="margin-top:18px;display:flex;gap:8px;flex-wrap:wrap">
+          <div class="badge"><span class="mi">send</span> /aiblock ник [причина]</div>
+          <div class="badge"><span class="mi">code</span> !aiblock - прямо в чате FunPay</div>
+          <div class="badge"><span class="mi">touch_app</span> Кнопка в TG уведомлении</div>
+        </div>
+      </div>
+      <!-- VISION -->
+      <div class="bdp" id="bdp-vision">
+        <div style="font-size:13px;color:var(--txt2);margin-bottom:18px;line-height:1.65">Покупатель скинул картинку с ошибкой - ИИ её видит и отвечает по делу. Работает с Anthropic Claude и OpenAI GPT-4o. Поддерживаются JPEG, PNG, WebP, GIF. Прокси-бэкенд Vision не поддерживает.</div>
+        <div class="vision-box">
+          <div class="vision-img-wrap"><span class="mi">image</span><div class="vision-scan"></div></div>
+          <div>
+            <div class="vision-label"><span class="mi">auto_fix_high</span> Vision прочитал содержимое</div>
+            <div class="vision-text">Ошибка «Код уже активирован» - это значит ключ использован на другом аккаунте. Сейчас напишу поставщику, замена придёт в течение часа - подожди!</div>
+          </div>
+        </div>
+      </div>
+      <!-- TG COMMANDS -->
+      <div class="bdp" id="bdp-tgcmds">
+        <div style="font-size:13px;color:var(--txt2);margin-bottom:18px;line-height:1.65">Управление прямо из Telegram - не нужно открывать панель. Все действия также доступны кнопками прямо в TG-уведомлениях - команды запоминать не обязательно.</div>
+        <div class="tg-cmds">
+          <div class="tg-cmd"><div class="tg-cmd-name">/aihelp</div><div class="tg-cmd-desc">Полный список команд с описанием</div></div>
+          <div class="tg-cmd"><div class="tg-cmd-name">/aimute</div><div class="tg-cmd-desc">Заглушить ИИ в чате или везде (1h/4h/forever)</div></div>
+          <div class="tg-cmd"><div class="tg-cmd-name">/aiunmute</div><div class="tg-cmd-desc">Снять заглушку с чата или глобально</div></div>
+          <div class="tg-cmd"><div class="tg-cmd-name">/aiblock</div><div class="tg-cmd-desc">Добавить покупателя в список игнора</div></div>
+          <div class="tg-cmd"><div class="tg-cmd-name">/aiunblock</div><div class="tg-cmd-desc">Убрать покупателя из списка игнора</div></div>
+          <div class="tg-cmd"><div class="tg-cmd-name">/aimode</div><div class="tg-cmd-desc">Сменить глобальный режим ИИ</div></div>
+          <div class="tg-cmd"><div class="tg-cmd-name">/aistats</div><div class="tg-cmd-desc">Статистика за сегодня и всё время</div></div>
+          <div class="tg-cmd"><div class="tg-cmd-name">/aixd</div><div class="tg-cmd-desc">Адрес веб-панели с IP и портом</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ALL FEATURES -->
+<section id="all-features" class="section" style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+<div class="wrap">
+  <div class="reveal">
+    <div class="s-tag"><span class="mi">checklist</span> Полный список</div>
+    <div class="s-title">Все функции<br>плагина</div>
+    <p class="s-sub">Абсолютно всё что умеет XD Intelligence - от базового до самого продвинутого.</p>
+  </div>
+  <div class="ff-grid reveal" data-delay="1">
+    <div class="ff-item"><div class="ff-ico"><span class="mi">layers</span></div><div><div class="ff-t">4 уровня настроек</div><div class="ff-s">Чат > Лот > Категория > Глобальные. Каждый уровень переопределяет предыдущий. Режим, extra prompt, фильтры - всё настраивается раздельно.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">inventory_2</span></div><div><div class="ff-t">Знает твои лоты</div><div class="ff-s">Описание каждого товара хранится в базе. ИИ отвечает точно по конкретному лоту, знает что продаётся, условия, особенности.</div></div></div>
+    <div class="ff-ico-item ff-item"><div class="ff-ico"><span class="mi">cloud_download</span></div><div><div class="ff-t">Авто-подтяжка описаний</div><div class="ff-s">Нажми одну кнопку - плагин сам скачает краткое и подробное описание с FunPay. Характеристики, параметры - всё автоматически.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">folder_special</span></div><div><div class="ff-t">Группы лотов</div><div class="ff-s">Объедини несколько лотов в группу с одной инструкцией. Все Steam-ключи одной инструкцией, все Adobe - другой. Инструкции суммируются каскадно.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">edit_note</span></div><div><div class="ff-t">Extra prompt на каждый уровень</div><div class="ff-s">Дополнительные инструкции для ИИ на уровне чата, лота, группы или категории. Все уровни объединяются в один промпт.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">local_shipping</span></div><div><div class="ff-t">Автовыдача товара</div><div class="ff-s">Прикрепи список ключей/кодов к лоту. При новом заказе ИИ выдаст первый из списка вместе с приветствием. Уведомление когда товар заканчивается.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">image_search</span></div><div><div class="ff-t">Vision - видит скриншоты</div><div class="ff-s">Покупатель кинул фото ошибки - ИИ скачивает, читает через Vision API и отвечает по делу. JPEG, PNG, WebP, GIF. Anthropic и OpenAI.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">currency_exchange</span></div><div><div class="ff-t">Авто-возврат</div><div class="ff-s">Ключевые слова + товар не выдан + сумма в лимите = автоматический возврат через API. Настраиваемые ключи, лимит суммы, текст ответа.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">star</span></div><div><div class="ff-t">Авто-ответы на отзывы</div><div class="ff-s">ИИ сам пишет ответ на отзыв после закрытия заказа. Длина, тон (официальный/дружелюбный/неформальный), упомянуть товар, мин. рейтинг.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">model_training</span></div><div><div class="ff-t">Самообучение</div><div class="ff-s">ИИ периодически спрашивает «правильно ли я сделал?». Одобрил - интервал растёт. Поправил - правка попадает в базу. Настраиваемый множитель доверия.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">school</span></div><div><div class="ff-t">Примеры ответов (few-shot)</div><div class="ff-s">Добавь пары «покупатель написал - ты ответил». ИИ скопирует твой стиль. До 15 пар. Плюс режим Анализ собирает примеры автоматически.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">add_task</span></div><div><div class="ff-t">Ручное обучение</div><div class="ff-s">Добавь правило вручную прямо из панели - «если спрашивают X, отвечать Y». Мгновенно попадает в базу примеров.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">build</span></div><div><div class="ff-t">Правки от хозяина</div><div class="ff-s">Когда ты исправляешь ответ ИИ через TG, правка сохраняется отдельно и вставляется в каждый системный промпт. ИИ не повторяет ошибок.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">palette</span></div><div><div class="ff-t">12 параметров стиля письма</div><div class="ff-s">Эмодзи, длина ответа, написание, юмор, обращение, приветствия, пунктуация, сленг, встречные вопросы, эмпатия, завершение, вводные слова.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">do_not_disturb_on</span></div><div><div class="ff-t">Запрещённые фразы</div><div class="ff-s">Список слов и фраз которые ИИ никогда не использует. «Здравствуйте», «Рады помочь», «Если есть вопросы обращайтесь» - всё можно запретить.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">calendar_month</span></div><div><div class="ff-t">Расписание стиля по датам</div><div class="ff-s">Хэллоуин, 14 фев, Новый год, Пятница - по дню недели, точной дате или периоду. Встроенные пресеты, своя настройка любого дня.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">schedule</span></div><div><div class="ff-t">Расписание работы ИИ</div><div class="ff-s">Часы и дни когда ИИ активен. Вне расписания - молчит или шлёт автоответ «не онлайн» (раз в 6 часов). Несколько окон, часовой пояс.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">bolt</span></div><div><div class="ff-t">Шаблоны быстрых ответов</div><div class="ff-s">Все ключевые слова в сообщении совпали - бот отвечает шаблоном без запроса к ИИ. Ноль токенов, мгновенно. Несколько ключей на шаблон.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">volume_off</span></div><div><div class="ff-t">Умное молчание</div><div class="ff-s">Префиксы молчания (!acc, !code) - ИИ молчит без запроса к API. Whitelist - исключения. Флаг «молчать на всё с !» для продавцов с кучей команд.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">warning_amber</span></div><div><div class="ff-t">Стоп-слова</div><div class="ff-s">Арбитраж, мошенник, жалоба - при обнаружении ИИ молчит, тебе летит срочное уведомление в TG с кнопками управления.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">block</span></div><div><div class="ff-t">Блэклист</div><div class="ff-s">ИИ никогда не отвечает покупателям из списка ни в одном чате. Через TG-кнопку, /aiblock, или !aiblock прямо в чате FunPay.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">balance</span></div><div><div class="ff-t">Арбитраж</div><div class="ff-s">Сотрудник FunPay вошёл в чат - ИИ автоматически замолкает до закрытия заказа. Уведомление с кнопкой «Снять блок вручную».</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">sos</span></div><div><div class="ff-t">Эскалация</div><div class="ff-s">Вопрос слишком сложный - ИИ пишет покупателю «уточню у продавца» и шлёт тебе уведомление. Только в умном режиме.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">volume_up</span></div><div><div class="ff-t">Заглушение чата</div><div class="ff-s">Заглушить на 1ч, 4ч или навсегда через TG-кнопки, /aimute, или !aioff в чате FunPay. Временная заглушка снимается автоматически.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">notifications</span></div><div><div class="ff-t">TG уведомления</div><div class="ff-s">Новый заказ, возврат, отзыв, мало товара, стоп-слово, эскалация, арбитраж. Шаблоны всех уведомлений редактируются.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">touch_app</span></div><div><div class="ff-t">Inline-кнопки в уведомлениях</div><div class="ff-s">Открыть чат FunPay, заглушить на 1ч/4ч/навсегда, в блэклист, карточка покупателя - всё прямо из Telegram без команд.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">hub</span></div><div><div class="ff-t">3 AI бэкенда</div><div class="ff-s">Proxy без ключа (работает сразу). Anthropic Claude (Opus/Sonnet/Haiku, Vision). OpenAI GPT-4o/mini (Vision). Выбор модели в панели.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">smart_toy</span></div><div><div class="ff-t">Постобработка ответов</div><div class="ff-s">Убирает длинные тире и кавычки-ёлочки. Схлопывает двойные переносы. Детектирует [silent] и [ESCALATE] - обрабатывает без отправки покупателю.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">desktop_windows</span></div><div><div class="ff-t">Веб-панель</div><div class="ff-s">Дашборд с графиком за 30 дней, настройка лотов, тест-чат, логи в реальном времени, экспорт/импорт настроек. Защита паролем.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">smart_toy</span></div><div><div class="ff-t">Тест-чат</div><div class="ff-s">Полный симулятор прямо в панели. Симуляция заказа, стоп-слова, suggest, авто-возврат. История сохраняется между сессиями.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">tune</span></div><div><div class="ff-t">Точные лимиты и таймеры</div><div class="ff-s">Задержка ответа 0-30 сек. Макс. ответов в час. Молчать если продавец писал недавно (в секундах). Макс. сумма авто-возврата.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">message</span></div><div><div class="ff-t">Дедупликация сообщений</div><div class="ff-s">Каждое сообщение обрабатывается ровно один раз по ID. Если на чат уже летит ответ ИИ - второй поток не запускается.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">backup</span></div><div><div class="ff-t">Авто-бэкапы</div><div class="ff-s">Каждые 6 часов автоматически. Хранится 8 последних копий в storage/plugins/backups/. Кнопка «Сделать бэкап сейчас» в панели.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">insights</span></div><div><div class="ff-t">Аналитика по дням</div><div class="ff-s">Счётчики сообщений, заказов, отзывов, QR-шаблонов, молчаний, пропусков блэклиста за каждый день. Оценки ИИ. Хранится 60 дней.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">download</span></div><div><div class="ff-t">Экспорт и импорт</div><div class="ff-s">Сохрани все настройки в JSON и перенеси на другой сервер. Лоты, личность, шаблоны, блэклист - всё одним файлом.</div></div></div>
+  </div>
+</div>
+</section>
+
+<!-- ANALYTICS + CODE -->
+<section class="section" style="padding-top:60px">
+<div class="wrap">
+  <div class="highlight-wrap reveal">
+    <div>
+      <div class="s-tag" style="margin-bottom:14px"><span class="mi">insights</span> Аналитика</div>
+      <div class="s-title" style="font-size:clamp(22px,3vw,38px)">Видишь всё<br>что происходит</div>
+      <p style="font-size:13.5px;color:var(--txt2);margin:14px 0 22px;line-height:1.7">Дашборд в реальном времени: сообщения, заказы, отзывы, возвраты. График по дням, оценки решений ИИ - одобренные и исправленные.</p>
+      <div class="badge-row">
+        <div class="badge"><span class="mi">bar_chart</span> График по 30 дням</div>
+        <div class="badge"><span class="mi">thumb_up</span> Оценки ИИ</div>
+        <div class="badge"><span class="mi">send</span> TG уведомления</div>
+      </div>
+      <div style="margin-top:22px">
+        <div style="font-size:10px;font-weight:700;color:var(--txt4);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Активность за неделю</div>
+        <div class="mini-chart" id="mini-chart"></div>
+      </div>
+    </div>
+    <div class="code-block">
+      <div class="code-block-hd"><span class="mi">psychology</span> Логика ИИ</div>
+<div><span class="cm">// Умный игнор команд автобота</span></div>
+<div><span class="kw">if</span> text.<span class="fn">startswith</span>(<span class="str">"!acc"</span>, <span class="str">"!code"</span>):</div>
+<div>&nbsp;&nbsp;<span class="kw">return</span> <span class="str">"silent"</span>&nbsp;&nbsp;<span class="cm"># 0 токенов</span></div>
+<div>&nbsp;</div>
+<div><span class="cm">// Авто-возврат «случайная оплата»</span></div>
+<div><span class="kw">if</span> <span class="fn">is_accidental</span>(text) <span class="kw">and</span> <span class="kw">not</span> delivered:</div>
+<div>&nbsp;&nbsp;<span class="fn">refund</span>(order_id)</div>
+<div>&nbsp;&nbsp;<span class="fn">notify_telegram</span>(<span class="str">"Возврат выполнен"</span>)</div>
+<div>&nbsp;</div>
+<div><span class="cm">// Сложный вопрос? Позвать продавца</span></div>
+<div><span class="kw">if</span> reply.<span class="fn">starts</span>(<span class="str">"[ESCALATE]"</span>):</div>
+<div>&nbsp;&nbsp;<span class="fn">notify_seller</span>()</div>
+<div>&nbsp;&nbsp;<span class="fn">reply_buyer</span>(escalate_text)</div>
+<div>&nbsp;</div>
+<div><span class="cm">// Покупатель скинул скриншот</span></div>
+<div><span class="kw">if</span> <span class="fn">has_image</span>(message):</div>
+<div>&nbsp;&nbsp;text = <span class="fn">vision_ocr</span>(image_url)</div>
+<div>&nbsp;&nbsp;<span class="kw">return</span> <span class="fn">ai_reply</span>(context + text)</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- AI BACKENDS -->
+<section class="section" style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:80px 0">
+<div class="wrap">
+  <div class="reveal" style="text-align:center;max-width:560px;margin:0 auto">
+    <div class="s-tag" style="justify-content:center"><span class="mi">hub</span> AI Backend</div>
+    <div class="s-title" style="font-size:clamp(22px,3.5vw,44px)">Три варианта -<br>твой выбор</div>
+    <p class="s-sub" style="margin:0 auto">Прокси без ключа для быстрого старта, Anthropic Claude для Vision, OpenAI как альтернатива.</p>
+  </div>
+  <div class="be-grid reveal" data-delay="1">
+    <div class="be-card" data-color="orange">
+      <div class="be-card-ico" style="border-color:rgba(255,77,0,.2);background:rgba(255,77,0,.08)"><span class="mi" style="color:var(--acc)">cloud</span></div>
+      <h4>Proxy (fptools)</h4>
+      <p>Встроенный прокси без ключей и регистрации. Работает сразу после установки. Vision не поддерживает.</p>
+      <div class="be-badge" style="background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.25)">Сразу работает</div>
+    </div>
+    <div class="be-card" data-color="purple">
+      <div class="be-card-ico" style="border-color:rgba(139,92,246,.2);background:rgba(139,92,246,.08)"><span class="mi" style="color:var(--purple)">psychology_alt</span></div>
+      <h4>Anthropic Claude</h4>
+      <p>Claude Opus - самый умный вариант. Поддерживает Vision API и понимает контекст до 200k токенов. Модели: Opus, Sonnet, Haiku.</p>
+      <div class="be-badge" style="background:rgba(139,92,246,.1);color:var(--purple);border:1px solid rgba(139,92,246,.25)">Рекомендуется</div>
+    </div>
+    <div class="be-card" data-color="green">
+      <div class="be-card-ico" style="border-color:rgba(34,197,94,.2);background:rgba(34,197,94,.08)"><span class="mi" style="color:var(--green)">generating_tokens</span></div>
+      <h4>OpenAI GPT-4o</h4>
+      <p>GPT-4o и GPT-4o mini. Поддерживает Vision. Подойдёт если уже есть ключ OpenAI. Выбор модели в панели.</p>
+      <div class="be-badge" style="background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.25)">Vision готов</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- SCREENSHOTS -->
+<section id="screenshots" class="section">
+<div class="wrap">
+  <div class="reveal">
+    <div class="s-tag"><span class="mi">photo_library</span> Скриншоты</div>
+    <div class="s-title">Смотри как<br>выглядит изнутри</div>
+    <p class="s-sub">Веб-панель управления - полноценный интерфейс в браузере. Работает на любом устройстве.</p>
+  </div>
+  <div class="screenshots-grid reveal" data-delay="1">
+    <div class="screenshot-card">
+      <img src="screenshot-dashboard.png" alt="Дашборд" loading="lazy">
+      <div class="screenshot-lbl"><span class="mi">dashboard</span> Дашборд - статистика и аналитика</div>
+    </div>
+    <div class="screenshot-card">
+      <img src="screenshot-chat-test.png" alt="Тест чат" loading="lazy">
+      <div class="screenshot-lbl"><span class="mi">smart_toy</span> Тест-чат - симулятор покупателя</div>
+    </div>
+    <div class="screenshot-card">
+      <img src="screenshot-personality.png" alt="Личность" loading="lazy">
+      <div class="screenshot-lbl"><span class="mi">badge</span> Личность - промпт и примеры ответов</div>
+    </div>
+    <div class="screenshot-card">
+      <img src="screenshot-style.png" alt="Стиль" loading="lazy">
+      <div class="screenshot-lbl"><span class="mi">palette</span> Стиль письма - 12 параметров</div>
+    </div>
+    <div class="screenshot-card">
+      <img src="screenshot-lots.png" alt="Лоты" loading="lazy">
+      <div class="screenshot-lbl"><span class="mi">inventory_2</span> Лоты - описания и автовыдача</div>
+    </div>
+    <div class="screenshot-card">
+      <img src="screenshot-settings-main.png" alt="Настройки" loading="lazy">
+      <div class="screenshot-lbl"><span class="mi">tune</span> Настройки - возвраты, отзывы, фильтры</div>
+    </div>
+    <div class="screenshot-card">
+      <img src="screenshot-settings-qr.png" alt="Шаблоны" loading="lazy">
+      <div class="screenshot-lbl"><span class="mi">bolt</span> Шаблоны быстрых ответов</div>
+    </div>
+    <div class="screenshot-card">
+      <img src="screenshot-chats.png" alt="Чаты" loading="lazy">
+      <div class="screenshot-lbl"><span class="mi">forum</span> Чаты - управление диалогами</div>
+    </div>
+    <div class="screenshot-card">
+      <img src="screenshot-backend.png" alt="AI Backend" loading="lazy">
+      <div class="screenshot-lbl"><span class="mi">hub</span> AI Backend - выбор провайдера</div>
+    </div>
+    <div class="screenshot-card">
+      <img src="screenshot-schedule.png" alt="Расписание" loading="lazy">
+      <div class="screenshot-lbl"><span class="mi">calendar_month</span> Расписание стиля по датам</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" class="section" style="text-align:center;background:var(--bg2);border-top:1px solid var(--border)">
+<div class="wrap">
+  <div class="reveal">
+    <div class="s-tag" style="justify-content:center"><span class="mi">sell</span> Цена</div>
+    <div class="s-title" style="font-size:clamp(26px,5vw,60px)">Один раз -<br>навсегда</div>
+    <p class="s-sub" style="margin:0 auto">Без подписок. Без ежемесячных платежей. Купил лицензию - пользуешься вечно, получаешь все обновления.</p>
+  </div>
+  <div class="pricing-wrap reveal" data-delay="1">
+    <div class="pricing-card">
+      <div class="pricing-label">Бессрочная лицензия</div>
+      <div class="pricing-price"><sup>₽</sup>5 000</div>
+      <div class="pricing-equiv">
+        <span class="pricing-eq">~ 65 USDT</span>
+        <span class="pricing-eq">~ 4300 Stars</span>
+      </div>
+      <div class="pricing-features">
+        <div class="pricing-feat"><span class="mi mi-f">check_circle</span> Все 7+ режимов работы</div>
+        <div class="pricing-feat"><span class="mi mi-f">check_circle</span> Vision API - ИИ видит скриншоты</div>
+        <div class="pricing-feat"><span class="mi mi-f">check_circle</span> Веб-панель управления</div>
+        <div class="pricing-feat"><span class="mi mi-f">check_circle</span> Авто-возврат через API</div>
+        <div class="pricing-feat"><span class="mi mi-f">check_circle</span> Самообучение и правки</div>
+        <div class="pricing-feat"><span class="mi mi-f">check_circle</span> Все 34+ функции из списка выше</div>
+        <div class="pricing-feat"><span class="mi mi-f">check_circle</span> Все будущие обновления</div>
+        <div class="pricing-feat"><span class="mi mi-f">check_circle</span> Поддержка в Telegram</div>
+      </div>
+      <a href="https://t.me/FPToolsBot?start=buy_xdai" target="_blank" class="btn btn-p btn-lg btn-glow" style="width:100%;justify-content:center">
+        <span class="mi">send</span> Оплатить в Telegram
+      </a>
+      <div class="pay-methods">
+        <div class="pay-badge"><span class="mi">credit_card</span> Карты РФ</div>
+        <div class="pay-badge"><span class="mi">account_balance</span> СБП</div>
+        <div class="pay-badge"><span class="mi">currency_bitcoin</span> Crypto</div>
+        <div class="pay-badge"><span class="mi">star</span> Stars</div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- REVIEWS -->
+<section class="section" style="padding-top:80px">
+<div class="wrap">
+  <div class="reveal">
+    <div class="s-tag"><span class="mi">reviews</span> Отзывы</div>
+    <div class="s-title">Продавцы говорят</div>
+  </div>
+  <div class="reviews-grid">
+    <div class="review-card reveal" data-delay="1">
+      <div class="review-stars"><span class="mi mi-f">star</span><span class="mi mi-f">star</span><span class="mi mi-f">star</span><span class="mi mi-f">star</span><span class="mi mi-f">star</span></div>
+      <div class="review-text">Поставил и забыл. Покупатели думают что я всегда онлайн - отвечает быстрее чем я бы ответил вручную. Возвраты оформляет сам, уведомления только когда нужна живая голова.</div>
+      <div class="review-user">
+        <div class="review-av"><img src="https://sfunpay.com/s/avatar/dw/kl/dwkljqe4vyfoam6xszcl.jpg" alt="KR"></div>
+        <div><div class="review-name">KingRofl</div><div class="review-sub">Продавец Steam аккаунтов</div></div>
+      </div>
+    </div>
+    <div class="review-card reveal" data-delay="2">
+      <div class="review-stars"><span class="mi mi-f">star</span><span class="mi mi-f">star</span><span class="mi mi-f">star</span><span class="mi mi-f">star</span><span class="mi mi-f">star</span></div>
+      <div class="review-text">Vision - это отдельный кайф. Покупатели кидают скрины ошибок, ИИ их читает и сразу даёт правильный ответ. Раньше тратил по 2 часа в день на поддержку.</div>
+      <div class="review-user">
+        <div class="review-av"><img src="https://sfunpay.com/s/avatar/4y/xa/4yxavbomcpn8nj9k237i.jpg" alt="NX"></div>
+        <div><div class="review-name">Nexus_trade</div><div class="review-sub">Продавец игровой валюты</div></div>
+      </div>
+    </div>
+    <div class="review-card reveal" data-delay="3">
+      <div class="review-stars"><span class="mi mi-f">star</span><span class="mi mi-f">star</span><span class="mi mi-f">star</span><span class="mi mi-f">star</span><span class="mi mi-f">star</span></div>
+      <div class="review-text">Suggest - работаю с телефона. ИИ генерит, я одобряю одной кнопкой. Получилось что я как бы всегда на месте, даже когда еду в метро или сплю.</div>
+      <div class="review-user">
+        <div class="review-av"><img src="https://sfunpay.com/s/avatar/wh/ss/whssnuzmkdvcl18llc02.jpg" alt="AM"></div>
+        <div><div class="review-name">AlphaMarket</div><div class="review-sub">Продавец подписок</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+<div class="wrap">
+  <div class="footer-inner">
+    <a href="#" class="footer-logo">
+      <div class="footer-logo-ico">
+        <img src="intelligence.png" alt="XD" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <span class="mi mi-f" style="display:none;font-size:15px;color:#fff">smart_toy</span>
+      </div>
+      XD Intelligence
+    </a>
+    <div class="footer-links">
+      <a href="https://t.me/FPToolsBot" target="_blank">@FPToolsBot</a>
+      <a href="https://t.me/AlliSighs" target="_blank">Разработчик</a>
+      <a href="https://github.com/sidor0912/FunPayCardinal" target="_blank">GitHub</a>
+      <a href="https://funpay.com" target="_blank">FunPay</a>
+    </div>
+  </div>
+  <div class="footer-disc">XaviersDev - FunPay Tools &copy; 2026 &nbsp;·&nbsp; Не является официальным продуктом FunPay</div>
+</div>
+</footer>
+
+<script>
+window.addEventListener('scroll',()=>{document.getElementById('main-nav').classList.toggle('scrolled',scrollY>40);});
+window.scrollTo=s=>{const el=typeof s==='string'?document.querySelector(s):null;if(el)el.scrollIntoView({behavior:'smooth',block:'start'});};
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});},{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+function animateCount(el,target,suffix=''){let current=0;const step=target/40;const timer=setInterval(()=>{current=Math.min(current+step,target);el.textContent=Math.round(current);if(current>=target)clearInterval(timer);},30);}
+const counterObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){animateCount(document.getElementById('c-msgs'),24718);animateCount(document.getElementById('c-orders'),7);animateCount(document.getElementById('c-subs'),0);animateCount(document.getElementById('c-backends'),3);counterObs.disconnect();}});},{threshold:0.5});
+const statsEl=document.querySelector('.stats-row');if(statsEl)counterObs.observe(statsEl);
+(function(){const data=[12,18,8,24,31,19,14,28,35,22,16,40,33,25,18,29,37,21,15,44,38,26,19,42,31,23,17,46,39,28];const max=Math.max(...data);const chart=document.getElementById('mini-chart');if(chart)chart.innerHTML=data.map(v=>`<div class="mc-bar" style="height:${Math.max(4,Math.round(v/max*100))}%"></div>`).join('');})();
+function bigTab(id,el){document.querySelectorAll('.bdt').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.bdp').forEach(p=>p.classList.remove('active'));el.classList.add('active');const panel=document.getElementById('bdp-'+id);if(panel)panel.classList.add('active');}
+// DEMO SIMULATOR
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+let sceneRunning=false;
+const BUYER_AVATARS={sad_buyer:'https://sfunpay.com/s/avatar/bq/yr/bqyry3mk1k4ql8xhpaqo.jpg',angry_kid:'https://sfunpay.com/s/avatar/xb/nl/xbnlqlka4m4y3zhrn54e.jpeg',trader1337:'https://sfunpay.com/s/avatar/90/le/90lehyj4vdyl0ozwt8pf.jpg',polite_guy:'https://sfunpay.com/s/avatar/wh/ss/whssnuzmkdvcl18llc02.jpg',confused_user:'https://sfunpay.com/s/avatar/4y/xa/4yxavbomcpn8nj9k237i.jpg',bad_guy:'https://sfunpay.com/s/avatar/dw/kl/dwkljqe4vyfoam6xszcl.jpg',happy_buyer:'https://sfunpay.com/s/avatar/bq/yr/bqyry3mk1k4ql8xhpaqo.jpg'};
+async function addMsg(role,text,area){const div=document.createElement('div');div.className=`msg ${role}`;const buyerName=document.getElementById('d-buyer').textContent;const author=role==='me'?'XD Intelligence':buyerName;div.innerHTML=`<div class="msg-author">${author}</div><div class="msg-bubble"></div>`;area.appendChild(div);area.scrollTop=area.scrollHeight;if(role==='me'){div.querySelector('.msg-bubble').innerHTML='<div class="typing-dots"><span></span><span></span><span></span></div>';await sleep(1200+Math.random()*400);div.querySelector('.msg-bubble').textContent=text;}else{div.querySelector('.msg-bubble').textContent=text;}area.scrollTop=area.scrollHeight;}
+function addChip(icon,text,type,area){const div=document.createElement('div');div.className=`sys-chip ${type}`;div.innerHTML=`<span class="mi">${icon}</span>${text}`;area.appendChild(div);area.scrollTop=area.scrollHeight;}
+function addTgNotif(title,body,btns,titleIcon,titleColor){const tg=document.getElementById('d-tg');const empty=tg.querySelector('.dtg-empty');if(empty)empty.remove();const div=document.createElement('div');div.className='tg-notif';const iconColor=titleColor||'var(--acc)';let btnsHtml='';if(btns&&btns.length){btnsHtml=`<div class="tg-btns">${btns.map((b,i)=>{if(i===0)return`<div class="tg-btn prim" onclick="${b.action||''}" style="grid-column:span 2"><div class="tg-btn-ring"></div>${b.label}</div>`;return`<div class="tg-btn ${b.green?'green-btn':''}" onclick="${b.action||''}">${b.label}</div>`;}).join('')}</div>`;}
+div.innerHTML=`<div class="tg-notif-hd" style="color:${iconColor}"><span class="mi mi-f" style="font-size:13px">${titleIcon||'notifications_active'}</span>${title}</div><div class="tg-notif-body">${body}</div>${btnsHtml}`;tg.appendChild(div);tg.scrollTop=tg.scrollHeight;return div;}
+function addOrderReviewInTg(buyer,stars,reviewText,replyText){const tg=document.getElementById('d-tg');const empty=tg.querySelector('.dtg-empty');if(empty)empty.remove();const starsHtml='⭐'.repeat(stars);const div=document.createElement('div');div.className='tg-notif';div.innerHTML=`<div class="tg-notif-hd" style="color:var(--yellow)"><span class="mi mi-f" style="font-size:13px">star</span>Новый отзыв ${starsHtml}</div><div class="tg-notif-body">${buyer} - <i>"${reviewText}"</i></div><div class="order-mock" style="margin-top:8px"><div class="order-mock-hd">Страница заказа</div><div style="font-size:16px;margin-bottom:4px">${starsHtml}</div><div style="font-size:11px;color:var(--txt2);font-style:italic;margin-bottom:8px">"${reviewText}"</div><div class="order-mock-reply"><div class="order-mock-reply-lbl">Ответ продавца - ИИ</div>${replyText}</div></div>`;tg.appendChild(div);tg.scrollTop=tg.scrollHeight;}
+async function runScene(type,btn){if(sceneRunning)return;sceneRunning=true;document.querySelectorAll('.scene-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');const msgs=document.getElementById('d-msgs');const tg=document.getElementById('d-tg');const buyerEl=document.getElementById('d-buyer');const modeEl=document.getElementById('d-mode');const avEl=document.getElementById('d-av');msgs.innerHTML='';tg.innerHTML='<div class="dtg-empty"><div><span class="mi" style="font-size:28px;display:block;margin-bottom:6px;color:var(--border2)">send</span>Уведомления появятся здесь</div></div>';
+function setAvatar(name){const url=BUYER_AVATARS[name];if(url){avEl.innerHTML=`<img src="${url}" alt="${name}" onerror="this.parentNode.innerHTML='<span class=mi>person</span>'">`;}else{avEl.innerHTML='<span class="mi">person</span>';}}
+const scenes={
+refund:{buyer:'sad_buyer',mode:'режим: auto',async run(){setAvatar('sad_buyer');await sleep(400);await addMsg('them','Блин, не тот сервер выбрал при оплате... можешь отменить заказ?',msgs);await sleep(600);addChip('psychology','Анализ: намерение «отмена заказа»','proc',msgs);await sleep(700);addChip('checklist','Товар не выдан - сумма 320₽ <= 500₽ - ключевые слова совпали','ok',msgs);await sleep(600);addChip('currency_exchange','Выполняю возврат через API...','warn',msgs);await sleep(900);addTgNotif('Возврат выполнен','sad_buyer - заказ #87234 - 320 ₽',null,'currency_exchange','var(--green)');await addMsg('me','Без проблем! Заказ отменил, деньги вернутся на баланс в течение пары минут. Выбирай нужный сервер и возвращайся 👌',msgs);addChip('check_circle','Возврат выполнен - без твоего участия','ok',msgs);}},
+escalate:{buyer:'angry_kid',mode:'режим: smart',async run(){setAvatar('angry_kid');await sleep(400);await addMsg('them','Я купил аккаунт а там БАН!!! Верни деньги или иду в арбитраж!!',msgs);await sleep(700);addChip('warning_amber','Smart: обнаружены стоп-слова «арбитраж», «верни деньги»','warn',msgs);await sleep(600);addChip('psychology','Smart: вопрос требует продавца - отправляю [ESCALATE]','info',msgs);await sleep(700);addChip('send','Уведомление продавцу в Telegram...','info',msgs);await sleep(500);addTgNotif('Нужна твоя помощь 🆘','angry_kid пишет про бан и арбитраж\nТребуется ручной ответ.',[{label:'💬 Ответить',action:`(async function(){document.getElementById('d-tg').querySelectorAll('.tg-btn').forEach(b=>b.disabled=true);addChip('check_circle','Продавец подключился к чату','ok',document.getElementById('d-msgs'));await sleep(400);addMsg('me','Привет! Вижу что с аккаунтом проблема. Сам разберусь прямо сейчас - дай пару минут!',document.getElementById('d-msgs'));})()` },{label:'🔇 Заглушить'}],'sos','#ef4444');await addMsg('me','Секунду - уже передаю продавцу, он ответит лично. Не уходи!',msgs);}},
+suggest:{buyer:'trader1337',mode:'режим: suggest',async run(){setAvatar('trader1337');await sleep(400);await addMsg('them','А скидку дашь если возьму 3 штуки прямо сейчас?',msgs);await sleep(700);addChip('tips_and_updates','Режим Suggest - генерирую ответ...','proc',msgs);await sleep(1000);addChip('send','Отправляю предложение тебе в Telegram','info',msgs);await sleep(500);addTgNotif('Предложить ответ?','trader1337: хочет скидку на 3 штуки\n\nВариант ИИ: «Да! 3 штуки - скидка 10%. Оформляй, жду.»',[{label:'✅ Отправить',action:`(async function(){const msgs=document.getElementById('d-msgs');addChip('check_circle','Одобрено - отправляю','ok',msgs);await sleep(300);addMsg('me','Да, конечно! 3 штуки - скидка 10% сразу. Оформляй, я на связи 👍',msgs);document.getElementById('d-tg').querySelectorAll('.tg-btn').forEach(b=>b.disabled=true);})()` },{label:'✏️ Изменить'},{label:'❌ Отклонить'}],'tips_and_updates','var(--yellow)');}},
+silence:{buyer:'polite_guy',mode:'режим: auto',async run(){setAvatar('polite_guy');await sleep(400);await addMsg('them','!acc key-abc-xyz-123',msgs);await sleep(500);addChip('volume_off','Префикс «!acc» - молчу. Нет запроса к ИИ, 0 токенов.','ok',msgs);await sleep(900);await addMsg('them','Всё проверил, всё работает, спасибо большое!',msgs);await sleep(600);addChip('psychology','Smart: анализ - покупатель завершает диалог','proc',msgs);await sleep(700);addChip('do_not_disturb_on','ИИ ответил [silent] - говорить нечего, молчим','ok',msgs);await sleep(500);addTgNotif('Диалог закрыт','polite_guy - заказ доставлен\nТокенов потрачено: 0',null,'check_circle','var(--green)');}},
+stopword:{buyer:'bad_guy',mode:'режим: auto',async run(){setAvatar('bad_guy');await sleep(400);await addMsg('them','Это мошенник! Подам жалобу и пойду в арбитраж!',msgs);await sleep(600);addChip('warning_amber','Стоп-слова: «мошенник», «жалоба», «арбитраж»','warn',msgs);await sleep(500);addChip('pause_circle','ИИ приостановил авто-ответы в этом чате','err',msgs);await sleep(600);addTgNotif('⚠️ Срочно!','bad_guy пишет:\n«мошенник, жалоба, арбитраж»\n\nНайдено: 3 стоп-слова',[{label:'💬 Открыть чат'},{label:'🔇 Заглушить 1ч'},{label:'🚫 В список игнора',green:true}],'warning','#ef4444');addChip('check_circle','Ты уведомлён - ИИ молчит до твоего решения','ok',msgs);}},
+review:{buyer:'happy_buyer',mode:'режим: auto',async run(){setAvatar('happy_buyer');buyerEl.textContent='happy_buyer';await sleep(500);addChip('star','Получен новый отзыв 5★ - happy_buyer','info',msgs);await sleep(800);addChip('psychology','Генерирую ответ на отзыв...','proc',msgs);await sleep(1100);addChip('check_circle','Ответ отправлен через API','ok',msgs);await sleep(400);addOrderReviewInTg('happy_buyer',5,'Всё отлично, быстро и профессионально!','Спасибо за тёплые слова! Приятно работать с такими покупателями - возвращайся за следующим заказом! 😊');}},
+vision:{buyer:'confused_user',mode:'режим: auto (Vision)',async run(){setAvatar('confused_user');await sleep(400);const imgMsg=document.createElement('div');imgMsg.className='msg them';imgMsg.innerHTML=`<div class="msg-author">${buyerEl.textContent}</div><div class="msg-bubble" style="display:flex;align-items:center;gap:8px"><span class="mi" style="font-size:22px;color:var(--txt3)">image</span><span style="font-size:12px;color:var(--txt2)">error_screenshot.png</span></div>`;msgs.appendChild(imgMsg);msgs.scrollTop=msgs.scrollHeight;await sleep(700);addChip('image_search','Vision: скачиваю и читаю скриншот...','proc',msgs);await sleep(1300);addChip('auto_fix_high','Vision OCR: прочитан текст ошибки','ok',msgs);await sleep(600);await addMsg('me','Вижу ошибку «Код уже активирован» - ключ использован на другом аккаунте. Сейчас свяжусь с поставщиком и заменю в течение часа, жди!',msgs);}},
+blacklist:{buyer:'bad_guy',mode:'режим: auto',async run(){setAvatar('bad_guy');await sleep(400);await addMsg('them','Опять я. Требую возврат немедленно!',msgs);await sleep(600);addChip('block','«bad_guy» найден в списке игнора','err',msgs);await sleep(500);addChip('volume_off','Список игнора: ИИ полностью игнорирует этот чат','ok',msgs);await sleep(700);addChip('history_edu','Сообщение записано в историю - без ответа','ok',msgs);await sleep(400);addTgNotif('Игнор','bad_guy написал - ИИ молчит\nПокупатель в списке игнора',null,'block','#ef4444');}},
+qr:{buyer:'polite_guy',mode:'режим: auto (шаблоны)',async run(){setAvatar('polite_guy');await sleep(400);await addMsg('them','Привет, а как продлить подписку?',msgs);await sleep(600);addChip('bolt','Шаблон: ключи «продлить», «подписка» - все совпали!','ok',msgs);await sleep(400);addChip('savings','Шаблон применён - ИИ не вызывался, 0 токенов','ok',msgs);await sleep(300);await addMsg('me','Чтобы продлить - напиши !продлить, бот выдаст инструкцию и новый период автоматически.',msgs);addChip('bolt','Ответ из шаблона - мгновенно и бесплатно','ok',msgs);}},
+order:{buyer:'trader1337',mode:'режим: auto',async run(){setAvatar('trader1337');await sleep(300);addChip('shopping_bag','Новый заказ #91022 - trader1337 - Adobe Photoshop - 490₽','info',msgs);await sleep(600);addTgNotif('Новый заказ! 🛒','trader1337\nAdobe Photoshop\n490 ₽',[{label:'💬 Открыть чат'},{label:'🔇 Заглушить ИИ'}],'shopping_bag','var(--acc)');await sleep(800);addChip('inventory_2','Товар найден - выдаю из автовыдачи','proc',msgs);await sleep(900);await addMsg('me','Привет! Спасибо за заказ. Держи ключ активации: XXXX-XXXX-XXXX-XXXX\n\nАктивация: adobe.com - Войти - Погасить код. Если вопросы - пиши!',msgs);addChip('check_circle','Приветствие + товар отправлены автоматически','ok',msgs);}}
+};
+const scene=scenes[type];if(scene){buyerEl.textContent=scene.buyer;modeEl.textContent=scene.mode;try{await scene.run();}catch(e){}}
+sceneRunning=false;}
+window.addEventListener('load',()=>{setTimeout(()=>runScene('refund',document.querySelector('.scene-btn')),800);});
+document.addEventListener('scroll',()=>{const y=scrollY;document.querySelectorAll('.aurora-orb').forEach((orb,i)=>{orb.style.transform=`translateY(${y*(i+1)*0.08}px)`;});});
+</script>
+</body>
+</html>

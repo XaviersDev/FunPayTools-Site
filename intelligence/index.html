@@ -58,7 +58,7 @@ nav.scrolled{background:rgba(4,4,6,.85);backdrop-filter:blur(32px);-webkit-backd
 .hero-eyebrow-dot .mi{font-size:11px;color:#fff}
 h1.hero-title{font-family:'Unbounded',sans-serif;font-size:clamp(38px,6.5vw,88px);font-weight:900;letter-spacing:-4px;line-height:.98;margin-bottom:28px;color:#fff}
 h1.hero-title em{font-style:normal;color:var(--acc);position:relative;display:inline-block}
-h1.hero-title em::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--acc),var(--acc2));border-radius:999px;transform:scaleX(0);transform-origin:left;animation:underline-in .8s .6s forwards cubic-bezier(.2,0,0,1)}
+h1.hero-title em::after{display:none}
 @keyframes underline-in{to{transform:scaleX(1)}}
 .hero-sub{font-size:17px;color:var(--txt2);max-width:560px;margin:0 auto 48px;line-height:1.75}
 .hero-sub b{color:var(--txt);font-weight:700}
@@ -404,12 +404,12 @@ footer{border-top:1px solid var(--border);padding:40px 0;margin-top:60px}
     <span class="nav-badge">v3.0</span>
   </a>
   <div class="nav-links">
-    <button class="nav-link" onclick="scrollTo('#demo')">Симулятор</button>
-    <button class="nav-link" onclick="scrollTo('#features')">Функции</button>
-    <button class="nav-link" onclick="scrollTo('#all-features')">Все функции</button>
-    <button class="nav-link" onclick="scrollTo('#modes')">Режимы</button>
-    <button class="nav-link" onclick="scrollTo('#screenshots')">Скриншоты</button>
-    <button class="nav-link" onclick="scrollTo('#pricing')">Цена</button>
+    <button class="nav-link" onclick="scrollToSection('#demo')">Симулятор</button>
+    <button class="nav-link" onclick="scrollToSection('#features')">Функции</button>
+    <button class="nav-link" onclick="scrollToSection('#all-features')">Все функции</button>
+    <button class="nav-link" onclick="scrollToSection('#modes')">Режимы</button>
+    <button class="nav-link" onclick="scrollToSection('#screenshots')">Скриншоты</button>
+    <button class="nav-link" onclick="scrollToSection('#pricing')">Цена</button>
   </div>
   <a href="https://t.me/FPToolsBot?start=buy_xdai" target="_blank" class="btn btn-p btn-glow">
     <span class="mi">send</span> Купить
@@ -432,7 +432,7 @@ footer{border-top:1px solid var(--border);padding:40px 0;margin-top:60px}
     <b>Отвечает, оформляет возвраты, реагирует на отзывы</b> - уведомляет тебя только когда нужна живая голова.
   </p>
   <div class="hero-cta reveal" data-delay="3">
-    <a href="#demo" class="btn btn-p btn-lg btn-glow" onclick="scrollTo('#demo');return false">
+    <a href="#demo" class="btn btn-p btn-lg btn-glow" onclick="scrollToSection('#demo');return false">
       <span class="mi">play_circle</span> Смотреть симулятор
     </a>
     <a href="https://t.me/FPToolsBot?start=buy_xdai" target="_blank" class="btn btn-ghost btn-lg">
@@ -445,7 +445,7 @@ footer{border-top:1px solid var(--border);padding:40px 0;margin-top:60px}
     <div class="hstat"><div class="hstat-ico"><span class="mi mi-f">timer_off</span></div><div><div class="hstat-val">0</div><div class="hstat-lbl">Подписок</div></div></div>
     <div class="hstat"><div class="hstat-ico"><span class="mi mi-f">schedule</span></div><div><div class="hstat-val">24/7</div><div class="hstat-lbl">Работает</div></div></div>
   </div>
-  <div class="scroll-hint reveal" data-delay="3" onclick="scrollTo('#demo')">
+  <div class="scroll-hint reveal" data-delay="3" onclick="scrollToSection('#demo')">
     <div class="scroll-mouse"></div>
     смотреть как работает
   </div>
@@ -798,7 +798,7 @@ footer{border-top:1px solid var(--border);padding:40px 0;margin-top:60px}
     <div class="ff-item"><div class="ff-ico"><span class="mi">touch_app</span></div><div><div class="ff-t">Inline-кнопки в уведомлениях</div><div class="ff-s">Открыть чат FunPay, заглушить на 1ч/4ч/навсегда, в блэклист, карточка покупателя - всё прямо из Telegram без команд.</div></div></div>
     <div class="ff-item"><div class="ff-ico"><span class="mi">hub</span></div><div><div class="ff-t">3 AI бэкенда</div><div class="ff-s">Proxy без ключа (работает сразу). Anthropic Claude (Opus/Sonnet/Haiku, Vision). OpenAI GPT-4o/mini (Vision). Выбор модели в панели.</div></div></div>
     <div class="ff-item"><div class="ff-ico"><span class="mi">smart_toy</span></div><div><div class="ff-t">Постобработка ответов</div><div class="ff-s">Убирает длинные тире и кавычки-ёлочки. Схлопывает двойные переносы. Детектирует [silent] и [ESCALATE] - обрабатывает без отправки покупателю.</div></div></div>
-    <div class="ff-item"><div class="ff-ico"><span class="mi">desktop_windows</span></div><div><div class="ff-t">Веб-панель</div><div class="ff-s">Дашборд с графиком за 30 дней, настройка лотов, тест-чат, логи в реальном времени, экспорт/импорт настроек. Защита паролем.</div></div></div>
+    <div class="ff-item"><div class="ff-ico"><span class="mi">desktop_windows</span></div><div><div class="ff-t">Веб-панель управления</div><div class="ff-s">Дашборд с графиком за 30 дней, настройка лотов, тест-чат, логи в реальном времени, экспорт/импорт настроек. Защита паролем.</div></div></div>
     <div class="ff-item"><div class="ff-ico"><span class="mi">smart_toy</span></div><div><div class="ff-t">Тест-чат</div><div class="ff-s">Полный симулятор прямо в панели. Симуляция заказа, стоп-слова, suggest, авто-возврат. История сохраняется между сессиями.</div></div></div>
     <div class="ff-item"><div class="ff-ico"><span class="mi">tune</span></div><div><div class="ff-t">Точные лимиты и таймеры</div><div class="ff-s">Задержка ответа 0-30 сек. Макс. ответов в час. Молчать если продавец писал недавно (в секундах). Макс. сумма авто-возврата.</div></div></div>
     <div class="ff-item"><div class="ff-ico"><span class="mi">message</span></div><div><div class="ff-t">Дедупликация сообщений</div><div class="ff-s">Каждое сообщение обрабатывается ровно один раз по ID. Если на чат уже летит ответ ИИ - второй поток не запускается.</div></div></div>
@@ -1036,7 +1036,7 @@ footer{border-top:1px solid var(--border);padding:40px 0;margin-top:60px}
 
 <script>
 window.addEventListener('scroll',()=>{document.getElementById('main-nav').classList.toggle('scrolled',scrollY>40);});
-window.scrollTo=s=>{const el=typeof s==='string'?document.querySelector(s):null;if(el)el.scrollIntoView({behavior:'smooth',block:'start'});};
+function scrollToSection(s){const el=document.querySelector(s);if(el){const y=el.getBoundingClientRect().top+window.scrollY-80;window.scrollTo({top:y,behavior:'smooth'});}};
 const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});},{threshold:0.12});
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 function animateCount(el,target,suffix=''){let current=0;const step=target/40;const timer=setInterval(()=>{current=Math.min(current+step,target);el.textContent=Math.round(current);if(current>=target)clearInterval(timer);},30);}

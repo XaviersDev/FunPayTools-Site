@@ -91,6 +91,15 @@ a { color: inherit; text-decoration: none; }
     border-color: rgba(16,185,129,0.35);
     color: #34d399;
 }
+@media (max-width: 768px) {
+    .xd-promo-card {
+        grid-template-columns: 1fr !important;
+        padding: 28px 20px !important;
+    }
+    .xd-promo-card > div:last-child {
+        display: none;
+    }
+}
 .bot-tag {
     background: rgba(41,168,235,0.1);
     border-color: rgba(41,168,235,0.35);

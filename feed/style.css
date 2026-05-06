@@ -1,153 +1,41 @@
-* {
+html, body {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Отключаем скролл самого body */
 }
 
-body {
-    background-color: #030006; /* Мега-черный с капелькой фиолетового */
-    color: #ffffff;
-    overflow: hidden; /* Скрываем скролл страницы */
-}
-
-/* Настройки свайпа а-ля TikTok */
-.feed-container {
+#feed-container {
     height: 100vh;
-    width: 100vw;
     overflow-y: scroll;
-    scroll-snap-type: y mandatory;
-    scrollbar-width: none; /* Прячем ползунок (Firefox) */
-    -ms-overflow-style: none; /* Прячем ползунок (IE) */
+    scroll-snap-type: y mandatory; /* Жесткая привязка при скролле (как в TikTok) */
+    
+    /* Убираем скроллбар */
+    -ms-overflow-style: none;
+    scrollbar-width: none; 
 }
-.feed-container::-webkit-scrollbar {
-    display: none; /* Прячем ползунок (Chrome/Safari) */
+
+#feed-container::-webkit-scrollbar {
+    display: none;
 }
 
 .slide {
     height: 100vh;
-    width: 100vw;
-    scroll-snap-align: start;
+    width: 100%;
+    scroll-snap-align: start; /* Привязка экрана */
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-    padding: 20px;
 }
 
-/* Еле-еле фиолетовое свечение на фоне */
-.glow {
+.glow-bg {
     position: absolute;
     width: 300px;
     height: 300px;
     background: rgba(88, 28, 135, 0.1);
     border-radius: 50%;
     filter: blur(80px);
-    z-index: 1;
-}
-
-.review-card {
-    position: relative;
-    z-index: 2;
-    width: 100%;
-    max-width: 400px;
-    background: rgba(10, 5, 18, 0.8);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(88, 28, 135, 0.3);
-    border-radius: 24px;
-    padding: 24px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-}
-
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 16px;
-}
-
-.stars {
-    color: #fbbf24;
-    font-size: 14px;
-    letter-spacing: 2px;
-}
-
-.reviewer-name {
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.4);
-}
-
-.review-text {
-    font-size: 18px;
-    font-weight: 500;
-    line-height: 1.5;
-    margin-bottom: 24px;
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.card-footer {
-    display: flex;
-    flex-direction: column;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-    padding-top: 16px;
-}
-
-.seller-label {
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.4);
-    margin-bottom: 4px;
-}
-
-.seller-link {
-    font-size: 14px;
-    font-weight: bold;
-    color: #d8b4fe;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.sidebar {
-    position: absolute;
-    right: 16px;
-    bottom: 80px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    z-index: 10;
-}
-
-.reaction-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-}
-
-.emoji-circle {
-    font-size: 24px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 4px;
-}
-
-.reaction-count {
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.6);
-    font-weight: bold;
-}
-
-.loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    color: rgba(216, 180, 254, 0.5);
-    font-size: 14px;
+    pointer-events: none;
 }

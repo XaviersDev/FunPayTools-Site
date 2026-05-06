@@ -2,21 +2,21 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Лента отзывов FunPay</title>
-    <!-- Подключаем Tailwind для стилей на лету -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Лента FunPay</title>
     <link rel="stylesheet" href="/feed/style.css">
 </head>
-<body class="bg-[#030006] text-white">
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1>FP <span>ЛЕНТА</span></h1>
+        </header>
 
-    <!-- Здесь будут появляться отзывы (скроллинг как в тикток) -->
-    <div id="feed-container">
-        <div class="h-screen w-full flex items-center justify-center text-purple-400/50">
-            Загрузка ленты...
-        </div>
+        <main id="feed" class="feed-container">
+            <div class="loading">Загрузка ленты...</div>
+        </main>
     </div>
 
-    <script src="feed/script.js"></script>
+    <script src="/feed/script.js"></script>
 </body>
 </html>

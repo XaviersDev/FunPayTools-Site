@@ -1,33 +1,37 @@
+// Функция защиты от XSS-хакеров
+function escapeHTML(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     const feed = document.getElementById('feed');
     
-    // Элементы темы
     const themeToggleBtn = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
     
-    // Проверка сохраненной темы при загрузке
     if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-theme');
-        themeIcon.textContent = 'light_mode'; // Иконка солнца
+        themeIcon.textContent = 'light_mode';
     }
 
-    // Клик по кнопке смены темы
     themeToggleBtn.addEventListener('click', () => {
         document.body.classList.toggle('dark-theme');
         const isDark = document.body.classList.contains('dark-theme');
-        
-        // Меняем иконку и сохраняем настройку
         themeIcon.textContent = isDark ? 'light_mode' : 'dark_mode';
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
     });
 
-    // Элементы модального окна
     const modal = document.getElementById('appModal');
     const modalText = document.getElementById('modalText');
     const closeModalBtn = document.getElementById('closeModal');
     const addReviewBtn = document.getElementById('addReviewBtn');
 
-    // Функция показа модалки
     const showModal = (actionType) => {
         if (actionType === 'reaction') {
             modalText.innerHTML = 'Ставить реакции на отзывы можно только через мобильное приложение.<br><br><b>Данная возможность будет добавлена в обновлении 1.3!</b>';
@@ -41,7 +45,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
     addReviewBtn.addEventListener('click', () => showModal('add'));
 
-    // Загрузка ленты
     try {
         const response = await fetch('/api/reviews');
         if (!response.ok) throw new Error('Ошибка сервера');
@@ -56,8 +59,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         reviews.forEach(review => {
             const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
-            const safeText = review.review_text ? review.review_text.replace(/\n/g, '<br>') : '';
-            const safeResponse = review.seller_response ? review.seller_response.replace(/\n/g, '<br>') : '';
+            
+            // ПРОГОНЯЕМ ВСЕ ДАННЫЕ ОТ ПОЛЬЗОВАТЕЛЕЙ ЧЕРЕЗ ФИЛЬТР ЗАЩИТЫ
+            const safeText = escapeHTML(review.review_text).replace(/\n/g, '<br>');
+            const safeResponse = escapeHTML(review.seller_response).replace(/\n/g, '<br>');
+            const safeGameName = escapeHTML(review.game_name);
+            const safePrice = escapeHTML(review.price);
+            const safeTimeAgo = escapeHTML(review.time_ago);
+            const safeSellerName = escapeHTML(review.seller_name);
+            
+            // Защита от опасных ссылок (javascript:alert(1))
+            let safeUrl = review.seller_url || '#';
+            if (!safeUrl.startsWith('http')) safeUrl = '#';
 
             let responseHtml = '';
             if (review.seller_response) {
@@ -98,8 +111,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 <img src="https://funpay.com/img/layout/avatar.png" alt="">
                             </div>
                             <div class="user-meta">
-                                <div class="review-item-date">${review.time_ago || 'Недавно'}</div>
-                                <div class="review-item-detail">${review.game_name || ''}, ${review.price || ''}</div>
+                                <div class="review-item-date">${safeTimeAgo || 'Недавно'}</div>
+                                <div class="review-item-detail">${safeGameName || ''}, ${safePrice || ''}</div>
                             </div>
                             <div class="review-item-rating">${stars}</div>
                         </div>
@@ -110,12 +123,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
                 ${responseHtml}
                 ${reactionsHtml}
-                <a href="${review.seller_url}" target="_blank" class="seller-link">Профиль: ${review.seller_name}</a>
+                <a href="${safeUrl}" target="_blank" class="seller-link">Профиль: ${safeSellerName}</a>
             `;
             feed.appendChild(card);
         });
 
-        // Вешаем клики на реакции
         const reactionButtons = document.querySelectorAll('.clickable-reaction');
         reactionButtons.forEach(btn => {
             btn.addEventListener('click', () => showModal('reaction'));

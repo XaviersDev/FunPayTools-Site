@@ -14,60 +14,69 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         reviews.forEach(review => {
-            // Генерация звезд
             const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
             
-            // Если аватарки нет, ставим иконку шлема/юзера
-            const avatarHtml = `<div class="avatar">👤</div>`;
+            // Обрабатываем переносы строк \n -> <br>
+            const safeText = review.review_text ? review.review_text.replace(/\n/g, '<br>') : '';
+            const safeResponse = review.seller_response ? review.seller_response.replace(/\n/g, '<br>') : '';
 
-            // Обработка блока ответа продавца
+            // Блок ответа продавца
             let responseHtml = '';
             if (review.seller_response) {
                 responseHtml = `
-                    <div class="seller-response">
-                        <div class="response-label">ОТВЕТ ПРОДАВЦА</div>
-                        <div class="response-text">${review.seller_response}</div>
+                    <div class="review-item-row">
+                        <div class="h5 mb5">Ответ продавца</div>
+                        <div class="review-item-answer review-compiled-reply">
+                            <div>${safeResponse}</div>
+                        </div>
                     </div>
                 `;
             }
 
-            // Обработка реакций (Топ 3)
-            let reactionsHtml = '';
+            // БЛОК РЕАКЦИЙ: Вычисляем топ 3 или показываем дефолтные нули
+            const counts = { '😂': 0, '💖': 0, '💩': 0, '😳': 0, '😡': 0 };
+            
             if (review.reactions && review.reactions.length > 0) {
-                const counts = {};
-                review.reactions.forEach(r => counts[r.emoji] = (counts[r.emoji] || 0) + 1);
-                
-                // Сортируем и берем 3 самых популярных
-                const topReactions = Object.entries(counts)
-                    .sort((a, b) => b[1] - a[1])
-                    .slice(0, 3);
-
-                reactionsHtml = `<div class="reactions-bar">`;
-                topReactions.forEach(([emoji, count]) => {
-                    reactionsHtml += `<div class="reaction-btn">${emoji} ${count}</div>`;
+                review.reactions.forEach(r => {
+                    if (counts[r.emoji] !== undefined) counts[r.emoji]++;
                 });
-                reactionsHtml += `</div>`;
             }
 
-            // Сборка карточки (как на скрине)
+            // Сортируем и берем 3 самых популярных эмодзи
+            const topReactions = Object.entries(counts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3);
+
+            let reactionsHtml = '<div class="reactions-bar">';
+            topReactions.forEach(([emoji, count]) => {
+                reactionsHtml += `<div class="reaction-badge">${emoji} ${count}</div>`;
+            });
+            reactionsHtml += `</div>`;
+
+            // Сборка карточки строго по HTML структуре FunPay
             const card = document.createElement('div');
-            card.className = 'review-card';
+            card.className = 'review-item';
             card.innerHTML = `
-                <div class="card-header">
-                    ${avatarHtml}
-                    <div class="meta-info">
-                        <div class="meta-top">
-                            <span>${review.time_ago || 'Недавно'} <span class="game-info">${review.game_name || ''}, ${review.price || ''}</span></span>
-                            <div class="stars">${stars}</div>
+                <div class="review-item-row">
+                    <div class="review-compiled-review">
+                        <div class="review-item-user">
+                            <div class="review-item-photo">
+                                <img src="https://funpay.com/img/layout/avatar.png" alt="">
+                            </div>
+                            <div class="user-meta">
+                                <div class="review-item-date">${review.time_ago || 'Недавно'}</div>
+                                <div class="review-item-detail">${review.game_name || ''}, ${review.price || ''}</div>
+                            </div>
+                            <div class="review-item-rating">${stars}</div>
+                        </div>
+                        <div class="review-item-text">
+                            ${safeText}
                         </div>
                     </div>
                 </div>
-                <div class="review-text">
-                    ${review.review_text}
-                </div>
                 ${responseHtml}
                 ${reactionsHtml}
-                <a href="${review.seller_url}" target="_blank" class="seller-link">Профиль продавца (${review.seller_name})</a>
+                <a href="${review.seller_url}" target="_blank" class="seller-link">Профиль: ${review.seller_name}</a>
             `;
             feed.appendChild(card);
         });

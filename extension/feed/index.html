@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Лента отзывов FunPay</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Контейнер для скролла как в TikTok -->
+    <div id="feed-container" class="feed-container">
+        <!-- Сюда через JS будут загружаться отзывы -->
+        <div class="loading">Загрузка шедевров...</div>
+    </div>
+
+    <!-- Шаблон одного отзыва (скрыт) -->
+    <template id="review-template">
+        <section class="slide">
+            <div class="glow"></div>
+            <div class="review-card">
+                <div class="card-header">
+                    <div class="stars"></div>
+                    <span class="reviewer-name"></span>
+                </div>
+                <div class="review-text"></div>
+                <div class="card-footer">
+                    <span class="seller-label">Продавец:</span>
+                    <a class="seller-link" href="#" target="_blank"></a>
+                </div>
+            </div>
+            <!-- Сайдбар с эмодзи (топ 3) -->
+            <div class="sidebar">
+                <!-- Сюда вставятся эмодзи -->
+            </div>
+        </section>
+    </template>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,41 +1,172 @@
-html, body {
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+* {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
+}
+
+body {
+    background-color: #000000;
+    color: #e0e0e0;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    justify-content: center;
+}
+
+.app-container {
     width: 100%;
-    height: 100%;
-    overflow: hidden; /* Отключаем скролл самого body */
+    max-width: 500px; /* Ширина как у мобилок/тиктока */
+    min-height: 100vh;
+    border-left: 1px solid rgba(138, 43, 226, 0.1);
+    border-right: 1px solid rgba(138, 43, 226, 0.1);
+    background: radial-gradient(circle at 50% 0%, rgba(30, 10, 45, 0.3) 0%, #000000 50%);
 }
 
-#feed-container {
-    height: 100vh;
-    overflow-y: scroll;
-    scroll-snap-type: y mandatory; /* Жесткая привязка при скролле (как в TikTok) */
-    
-    /* Убираем скроллбар */
-    -ms-overflow-style: none;
-    scrollbar-width: none; 
+.header {
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(138, 43, 226, 0.15);
+    position: sticky;
+    top: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    z-index: 10;
 }
 
-#feed-container::-webkit-scrollbar {
-    display: none;
+.header h1 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 1px;
 }
 
-.slide {
-    height: 100vh;
-    width: 100%;
-    scroll-snap-align: start; /* Привязка экрана */
+.header span {
+    color: #a855f7;
+}
+
+.feed-container {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* КАРТОЧКА ОТЗЫВА (КАК НА СКРИНЕ) */
+.review-card {
+    background: #0a0a0c;
+    border: 1px solid rgba(138, 43, 226, 0.1);
+    border-radius: 8px;
+    padding: 15px;
+    transition: transform 0.2s;
+}
+
+.card-header {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    background: #1a1a24;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
+    font-size: 20px;
+    flex-shrink: 0;
 }
 
-.glow-bg {
-    position: absolute;
-    width: 300px;
-    height: 300px;
-    background: rgba(88, 28, 135, 0.1);
-    border-radius: 50%;
-    filter: blur(80px);
-    pointer-events: none;
+.meta-info {
+    flex-grow: 1;
+}
+
+.meta-top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 4px;
+}
+
+.game-info {
+    color: #a855f7; /* Цвет игры */
+}
+
+.stars {
+    color: #ffcc00;
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+
+.review-text {
+    font-size: 15px;
+    line-height: 1.5;
+    margin-bottom: 15px;
+    color: #ffffff;
+}
+
+/* ОТВЕТ ПРОДАВЦА */
+.seller-response {
+    background: #111116;
+    border-radius: 6px;
+    padding: 12px;
+    margin-top: 10px;
+    border-left: 2px solid rgba(138, 43, 226, 0.3);
+}
+
+.response-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #666;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+}
+
+.response-text {
+    font-size: 14px;
+    color: #bbb;
+    line-height: 1.4;
+}
+
+/* ЛАЙКИ (РЕАКЦИИ) */
+.reactions-bar {
+    display: flex;
+    gap: 8px;
+    margin-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 10px;
+}
+
+.reaction-btn {
+    background: #16161e;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 14px;
+    color: #888;
+    cursor: default; /* Пока нельзя кликать на сайте */
+}
+
+.seller-link {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    padding: 8px;
+    background: rgba(138, 43, 226, 0.1);
+    color: #a855f7;
+    text-decoration: none;
+    font-size: 13px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.seller-link:hover {
+    background: rgba(138, 43, 226, 0.2);
+}
+
+.loading, .error {
+    text-align: center;
+    color: #666;
+    margin-top: 50px;
 }

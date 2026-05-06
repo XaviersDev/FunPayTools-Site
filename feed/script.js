@@ -1,6 +1,26 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const feed = document.getElementById('feed');
     
+    // Элементы темы
+    const themeToggleBtn = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    
+    // Проверка сохраненной темы при загрузке
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-theme');
+        themeIcon.textContent = 'light_mode'; // Иконка солнца
+    }
+
+    // Клик по кнопке смены темы
+    themeToggleBtn.addEventListener('click', () => {
+        document.body.classList.toggle('dark-theme');
+        const isDark = document.body.classList.contains('dark-theme');
+        
+        // Меняем иконку и сохраняем настройку
+        themeIcon.textContent = isDark ? 'light_mode' : 'dark_mode';
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
+
     // Элементы модального окна
     const modal = document.getElementById('appModal');
     const modalText = document.getElementById('modalText');
@@ -17,18 +37,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         modal.style.display = 'flex';
     };
 
-    // Закрытие модалки
-    closeModalBtn.addEventListener('click', () => {
-        modal.style.display = 'none';
-    });
-
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.style.display = 'none';
-    });
-
-    // Клик по плавающей кнопке добавления
+    closeModalBtn.addEventListener('click', () => modal.style.display = 'none');
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
     addReviewBtn.addEventListener('click', () => showModal('add'));
 
+    // Загрузка ленты
     try {
         const response = await fetch('/api/reviews');
         if (!response.ok) throw new Error('Ошибка сервера');
@@ -43,7 +56,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         reviews.forEach(review => {
             const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
-            
             const safeText = review.review_text ? review.review_text.replace(/\n/g, '<br>') : '';
             const safeResponse = review.seller_response ? review.seller_response.replace(/\n/g, '<br>') : '';
 
@@ -60,7 +72,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             const counts = { '😂': 0, '💖': 0, '💩': 0, '😳': 0, '😡': 0 };
-            
             if (review.reactions && review.reactions.length > 0) {
                 review.reactions.forEach(r => {
                     if (counts[r.emoji] !== undefined) counts[r.emoji]++;
@@ -73,7 +84,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             let reactionsHtml = '<div class="reactions-bar">';
             topReactions.forEach(([emoji, count]) => {
-                // Добавили класс clickable-reaction для отслеживания кликов
                 reactionsHtml += `<div class="reaction-badge clickable-reaction">${emoji} ${count}</div>`;
             });
             reactionsHtml += `</div>`;
@@ -105,7 +115,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             feed.appendChild(card);
         });
 
-        // Вешаем клики на все кнопки реакций после того, как они сгенерировались
+        // Вешаем клики на реакции
         const reactionButtons = document.querySelectorAll('.clickable-reaction');
         reactionButtons.forEach(btn => {
             btn.addEventListener('click', () => showModal('reaction'));

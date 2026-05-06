@@ -3,17 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Лента смешных отзывов FunPay</title>
+    <title>Лента Смешных Отзывов FunPay</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link rel="stylesheet" href="/feed/style.css">
 </head>
 <body>
     <div class="app-container">
         <header class="header">
             <h1>ЛЕНТА СМЕШНЫХ ОТЗЫВОВ</h1>
+            <button id="themeToggle" class="theme-toggle" title="Сменить тему">
+                <span class="material-symbols-outlined" id="themeIcon">dark_mode</span>
+            </button>
         </header>
 
         <main id="feed" class="feed-container">
-            <div class="loading">Загрузка ленты...</div>
+            <div class="loading">Загрузка шедевров...</div>
         </main>
 
         <button id="addReviewBtn" class="floating-add-btn">

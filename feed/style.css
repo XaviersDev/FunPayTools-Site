@@ -1,29 +1,69 @@
+/* ПЕРЕМЕННЫЕ ЦВЕТОВ (Светлая тема по умолчанию) */
+:root {
+    --bg-page: #ebedf0;
+    --bg-app: #ffffff;
+    --bg-header: #ffffff;
+    --text-main: #333333;
+    --text-muted: #888888;
+    --border-color: #e5e5e5;
+    --bg-answer: #f5f5f5;
+    --bg-badge: #ffffff;
+    --border-badge: #dddddd;
+    --text-badge: #555555;
+    --bg-modal: #ffffff;
+    --bg-modal-btn: #f5f5f5;
+    --hover-badge: #f0f0f0;
+}
+
+/* ТЕМНАЯ ТЕМА */
+body.dark-theme {
+    --bg-page: #000000;
+    --bg-app: #121212;
+    --bg-header: #121212;
+    --text-main: #e0e0e0;
+    --text-muted: #a0a0a0;
+    --border-color: #2a2a2a;
+    --bg-answer: #1e1e1e;
+    --bg-badge: #1e1e1e;
+    --border-badge: #333333;
+    --text-badge: #e0e0e0;
+    --bg-modal: #1e1e1e;
+    --bg-modal-btn: #2a2a2a;
+    --hover-badge: #2a2a2a;
+}
+
 body {
-    background-color: #ebedf0;
+    background-color: var(--bg-page);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    color: #333;
+    color: var(--text-main);
     margin: 0;
     display: flex;
     justify-content: center;
+    transition: background-color 0.3s ease;
 }
 
 .app-container {
     width: 100%;
     max-width: 650px;
-    background: #ffffff;
+    background: var(--bg-app);
     min-height: 100vh;
     box-shadow: 0 0 10px rgba(0,0,0,0.05);
-    position: relative; /* Для плавающей кнопки */
+    position: relative;
+    transition: background-color 0.3s ease;
 }
 
+/* ШАПКА И КНОПКА ТЕМЫ */
 .header {
     padding: 15px 20px;
-    border-bottom: 1px solid #e5e5e5;
-    background: #fff;
-    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-header);
     position: sticky;
     top: 0;
     z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Заголовок по центру */
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .header h1 {
@@ -32,20 +72,37 @@ body {
     font-weight: 600;
 }
 
+.theme-toggle {
+    position: absolute;
+    right: 20px;
+    background: none;
+    border: none;
+    color: var(--text-main);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    border-radius: 50%;
+    transition: color 0.3s;
+}
+
+.theme-toggle:hover {
+    color: #337ab7;
+}
+
 .feed-container {
     padding: 0;
-    padding-bottom: 80px; /* Чтобы отзывы не залезали под кнопку */
+    padding-bottom: 80px;
 }
 
-/* ОРИГИНАЛЬНЫЕ КЛАССЫ FUNPAY */
+/* ОРИГИНАЛЬНЫЕ КЛАССЫ FUNPAY (Адаптированные под переменные) */
 .review-item {
     padding: 20px;
-    border-bottom: 1px solid #e5e5e5;
+    border-bottom: 1px solid var(--border-color);
 }
 
-.review-item-row {
-    margin-bottom: 10px;
-}
+.review-item-row { margin-bottom: 10px; }
 
 .review-item-user {
     display: flex;
@@ -54,9 +111,7 @@ body {
     margin-bottom: 15px;
 }
 
-.review-item-photo {
-    margin-right: 15px;
-}
+.review-item-photo { margin-right: 15px; }
 
 .review-item-photo img {
     width: 48px;
@@ -69,15 +124,8 @@ body {
     flex-direction: column;
 }
 
-.review-item-date {
-    font-size: 14px;
-    color: #333;
-}
-
-.review-item-detail {
-    font-size: 14px;
-    color: #888;
-}
+.review-item-date { font-size: 14px; color: var(--text-main); }
+.review-item-detail { font-size: 14px; color: var(--text-muted); }
 
 .review-item-rating {
     margin-left: auto;
@@ -89,29 +137,29 @@ body {
 .review-item-text {
     font-size: 14px;
     line-height: 1.4;
-    color: #333;
+    color: var(--text-main);
     margin-bottom: 15px;
 }
 
 .h5.mb5 {
     font-size: 10px;
     text-transform: uppercase;
-    color: #888;
+    color: var(--text-muted);
     margin-bottom: 5px;
     margin-top: 15px;
     font-weight: bold;
 }
 
 .review-item-answer {
-    background: #f5f5f5;
+    background: var(--bg-answer);
     padding: 15px;
     border-radius: 4px;
     font-size: 14px;
     line-height: 1.5;
-    color: #333;
+    color: var(--text-main);
 }
 
-/* РЕАКЦИИ (Кликабельные) */
+/* РЕАКЦИИ */
 .reactions-bar {
     display: flex;
     gap: 8px;
@@ -121,23 +169,18 @@ body {
 .reaction-badge {
     display: inline-flex;
     align-items: center;
-    background: #fff;
-    border: 1px solid #ddd;
+    background: var(--bg-badge);
+    border: 1px solid var(--border-badge);
     border-radius: 12px;
     padding: 4px 10px;
     font-size: 13px;
-    color: #555;
+    color: var(--text-badge);
     cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
+    transition: background 0.2s, transform 0.1s, border-color 0.3s;
 }
 
-.reaction-badge:hover {
-    background: #f0f0f0;
-}
-
-.reaction-badge:active {
-    transform: scale(0.95);
-}
+.reaction-badge:hover { background: var(--hover-badge); }
+.reaction-badge:active { transform: scale(0.95); }
 
 .seller-link {
     font-size: 13px;
@@ -146,23 +189,20 @@ body {
     display: inline-block;
     margin-top: 15px;
 }
-
-.seller-link:hover {
-    text-decoration: underline;
-}
+.seller-link:hover { text-decoration: underline; }
 
 .loading, .error {
     text-align: center;
     padding: 30px;
-    color: #888;
+    color: var(--text-muted);
 }
 
-/* ПЛАВАЮЩАЯ КНОПКА ДОБАВЛЕНИЯ (ПЛЮС) */
+/* ПЛАВАЮЩАЯ КНОПКА ДОБАВЛЕНИЯ */
 .floating-add-btn {
     position: fixed;
     bottom: 20px;
     right: 50%;
-    transform: translateX(300px); /* Выравнивание по краю контейнера */
+    transform: translateX(300px);
     width: 56px;
     height: 56px;
     background-color: #337ab7;
@@ -179,32 +219,19 @@ body {
 }
 
 @media (max-width: 650px) {
-    .floating-add-btn {
-        right: 20px;
-        transform: none;
-    }
+    .floating-add-btn { right: 20px; transform: none; }
+    .floating-add-btn:active { transform: scale(0.9); }
 }
 
-.floating-add-btn:hover {
-    background-color: #286090;
-}
-
-.floating-add-btn:active {
-    transform: translateX(300px) scale(0.9);
-}
-
-@media (max-width: 650px) {
-    .floating-add-btn:active {
-        transform: scale(0.9);
-    }
-}
+.floating-add-btn:hover { background-color: #286090; }
+.floating-add-btn:active { transform: translateX(300px) scale(0.9); }
 
 /* МОДАЛЬНОЕ ОКНО */
 .modal-overlay {
     display: none;
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.6);
     z-index: 999;
     align-items: center;
     justify-content: center;
@@ -213,24 +240,24 @@ body {
 }
 
 .modal-content {
-    background: #fff;
+    background: var(--bg-modal);
     width: 100%;
     max-width: 340px;
     border-radius: 12px;
     padding: 24px;
     text-align: center;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
 }
 
 .modal-content h3 {
     margin: 0 0 10px 0;
     font-size: 18px;
-    color: #333;
+    color: var(--text-main);
 }
 
 .modal-content p {
     font-size: 14px;
-    color: #666;
+    color: var(--text-muted);
     line-height: 1.5;
     margin-bottom: 20px;
 }
@@ -247,8 +274,8 @@ body {
 }
 
 .modal-btn-close {
-    background: #f5f5f5;
-    color: #333;
+    background: var(--bg-modal-btn);
+    color: var(--text-main);
     border: none;
     padding: 12px;
     width: 100%;

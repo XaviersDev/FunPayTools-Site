@@ -1,5 +1,33 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const feed = document.getElementById('feed');
+    
+    // Элементы модального окна
+    const modal = document.getElementById('appModal');
+    const modalText = document.getElementById('modalText');
+    const closeModalBtn = document.getElementById('closeModal');
+    const addReviewBtn = document.getElementById('addReviewBtn');
+
+    // Функция показа модалки
+    const showModal = (actionType) => {
+        if (actionType === 'reaction') {
+            modalText.innerHTML = 'Ставить реакции на отзывы можно только через мобильное приложение.<br><br><b>Данная возможность будет добавлена в обновлении 1.3!</b>';
+        } else if (actionType === 'add') {
+            modalText.innerHTML = 'Добавлять свои находки в ленту можно только через мобильное приложение.<br><br><b>Данная возможность будет добавлена в обновлении 1.3!</b>';
+        }
+        modal.style.display = 'flex';
+    };
+
+    // Закрытие модалки
+    closeModalBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.style.display = 'none';
+    });
+
+    // Клик по плавающей кнопке добавления
+    addReviewBtn.addEventListener('click', () => showModal('add'));
 
     try {
         const response = await fetch('/api/reviews');
@@ -16,11 +44,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         reviews.forEach(review => {
             const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
             
-            // Обрабатываем переносы строк \n -> <br>
             const safeText = review.review_text ? review.review_text.replace(/\n/g, '<br>') : '';
             const safeResponse = review.seller_response ? review.seller_response.replace(/\n/g, '<br>') : '';
 
-            // Блок ответа продавца
             let responseHtml = '';
             if (review.seller_response) {
                 responseHtml = `
@@ -33,7 +59,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 `;
             }
 
-            // БЛОК РЕАКЦИЙ: Вычисляем топ 3 или показываем дефолтные нули
             const counts = { '😂': 0, '💖': 0, '💩': 0, '😳': 0, '😡': 0 };
             
             if (review.reactions && review.reactions.length > 0) {
@@ -42,18 +67,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
             }
 
-            // Сортируем и берем 3 самых популярных эмодзи
             const topReactions = Object.entries(counts)
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 3);
 
             let reactionsHtml = '<div class="reactions-bar">';
             topReactions.forEach(([emoji, count]) => {
-                reactionsHtml += `<div class="reaction-badge">${emoji} ${count}</div>`;
+                // Добавили класс clickable-reaction для отслеживания кликов
+                reactionsHtml += `<div class="reaction-badge clickable-reaction">${emoji} ${count}</div>`;
             });
             reactionsHtml += `</div>`;
 
-            // Сборка карточки строго по HTML структуре FunPay
             const card = document.createElement('div');
             card.className = 'review-item';
             card.innerHTML = `
@@ -79,6 +103,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <a href="${review.seller_url}" target="_blank" class="seller-link">Профиль: ${review.seller_name}</a>
             `;
             feed.appendChild(card);
+        });
+
+        // Вешаем клики на все кнопки реакций после того, как они сгенерировались
+        const reactionButtons = document.querySelectorAll('.clickable-reaction');
+        reactionButtons.forEach(btn => {
+            btn.addEventListener('click', () => showModal('reaction'));
         });
 
     } catch (error) {

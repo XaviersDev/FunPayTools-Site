@@ -1,87 +1,79 @@
-document.addEventListener("DOMContentLoaded", async () => {
-    const feedContainer = document.getElementById("feed-container");
+document.addEventListener('DOMContentLoaded', async () => {
+    const feed = document.getElementById('feed');
 
     try {
-        // Запрашиваем отзывы через наше Vercel API
         const response = await fetch('/api/reviews');
+        if (!response.ok) throw new Error('Ошибка сервера');
+        
         const reviews = await response.json();
+        feed.innerHTML = '';
 
         if (reviews.length === 0) {
-            feedContainer.innerHTML = '<div class="h-screen flex items-center justify-center text-white/50">Отзывов пока нет.</div>';
+            feed.innerHTML = '<div class="error">Лента пока пуста</div>';
             return;
         }
 
-        feedContainer.innerHTML = ''; // Очищаем "Загрузку..."
-
         reviews.forEach(review => {
-            // Считаем реакции, находим топ 3
-            const reactionCounts = {};
-            if (review.reactions) {
-                review.reactions.forEach(r => {
-                    reactionCounts[r.emoji] = (reactionCounts[r.emoji] || 0) + 1;
-                });
-            }
-            const topReactions = Object.entries(reactionCounts)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 3);
-
+            // Генерация звезд
             const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+            
+            // Если аватарки нет, ставим иконку шлема/юзера
+            const avatarHtml = `<div class="avatar">👤</div>`;
 
-            // Создаем слайд (один экран)
-            const slide = document.createElement('div');
-            slide.className = 'slide p-4';
-
-            let reactionsHTML = '';
-            if (topReactions.length > 0) {
-                topReactions.forEach(([emoji, count]) => {
-                    reactionsHTML += `
-                        <div class="flex flex-col items-center group cursor-pointer relative">
-                            <div class="text-3xl bg-white/5 p-3 rounded-full border border-white/10 hover:bg-white/10 transition-all">${emoji}</div>
-                            <span class="text-xs text-white/60 mt-1 font-bold">${count}</span>
-                        </div>
-                    `;
-                });
-            } else {
-                reactionsHTML = `
-                    <div class="flex flex-col items-center opacity-50">
-                        <div class="text-3xl bg-white/5 p-3 rounded-full border border-white/10">🤍</div>
-                        <span class="text-xs mt-1">0</span>
+            // Обработка блока ответа продавца
+            let responseHtml = '';
+            if (review.seller_response) {
+                responseHtml = `
+                    <div class="seller-response">
+                        <div class="response-label">ОТВЕТ ПРОДАВЦА</div>
+                        <div class="response-text">${review.seller_response}</div>
                     </div>
                 `;
             }
 
-            slide.innerHTML = `
-                <div class="glow-bg"></div>
-                <div class="relative z-10 w-full max-w-md bg-[#0a0512]/80 backdrop-blur-md border border-purple-900/20 p-6 rounded-3xl shadow-2xl">
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <div class="flex text-yellow-400 text-sm mb-1">${stars}</div>
-                            <span class="text-xs text-white/40">От: ${review.reviewer_name}</span>
-                        </div>
-                    </div>
-                    <p class="text-lg md:text-xl font-medium leading-relaxed mb-6 text-white/90">
-                        «${review.review_text}»
-                    </p>
-                    <div class="flex justify-between items-end border-t border-white/5 pt-4">
-                        <div class="flex flex-col">
-                            <span class="text-xs text-white/40 mb-1">Продавец:</span>
-                            <a href="${review.seller_url}" target="_blank" class="text-sm font-bold text-purple-300 hover:text-purple-200 transition-colors flex items-center gap-1">
-                                ${review.seller_name} ↗
-                            </a>
-                        </div>
-                    </div>
-                </div>
+            // Обработка реакций (Топ 3)
+            let reactionsHtml = '';
+            if (review.reactions && review.reactions.length > 0) {
+                const counts = {};
+                review.reactions.forEach(r => counts[r.emoji] = (counts[r.emoji] || 0) + 1);
+                
+                // Сортируем и берем 3 самых популярных
+                const topReactions = Object.entries(counts)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 3);
 
-                <!-- Боковая панель TikTok (Реакции) -->
-                <div class="absolute right-4 bottom-20 flex flex-col items-center gap-6 z-20">
-                    ${reactionsHTML}
+                reactionsHtml = `<div class="reactions-bar">`;
+                topReactions.forEach(([emoji, count]) => {
+                    reactionsHtml += `<div class="reaction-btn">${emoji} ${count}</div>`;
+                });
+                reactionsHtml += `</div>`;
+            }
+
+            // Сборка карточки (как на скрине)
+            const card = document.createElement('div');
+            card.className = 'review-card';
+            card.innerHTML = `
+                <div class="card-header">
+                    ${avatarHtml}
+                    <div class="meta-info">
+                        <div class="meta-top">
+                            <span>${review.time_ago || 'Недавно'} <span class="game-info">${review.game_name || ''}, ${review.price || ''}</span></span>
+                            <div class="stars">${stars}</div>
+                        </div>
+                    </div>
                 </div>
+                <div class="review-text">
+                    ${review.review_text}
+                </div>
+                ${responseHtml}
+                ${reactionsHtml}
+                <a href="${review.seller_url}" target="_blank" class="seller-link">Профиль продавца (${review.seller_name})</a>
             `;
-            feedContainer.appendChild(slide);
+            feed.appendChild(card);
         });
 
     } catch (error) {
-        feedContainer.innerHTML = '<div class="h-screen flex items-center justify-center text-red-500">Ошибка загрузки</div>';
+        feed.innerHTML = '<div class="error">Не удалось загрузить ленту</div>';
         console.error(error);
     }
 });

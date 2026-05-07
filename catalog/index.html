@@ -9,7 +9,6 @@
 <body>
     <header>
         <div class="logo-container">
-            <!-- Пиксельная луна (SVG Base64 для независимости) -->
             <img id="moonLogo" class="pixel-moon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiI+PHBhdGggZmlsbD0iI2E4NTVmNyIgZD0iTTggMEE4IDggMCAxIDAgOCAxNmE4IDggMCAwIDAgMC0xNnptMCAxNGExIDExIDAgMCAxIDAtMTIgNiA2IDAgMSAxIDAgMTJ6Ii8+PC9zdmc+" alt="Moon">
             <h1>FPT Catalog</h1>
         </div>
@@ -25,54 +24,63 @@
         </div>
 
         <div id="catalogGrid" class="catalog-grid">
-            <!-- Сюда будут подгружаться паки из GitHub -->
-            <div class="loading">Загрузка каталога...</div>
+            <div class="loading" id="loadingText">Загрузка каталога...</div>
         </div>
     </main>
 
-    <!-- Модальное окно предпросмотра, редактирования и скачивания -->
+    <!-- Модалка скачивания / редактирования -->
     <div id="packModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="modalPackName">Название пака</h2>
                 <span id="closeModal" class="close">&times;</span>
             </div>
-            <p id="modalPackAuthor" class="author-text">Автор: </p>
-            <p id="modalPackDesc" class="desc-text"></p>
-            
-            <div class="pack-editor">
-                <h3>Выберите и отредактируйте нужное:</h3>
-                <div id="packDataTree" class="data-tree"></div>
+            <div class="modal-body">
+                <p id="modalPackAuthor" class="author-text"></p>
+                <p id="modalPackDesc" class="desc-text"></p>
+                <div class="pack-editor">
+                    <h3>Выберите и отредактируйте нужное:</h3>
+                    <div id="packDataTree" class="data-tree"></div>
+                </div>
             </div>
-
             <div class="modal-footer">
                 <button id="btnDownload" class="btn-primary">Скачать .fptools</button>
             </div>
         </div>
     </div>
 
-    <!-- Модальное окно "Для Разработчиков" -->
+    <!-- Модалка загрузки пака -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Опубликовать свой пак</h2>
+                <span id="closeUploadModal" class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="upAuthor" placeholder="Ваш никнейм" class="up-input">
+                <input type="text" id="upName" placeholder="Название пака" class="up-input">
+                <input type="text" id="upDesc" placeholder="Краткое описание" class="up-input">
+                <p style="margin-top: 10px; font-size: 12px; color: var(--text-secondary);">Вставьте JSON код вашего .fptools файла:</p>
+                <textarea id="upJson" placeholder='{"templates": [...]}' class="up-textarea"></textarea>
+                <p id="upError" style="color: #ef4444; font-size: 12px; margin-top: 5px;"></p>
+            </div>
+            <div class="modal-footer">
+                <button id="btnSubmitUpload" class="btn-primary">Опубликовать</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модалка "Для Разработчиков" -->
     <div id="devModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Спецификация .fptools</h2>
                 <span id="closeDevModal" class="close">&times;</span>
             </div>
-            <div class="dev-docs">
+            <div class="modal-body dev-docs">
                 <p>Формат <b>.fptools</b> — это стандартизированный JSON-контейнер для обмена настройками FunPay Tools.</p>
-                <h3>Структура:</h3>
-                <pre><code>{
-  "version": 1,
-  "author": "Nickname",
-  "description": "Описание",
-  "data": {
-    "auto_responses": [ { "trigger": "!привет", "response": "Да, привет!" } ],
-    "templates": [ { "name": "Выдача", "text": "Ваш товар: ..." } ],
-    "ai_settings": { "style": "дерзкий" }
-  }
-}</code></pre>
                 <h3>Принцип QR-кода (Fault-Tolerance)</h3>
-                <p>Парсер в приложении/расширении должен игнорировать поврежденные ключи. Если в массиве `templates` второй элемент сломан, парсер сохраняет первый и третий. Используйте блоки <code>try-catch</code> на каждый элемент цикла, а не на весь файл целиком.</p>
+                <p>Даже если часть файла повреждена (отсутствует запятая в 5-м шаблоне), парсер в Android-приложении должен проигнорировать битый элемент и загрузить остальные. Достигается это оборачиванием каждого элемента цикла в <code>try-catch</code>.</p>
             </div>
         </div>
     </div>

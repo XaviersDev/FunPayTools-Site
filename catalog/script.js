@@ -1,8 +1,3 @@
-const moonLogo = document.getElementById('moonLogo');
-moonLogo.addEventListener('click', () => {
-    document.body.classList.toggle('dark-violet');
-});
-
 // Управление модалками
 const devModal = document.getElementById('devModal');
 document.getElementById('btnDevDocs').onclick = () => devModal.style.display = 'flex';
@@ -254,7 +249,7 @@ document.getElementById('btnSubmitUpload').onclick = async () => {
     const name = document.getElementById('upName').value.trim();
     const description = document.getElementById('upDesc').value.trim();
 
-    // Локальная защита от спама (сохраняем дату последней загрузки в localStorage)
+    // Локальная защита от спама
     const lastUpload = localStorage.getItem('lastPackUploadTime');
     if (lastUpload && (Date.now() - parseInt(lastUpload)) < 24 * 60 * 60 * 1000) {
         errText.innerText = "Вы можете публиковать только 1 пак в день. Приходите завтра!";

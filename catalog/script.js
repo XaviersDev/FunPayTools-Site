@@ -2,14 +2,9 @@
 const moonLogo = document.getElementById('moonLogo');
 moonLogo.addEventListener('click', () => {
     document.body.classList.toggle('dark-violet');
-    if(document.body.classList.contains('dark-violet')) {
-        moonLogo.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiI+PHBhdGggZmlsbD0iIzRhMTRjOCIgZD0iTTggMEE4IDggMCAxIDAgOCAxNmE4IDggMCAwIDAgMC0xNnptMCAxNGExIDExIDAgMCAxIDAtMTIgNiA2IDAgMSAxIDAgMTJ6Ii8+PC9zdmc+";
-    } else {
-        moonLogo.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiI+PHBhdGggZmlsbD0iI2E4NTVmNyIgZD0iTTggMEE4IDggMCAxIDAgOCAxNmE4IDggMCAwIDAgMC0xNnptMCAxNGExIDExIDAgMCAxIDAtMTIgNiA2IDAgMSAxIDAgMTJ6Ii8+PC9zdmc+";
-    }
 });
 
-// Модалки
+// Управление модалками
 const devModal = document.getElementById('devModal');
 document.getElementById('btnDevDocs').onclick = () => devModal.style.display = 'flex';
 document.getElementById('closeDevModal').onclick = () => devModal.style.display = 'none';
@@ -31,7 +26,7 @@ async function fetchCatalog() {
         const res = await fetch('/api/catalog');
         allPacks = await res.json();
         
-        if(allPacks.length === 0) {
+        if(!allPacks || allPacks.length === 0) {
             grid.innerHTML = '<div class="loading">Каталог пока пуст</div>';
             return;
         }
@@ -94,7 +89,15 @@ function openPackEditor(pack) {
 }
 
 function translateCategory(cat) {
-    const dict = { "templates": "Шаблоны", "auto_responses": "Автоответы", "ai_settings": "Настройки ИИ" };
+    const dict = { 
+        "templates": "Шаблоны", 
+        "auto_responses": "Автоответы", 
+        "ai_settings": "Настройки ИИ",
+        "review_reply_settings": "Ответы на отзывы",
+        "greeting_settings": "Приветствия",
+        "order_confirm_settings": "Просьба отзыва",
+        "feedback_bonus_settings": "Бонусы за отзыв"
+    };
     return dict[cat] || cat;
 }
 
@@ -124,14 +127,17 @@ function createTreeItem(category, item, index, isObject = false) {
     for (const [key, value] of Object.entries(item)) {
         if(key === 'id') continue; 
         
-        const input = document.createElement(String(value).length > 50 ? 'textarea' : 'input');
-        input.value = value;
-        input.placeholder = key;
-        input.onchange = (e) => {
-            if(isObject) currentEditedPack.pack_data[category][key] = e.target.value;
-            else currentEditedPack.pack_data[category][index][key] = e.target.value;
-        };
-        inputsDiv.appendChild(input);
+        // Для простых типов выводим инпуты
+        if (typeof value === 'string' || typeof value === 'number') {
+            const input = document.createElement(String(value).length > 50 ? 'textarea' : 'input');
+            input.value = value;
+            input.placeholder = key;
+            input.onchange = (e) => {
+                if(isObject) currentEditedPack.pack_data[category][key] = e.target.value;
+                else currentEditedPack.pack_data[category][index][key] = e.target.value;
+            };
+            inputsDiv.appendChild(input);
+        }
     }
     
     cb.onchange = () => { inputsDiv.style.opacity = cb.checked ? "1" : "0.3"; };
@@ -177,7 +183,7 @@ document.getElementById('btnDownload').onclick = () => {
     URL.revokeObjectURL(url);
 };
 
-// 4. ПУБЛИКАЦИЯ ПАКА (POST на Vercel)
+// 4. ПУБЛИКАЦИЯ ПАКА (POST на Vercel -> Supabase)
 document.getElementById('btnSubmitUpload').onclick = async () => {
     const btn = document.getElementById('btnSubmitUpload');
     const err = document.getElementById('upError');
@@ -195,8 +201,7 @@ document.getElementById('btnSubmitUpload').onclick = async () => {
     let packData;
     try {
         packData = JSON.parse(jsonText);
-        // Если юзер вставил целиком файл .fptools, берем блок data
-        if(packData.data) packData = packData.data; 
+        if(packData.data) packData = packData.data; // Если вставили фулл .fptools
     } catch(e) {
         err.innerText = "Ошибка: неверный формат JSON.";
         return;

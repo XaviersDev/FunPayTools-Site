@@ -28,10 +28,10 @@ export default async function handler(req, res) {
     }
 
     try {
-      // Проверка размера JSON (защита от спама огромными файлами, лимит ~200 KB)
+      // ЛИМИТ УВЕЛИЧЕН ДО 2 МБ (2 000 000 байт)
       const dataSize = Buffer.byteLength(JSON.stringify(pack_data), 'utf8');
-      if (dataSize > 200000) {
-        return res.status(400).json({ error: 'Файл слишком большой. Максимум 200 КБ.' });
+      if (dataSize > 1000000) {
+        return res.status(400).json({ error: 'Файл слишком большой. Максимум 1 ГБ.' });
       }
 
       const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/funpay_catalogs`, {

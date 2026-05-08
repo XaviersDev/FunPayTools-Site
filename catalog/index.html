@@ -4,15 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FunPay Tools | Каталог Шаблонов</title>
+    <!-- Подключаем профессиональный шрифт Manrope -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/catalog/style.css">
 </head>
 <body>
     <header>
         <div class="logo-container">
-            <!-- Настоящая пиксельная луна, прорисованная по квадратам -->
-            <svg id="moonLogo" class="pixel-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges">
-                <path fill="var(--primary-color)" d="M8 1h4v1h2v2h1v2h-1v1h-1v1h-1v1h-1v1h-1v1h-1v1H6v-1h2v-1h1V9h1V8h1V6h-1V4H9V3H8V2H7V1h1z"/>
-                <path fill="var(--primary-color)" d="M5 2h2v1H6v1H5V2zm-2 2h2v1H4v1H3V4zm-1 3h1v1H2V7zm0 2h1v1H2V9zm1 2h1v1H3v-1zm2 2h2v1H5v-1z"/>
+            <!-- Улучшенная пиксельная луна с тенями -->
+            <svg id="moonLogo" class="pixel-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="36" height="36" shape-rendering="crispEdges">
+                <path fill="#a855f7" d="M8 1h4v1h2v2h1v2h-1v1h-1v1h-1v1h-1v1h-1v1h-1v1H6v-1h2v-1h1V9h1V8h1V6h-1V4H9V3H8V2H7V1h1z"/>
+                <path fill="#7e22ce" d="M12 2h1v1h-1V2zm1 2h1v1h-1V4zm0 2h1v1h-1V6zM9 13h1v1H9v-1zm-2 1h1v1H7v-1z"/>
+                <path fill="#d8b4fe" d="M5 2h2v1H6v1H5V2zm-2 2h2v1H4v1H3V4zm-1 3h1v1H2V7zm0 2h1v1H2V9zm1 2h1v1H3v-1zm2 2h2v1H5v-1z"/>
             </svg>
             <h1>FPT Catalog</h1>
         </div>
@@ -53,7 +58,7 @@
         </div>
     </div>
 
-    <!-- Модалка загрузки -->
+    <!-- Модалка загрузки (Drag & Drop) -->
     <div id="uploadModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -61,15 +66,28 @@
                 <span id="closeUploadModal" class="close">&times;</span>
             </div>
             <div class="modal-body">
-                <input type="text" id="upAuthor" placeholder="Ваш никнейм" class="up-input">
-                <input type="text" id="upName" placeholder="Название пака" class="up-input">
-                <input type="text" id="upDesc" placeholder="Краткое описание" class="up-input">
-                <p style="margin-top: 10px; font-size: 12px; color: var(--text-secondary);">Вставьте JSON код (макс 2 МБ):</p>
-                <textarea id="upJson" placeholder='{"templates": [...]}' class="up-textarea"></textarea>
-                <p id="upError" style="color: #ef4444; font-size: 12px; margin-top: 5px;"></p>
+                <div class="form-group">
+                    <input type="text" id="upAuthor" placeholder="Ваш никнейм" class="up-input">
+                    <input type="text" id="upName" placeholder="Название пака" class="up-input">
+                    <input type="text" id="upDesc" placeholder="Краткое описание" class="up-input">
+                </div>
+                
+                <!-- Зона загрузки файла -->
+                <div id="dropZone" class="drop-zone">
+                    <svg viewBox="0 0 24 24" width="48" height="48" stroke="var(--primary-color)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    <p>Перетащите файл .fptools сюда<br>или <span>выберите на устройстве</span></p>
+                    <input type="file" id="fileInput" accept=".fptools,.json" style="display: none;">
+                </div>
+                
+                <div id="uploadFileInfo" class="upload-file-info" style="display:none;">
+                    <span id="uploadFileName">Файл выбран</span>
+                    <button id="btnRemoveFile" class="btn-text-small">Удалить</button>
+                </div>
+
+                <p id="upError" style="color: #ef4444; font-size: 13px; margin-top: 10px; text-align: center;"></p>
             </div>
             <div class="modal-footer">
-                <button id="btnSubmitUpload" class="btn-primary">Опубликовать</button>
+                <button id="btnSubmitUpload" class="btn-primary" disabled>Опубликовать</button>
             </div>
         </div>
     </div>
@@ -83,7 +101,7 @@
             </div>
             <div class="modal-body dev-docs">
                 <h3>1. Что такое формат .fptools?</h3>
-                <p>Формат <b>.fptools</b> — это стандартизированный JSON-контейнер. Он используется для обмена настройками, шаблонами, автоответами и правилами ИИ между пользователями приложения FunPay Tools. Файл имеет MIME-тип <code>application/json</code>, но сохраняется с расширением <code>.fptools</code> для ассоциации с приложением.</p>
+                <p>Формат <b>.fptools</b> - это стандартизированный JSON-контейнер. Он используется для обмена настройками, шаблонами, автоответами и правилами ИИ между пользователями приложения FunPay Tools.</p>
 
                 <h3>2. Структура файла (JSON)</h3>
                 <pre><code>{
@@ -99,57 +117,17 @@
   }
 }</code></pre>
 
-                <h3>3. Модели данных (data)</h3>
-                
-                <h4>Шаблоны сообщений (<code>templates</code>)</h4>
-                <p>Массив объектов. Ключи:</p>
-                <ul>
-                    <li><code>id</code> (String) - Уникальный UUID</li>
-                    <li><code>name</code> (String) - Название кнопки шаблона</li>
-                    <li><code>text</code> (String) - Текст. Поддерживает <code>$username</code>, <code>$date</code>, <code>$welcome</code></li>
-                    <li><code>imageUri</code> (String | null) - Опционально URI картинки (лучше не передавать в паках)</li>
-                    <li><code>imageFirst</code> (Boolean) - Отправлять картинку до текста</li>
-                </ul>
-
-                <h4>Автоответы (<code>auto_responses</code>)</h4>
-                <p>Массив объектов. Ключи:</p>
-                <ul>
-                    <li><code>trigger</code> (String) - Слово или фраза для реакции</li>
-                    <li><code>response</code> (String) - Текст ответа</li>
-                    <li><code>exactMatch</code> (Boolean) - Точное совпадение</li>
-                    <li><code>caseSensitive</code> (Boolean) - Учет регистра</li>
-                    <li><code>callMode</code> (Boolean) - Режим вызова (звонок продавцу)</li>
-                    <li><code>callStyle</code> (String) - "notification" или "fullscreen"</li>
-                    <li><code>callAutoReplyTextRaw</code> (String | null) - Текст, пока идет звонок</li>
-                </ul>
-
-                <h4>Ответы на отзывы (<code>review_reply_settings</code>)</h4>
-                <p>Объект. Ключи:</p>
-                <ul>
-                    <li><code>enabled</code> (Boolean)</li>
-                    <li><code>useAi</code> (Boolean) - Использовать ли нейросеть</li>
-                    <li><code>aiLength</code> (Int 1-10) - Объем генерируемого ответа</li>
-                    <li><code>aiIncludeLotName</code> / <code>aiIncludeDate</code> (Boolean)</li>
-                    <li><code>aiWritingStyle</code> (String) - Стиль (дерзко, мило и т.д.)</li>
-                    <li><code>aiCustomInstruction</code> (String) - Промпт для ИИ</li>
-                    <li><code>manualTemplates</code> (Object) - Карта "оценка" -> "ответ", напр: <code>{"5":"Спасибо", "1":"Сам дурак"}</code></li>
-                    <li><code>disabledStars</code> (Array of Int) - Оценки, на которые бот НЕ отвечает</li>
-                </ul>
-
-                <h3>4. Принцип "QR-кода" (Fault-Tolerance) при Импорте</h3>
-                <p>Главное правило парсера в приложении: <b>выживает сильнейший</b>. При импорте файла приложение не должно падать, если файл частично поврежден.</p>
+                <h3>3. Принцип "QR-кода" (Fault-Tolerance) при Импорте</h3>
+                <p>Даже если часть файла повреждена (например, отсутствует скобка), парсер в приложении выживет. В цикле обхода данных используется блок <code>try-catch</code> на каждый элемент.</p>
                 <div class="highlight-box">
                     <p><b>Алгоритм парсинга:</b></p>
                     <ol>
                         <li>Читаем блок <code>data</code>.</li>
-                        <li>Входим в цикл по массиву (например, <code>templates</code>).</li>
-                        <li>Оборачиваем чтение каждого элемента в <code>try-catch</code>.</li>
-                        <li>Если 2-й шаблон не содержит обязательного поля <code>text</code> — ловим Exception, <b>пропускаем 2-й шаблон</b>, но успешно сохраняем 1-й и 3-й.</li>
+                        <li>Входим в цикл по массиву.</li>
+                        <li>Оборачиваем чтение каждого элемента в безопасный блок.</li>
+                        <li>Если 2-й элемент содержит ошибку - мы ловим Exception, <b>пропускаем 2-й элемент</b>, но успешно сохраняем 1-й и 3-й.</li>
                     </ol>
                 </div>
-
-                <h3>5. Экспорт из приложения</h3>
-                <p>При нажатии "Поделиться" приложение собирает все выбранные пользователем коллекции, сериализует их в JSON через GSON, добавляет оболочку (version, author) и сохраняет в файл.</p>
             </div>
         </div>
     </div>

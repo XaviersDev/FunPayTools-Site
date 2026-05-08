@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FunPay Tools | Каталог Шаблонов</title>
-    <!-- Подключаем профессиональный шрифт Manrope -->
+    
+    <!-- Иконка на вкладке -->
+    <link rel="icon" href="/logo.svg" type="image/svg+xml">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -13,12 +16,8 @@
 <body>
     <header>
         <div class="logo-container">
-            <!-- Улучшенная пиксельная луна с тенями -->
-            <svg id="moonLogo" class="pixel-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="36" height="36" shape-rendering="crispEdges">
-                <path fill="#a855f7" d="M8 1h4v1h2v2h1v2h-1v1h-1v1h-1v1h-1v1h-1v1h-1v1H6v-1h2v-1h1V9h1V8h1V6h-1V4H9V3H8V2H7V1h1z"/>
-                <path fill="#7e22ce" d="M12 2h1v1h-1V2zm1 2h1v1h-1V4zm0 2h1v1h-1V6zM9 13h1v1H9v-1zm-2 1h1v1H7v-1z"/>
-                <path fill="#d8b4fe" d="M5 2h2v1H6v1H5V2zm-2 2h2v1H4v1H3V4zm-1 3h1v1H2V7zm0 2h1v1H2V9zm1 2h1v1H3v-1zm2 2h2v1H5v-1z"/>
-            </svg>
+            <!-- Логотип (некликабельный) -->
+            <img src="/logo.svg" alt="FunPay Tools" class="site-logo">
             <h1>FPT Catalog</h1>
         </div>
         <nav>
@@ -48,7 +47,7 @@
                 <p id="modalPackAuthor" class="author-text"></p>
                 <p id="modalPackDesc" class="desc-text"></p>
                 <div class="pack-editor">
-                    <h3>Выберите и отредактируйте нужное:</h3>
+                    <h3>Выберите и отредактируйте нужное перед скачиванием:</h3>
                     <div id="packDataTree" class="data-tree"></div>
                 </div>
             </div>
@@ -72,7 +71,6 @@
                     <input type="text" id="upDesc" placeholder="Краткое описание" class="up-input">
                 </div>
                 
-                <!-- Зона загрузки файла -->
                 <div id="dropZone" class="drop-zone">
                     <svg viewBox="0 0 24 24" width="48" height="48" stroke="var(--primary-color)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
                     <p>Перетащите файл .fptools сюда<br>или <span>выберите на устройстве</span></p>
@@ -101,31 +99,77 @@
             </div>
             <div class="modal-body dev-docs">
                 <h3>1. Что такое формат .fptools?</h3>
-                <p>Формат <b>.fptools</b> - это стандартизированный JSON-контейнер. Он используется для обмена настройками, шаблонами, автоответами и правилами ИИ между пользователями приложения FunPay Tools.</p>
+                <p>Формат <b>.fptools</b> — это стандартизированный JSON-контейнер. Он используется для обмена настройками, шаблонами, автоответами и правилами ИИ между пользователями приложения FunPay Tools. Файл имеет структуру обычного JSON, но сохраняется с расширением <code>.fptools</code> для привязки к приложению Android/PC.</p>
 
-                <h3>2. Структура файла (JSON)</h3>
+                <h3>2. Структура корневого объекта</h3>
                 <pre><code>{
   "version": 1,
   "author": "Nickname",
   "description": "Описание пака",
-  "data": {
-    "templates": [...],
-    "auto_responses": [...],
-    "review_reply_settings": {...},
-    "greeting_settings": {...},
-    "feedback_bonus_settings": {...}
-  }
+  "data": { ... }
 }</code></pre>
 
-                <h3>3. Принцип "QR-кода" (Fault-Tolerance) при Импорте</h3>
-                <p>Даже если часть файла повреждена (например, отсутствует скобка), парсер в приложении выживет. В цикле обхода данных используется блок <code>try-catch</code> на каждый элемент.</p>
+                <h3>3. Модели данных (внутри объекта <code>data</code>)</h3>
+                
+                <h4>Шаблоны сообщений (<code>templates</code>)</h4>
+                <p>Массив объектов. Ключи:</p>
+                <ul>
+                    <li><code>id</code> (String) — Уникальный UUID (генерируется приложением).</li>
+                    <li><code>name</code> (String) — Название кнопки шаблона.</li>
+                    <li><code>text</code> (String) — Текст сообщения. Поддерживает плейсхолдеры: <code>$username</code>, <code>$date</code>, <code>$welcome</code>.</li>
+                    <li><code>imageUri</code> (String | null) — URI картинки. <i>(При экспорте в публичный каталог локальные пути вырезаются)</i>.</li>
+                    <li><code>imageFirst</code> (Boolean) — Порядок отправки: <code>true</code> = картинка, затем текст.</li>
+                </ul>
+
+                <h4>Автоответы (<code>auto_responses</code>)</h4>
+                <p>Массив объектов. Ключи:</p>
+                <ul>
+                    <li><code>trigger</code> (String) — Слово или фраза, на которую реагирует бот.</li>
+                    <li><code>response</code> (String) — Текст ответа бота.</li>
+                    <li><code>exactMatch</code> (Boolean) — <code>true</code> если требуется точное совпадение фразы (а не вхождение).</li>
+                    <li><code>caseSensitive</code> (Boolean) — Учет регистра букв (А ≠ а).</li>
+                    <li><code>callMode</code> (Boolean) — Включен ли режим "вызова продавца" (будильник).</li>
+                    <li><code>callStyle</code> (String) — Стиль вызова: <code>"notification"</code> или <code>"fullscreen"</code>.</li>
+                    <li><code>callAutoReplyTextRaw</code> (String | null) — Сообщение, которое отправляется покупателю во время "дозвона".</li>
+                </ul>
+
+                <h4>Настройки ответов на отзывы (<code>review_reply_settings</code>)</h4>
+                <p>Объект. Ключи:</p>
+                <ul>
+                    <li><code>enabled</code> (Boolean) — Включена ли функция в целом.</li>
+                    <li><code>useAi</code> (Boolean) — <code>true</code> = генерация через ИИ, <code>false</code> = по шаблонам.</li>
+                    <li><code>aiLength</code> (Int, 1-10) — Объем генерируемого ответа.</li>
+                    <li><code>aiIncludeLotName</code> / <code>aiIncludeDate</code> (Boolean) — Инструкция ИИ на упоминание лота/даты.</li>
+                    <li><code>aiWritingStyle</code> (String) — Тон ответа (например, "Дерзкий", "Милый", "Официальный").</li>
+                    <li><code>aiCustomInstruction</code> (String) — Дополнительный кастомный промпт.</li>
+                    <li><code>aiFallbackText</code> (String) — Текст при ошибке серверов ИИ.</li>
+                    <li><code>manualTemplates</code> (Object) — Карта: оценка -> ответ. Пример: <code>{"5":"Спасибо", "1":"Сам дурак"}</code>.</li>
+                    <li><code>disabledStars</code> (Array of Int) — Массив оценок (1-5), на которые бот НЕ должен отвечать вообще.</li>
+                </ul>
+
+                <h4>Приветствие (<code>greeting_settings</code>)</h4>
+                <p>Объект. Ключи:</p>
+                <ul>
+                    <li><code>enabled</code> (Boolean) — Включено ли приветствие.</li>
+                    <li><code>text</code> (String) — Текст приветствия.</li>
+                    <li><code>cooldownHours</code> (Int) — Задержка (в часах) перед повторным приветствием одного и того же юзера.</li>
+                    <li><code>ignoreSystemMessages</code> (Boolean) — Не реагировать, если покупатель ничего не написал, а просто сделал заказ (системное сообщение).</li>
+                </ul>
+
+                <h3>4. Экспорт и Импорт в приложении</h3>
+                <p><b>Экспорт:</b> Приложение (используя библиотеку <code>Gson</code> в Kotlin) сериализует текущие дата-классы пользователя в JSON-строку. Конфиденциальные данные (настройки аккаунтов, токены) <b>строго исключаются</b> на этапе маппинга.</p>
+                
+                <p><b>Импорт и Fault-Tolerance (принцип QR-кода):</b></p>
+                <p>Для обеспечения максимальной отказоустойчивости, парсер приложения работает по принципу "выживает сильнейший". Если пользователь вручную редактировал файл <code>.fptools</code> и допустил ошибку (например, не закрыл кавычку в 3-м шаблоне) — приложение не упадет и файл не будет отклонен.</p>
+                
                 <div class="highlight-box">
-                    <p><b>Алгоритм парсинга:</b></p>
+                    <p><b>Логика парсера Kotlin:</b></p>
                     <ol>
-                        <li>Читаем блок <code>data</code>.</li>
-                        <li>Входим в цикл по массиву.</li>
-                        <li>Оборачиваем чтение каждого элемента в безопасный блок.</li>
-                        <li>Если 2-й элемент содержит ошибку - мы ловим Exception, <b>пропускаем 2-й элемент</b>, но успешно сохраняем 1-й и 3-й.</li>
+                        <li>Читаем объект <code>data</code>.</li>
+                        <li>Начинаем итерацию по массиву <code>templates</code>.</li>
+                        <li>Чтение <b>каждого</b> элемента обернуто в отдельный блок <code>try-catch</code>.</li>
+                        <li>Если 3-й элемент вызывает <code>JSONException</code>, исключение глушится, цикл переходит к 4-му элементу.</li>
+                        <li>В итоге приложение успешно импортирует 1-й, 2-й и 4-й шаблоны.</li>
                     </ol>
                 </div>
             </div>

@@ -28,11 +28,14 @@ header {
 
 .logo-container { display: flex; align-items: center; gap: 15px; }
 
+/* ПИКСЕЛЬНАЯ ЛУНА */
 .pixel-moon {
-    width: 32px; height: 32px; image-rendering: pixelated;
-    animation: spin 6s linear infinite; cursor: pointer; transition: filter 0.3s;
+    width: 32px; height: 32px;
+    animation: spin 6s linear infinite; 
+    cursor: pointer; 
+    transition: filter 0.3s;
 }
-.pixel-moon:hover { filter: drop-shadow(0 0 8px var(--primary-color)); }
+.pixel-moon:hover { filter: drop-shadow(0 0 10px var(--primary-color)); }
 
 @keyframes spin { 100% { transform: rotate(360deg); } }
 
@@ -67,6 +70,7 @@ main { padding: 40px; max-width: 1200px; margin: 0 auto; }
 /* Модалки */
 .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; }
 .modal-content { background: var(--surface-color); width: 90%; max-width: 600px; border-radius: 16px; border: 1px solid var(--border-color); max-height: 90vh; display: flex; flex-direction: column; }
+.dev-modal-wide { max-width: 800px; }
 .modal-header { padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
 .modal-header h2 { color: var(--primary-color); font-size: 20px;}
 .close { font-size: 28px; cursor: pointer; color: var(--text-secondary); line-height: 1;}
@@ -88,3 +92,12 @@ main { padding: 40px; max-width: 1200px; margin: 0 auto; }
 .tree-inputs textarea, .up-textarea { resize: vertical; min-height: 60px; }
 .up-input { margin-bottom: 10px; }
 .up-textarea { min-height: 150px; font-family: monospace; font-size: 12px;}
+
+/* Доки */
+.dev-docs h3 { color: var(--text-primary); margin: 20px 0 10px; }
+.dev-docs h4 { color: var(--primary-color); margin: 15px 0 5px; }
+.dev-docs p, .dev-docs ul { color: var(--text-secondary); line-height: 1.6; font-size: 14px; }
+.dev-docs ul { padding-left: 20px; margin-bottom: 10px; }
+.dev-docs pre { background: #000; padding: 15px; border-radius: 8px; overflow-x: auto; margin: 10px 0; border: 1px solid var(--border-color); }
+.dev-docs code { color: #d8b4fe; font-family: Consolas, monospace; font-size: 13px; }
+.highlight-box { background: rgba(168, 85, 247, 0.1); border-left: 4px solid var(--primary-color); padding: 10px; margin-top: 15px; }

@@ -1,4 +1,3 @@
-// Смена темы по клику на луну
 const moonLogo = document.getElementById('moonLogo');
 moonLogo.addEventListener('click', () => {
     document.body.classList.toggle('dark-violet');
@@ -18,6 +17,7 @@ document.getElementById('closeModal').onclick = () => packModal.style.display = 
 
 let currentEditedPack = null;
 let allPacks = [];
+let uploadedJsonData = null; // Хранит распарсенный JSON перед публикацией
 
 // 1. ЗАГРУЗКА ИЗ SUPABASE
 async function fetchCatalog() {
@@ -32,7 +32,7 @@ async function fetchCatalog() {
         }
         renderGrid(allPacks);
     } catch (e) {
-        grid.innerHTML = '<div class="loading" style="color:red;">Ошибка загрузки каталога</div>';
+        grid.innerHTML = '<div class="loading" style="color:#ef4444;">Ошибка загрузки каталога</div>';
     }
 }
 
@@ -44,7 +44,7 @@ function renderGrid(packs) {
         card.className = 'pack-card';
         card.innerHTML = `
             <h3>${escapeHTML(pack.name)}</h3>
-            <div class="author">👤 ${escapeHTML(pack.author)}</div>
+            <div class="author">Автор: ${escapeHTML(pack.author)}</div>
             <div class="desc">${escapeHTML(pack.description)}</div>
         `;
         card.onclick = () => openPackEditor(pack);
@@ -59,7 +59,7 @@ document.getElementById('searchInput').addEventListener('input', (e) => {
     renderGrid(filtered);
 });
 
-// 2. ОТКРЫТИЕ РЕДАКТОРА
+// 2. ОТКРЫТИЕ РЕДАКТОРА (Для скачивания)
 function openPackEditor(pack) {
     currentEditedPack = JSON.parse(JSON.stringify(pack)); 
     
@@ -73,7 +73,8 @@ function openPackEditor(pack) {
     for (const [category, items] of Object.entries(currentEditedPack.pack_data)) {
         const catHeader = document.createElement('h4');
         catHeader.innerText = translateCategory(category);
-        catHeader.style.marginTop = "15px";
+        catHeader.style.marginTop = "20px";
+        catHeader.style.marginBottom = "10px";
         catHeader.style.color = "var(--primary-color)";
         tree.appendChild(catHeader);
 
@@ -115,7 +116,7 @@ function createTreeItem(category, item, index, isObject = false) {
     cb.dataset.index = index;
 
     const title = document.createElement('span');
-    title.innerText = item.name || item.trigger || (isObject ? "Общие настройки" : "Элемент");
+    title.innerText = item.name || item.trigger || (isObject ? "Общие настройки" : "Блок настроек");
 
     header.appendChild(cb);
     header.appendChild(title);
@@ -127,7 +128,6 @@ function createTreeItem(category, item, index, isObject = false) {
     for (const [key, value] of Object.entries(item)) {
         if(key === 'id') continue; 
         
-        // Для простых типов выводим инпуты
         if (typeof value === 'string' || typeof value === 'number') {
             const input = document.createElement(String(value).length > 50 ? 'textarea' : 'input');
             input.value = value;
@@ -140,12 +140,12 @@ function createTreeItem(category, item, index, isObject = false) {
         }
     }
     
-    cb.onchange = () => { inputsDiv.style.opacity = cb.checked ? "1" : "0.3"; };
+    cb.onchange = () => { div.style.opacity = cb.checked ? "1" : "0.5"; };
     div.appendChild(inputsDiv);
     return div;
 }
 
-// 3. ГЕНЕРАЦИЯ И СКАЧИВАНИЕ .fptools
+// 3. СКАЧИВАНИЕ .fptools
 document.getElementById('btnDownload').onclick = () => {
     const finalData = {
         version: 1,
@@ -183,58 +183,114 @@ document.getElementById('btnDownload').onclick = () => {
     URL.revokeObjectURL(url);
 };
 
-// 4. ПУБЛИКАЦИЯ ПАКА (POST на Vercel -> Supabase)
+// 4. ЛОГИКА DRAG & DROP
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const uploadFileInfo = document.getElementById('uploadFileInfo');
+const uploadFileName = document.getElementById('uploadFileName');
+const btnRemoveFile = document.getElementById('btnRemoveFile');
+const btnSubmitUpload = document.getElementById('btnSubmitUpload');
+const errText = document.getElementById('upError');
+
+dropZone.onclick = () => fileInput.click();
+
+dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('dragover'); };
+dropZone.ondragleave = () => dropZone.classList.remove('dragover');
+dropZone.ondrop = (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+};
+
+fileInput.onchange = (e) => {
+    if (e.target.files.length) handleFile(e.target.files[0]);
+};
+
+function handleFile(file) {
+    errText.innerText = "";
+    // Проверка размера на клиенте: 1 МБ
+    if (file.size > 1000000) {
+        errText.innerText = "В файле сломан формат JSON, обратитесь к разработчикам";
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            let json = JSON.parse(e.target.result);
+            if(json.data) json = json.data; // Извлекаем саму начинку
+            
+            uploadedJsonData = json;
+            uploadFileName.innerText = file.name;
+            dropZone.style.display = 'none';
+            uploadFileInfo.style.display = 'flex';
+            checkFormValidity();
+        } catch(err) {
+            errText.innerText = "В файле сломан формат JSON, обратитесь к разработчикам";
+        }
+    };
+    reader.readAsText(file);
+}
+
+btnRemoveFile.onclick = () => {
+    uploadedJsonData = null;
+    fileInput.value = "";
+    dropZone.style.display = 'block';
+    uploadFileInfo.style.display = 'none';
+    checkFormValidity();
+};
+
+function checkFormValidity() {
+    const author = document.getElementById('upAuthor').value.trim();
+    const name = document.getElementById('upName').value.trim();
+    btnSubmitUpload.disabled = !(author && name && uploadedJsonData);
+}
+
+document.querySelectorAll('.up-input').forEach(i => i.addEventListener('input', checkFormValidity));
+
+// 5. ОТПРАВКА НА СЕРВЕР (POST)
 document.getElementById('btnSubmitUpload').onclick = async () => {
-    const btn = document.getElementById('btnSubmitUpload');
-    const err = document.getElementById('upError');
-    
     const author = document.getElementById('upAuthor').value.trim();
     const name = document.getElementById('upName').value.trim();
     const description = document.getElementById('upDesc').value.trim();
-    const jsonText = document.getElementById('upJson').value.trim();
 
-    if(!author || !name || !jsonText) {
-        err.innerText = "Заполните автора, название и вставьте JSON.";
+    // Локальная защита от спама (сохраняем дату последней загрузки в localStorage)
+    const lastUpload = localStorage.getItem('lastPackUploadTime');
+    if (lastUpload && (Date.now() - parseInt(lastUpload)) < 24 * 60 * 60 * 1000) {
+        errText.innerText = "Вы можете публиковать только 1 пак в день. Приходите завтра!";
         return;
     }
 
-    let packData;
-    try {
-        packData = JSON.parse(jsonText);
-        if(packData.data) packData = packData.data; // Если вставили фулл .fptools
-    } catch(e) {
-        err.innerText = "Ошибка: неверный формат JSON.";
-        return;
-    }
-
-    btn.disabled = true;
-    btn.innerText = "Публикация...";
-    err.innerText = "";
+    btnSubmitUpload.disabled = true;
+    btnSubmitUpload.innerText = "Публикация...";
+    errText.innerText = "";
 
     try {
         const res = await fetch('/api/catalog', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ author, name, description, pack_data: packData })
+            body: JSON.stringify({ author, name, description, pack_data: uploadedJsonData })
         });
 
         const result = await res.json();
-        if(res.ok) {
+        if (res.ok) {
+            localStorage.setItem('lastPackUploadTime', Date.now().toString());
+            
             uploadModal.style.display = 'none';
             document.getElementById('upAuthor').value = '';
             document.getElementById('upName').value = '';
             document.getElementById('upDesc').value = '';
-            document.getElementById('upJson').value = '';
-            fetchCatalog(); // Обновляем список
+            btnRemoveFile.click();
+            fetchCatalog();
         } else {
-            err.innerText = result.error || "Ошибка сервера";
+            errText.innerText = result.error || "Ошибка сервера";
         }
     } catch (e) {
-        err.innerText = "Ошибка сети.";
+        errText.innerText = "Ошибка сети. Проверьте подключение.";
     }
 
-    btn.disabled = false;
-    btn.innerText = "Опубликовать";
+    btnSubmitUpload.disabled = false;
+    btnSubmitUpload.innerText = "Опубликовать";
 };
 
 function escapeHTML(str) {

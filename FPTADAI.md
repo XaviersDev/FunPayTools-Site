@@ -1,5 +1,5 @@
 
-# FunPay Tools Plugin Architecture & Documentation (FPTAD) - ULTIMATE TIER
+# FunPay Tools Plugin Architecture, Documentation and AI (FPTAD) - ULTIMATE TIER
 
 Добро пожаловать в документацию по созданию плагинов для Android-приложения **FunPay Tools**.
 Наш нативный JS-мост позволяет плагинам управлять **ВСЕМИ** функциями приложения. 

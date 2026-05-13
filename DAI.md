@@ -130,6 +130,8 @@ fpt.on("onNewMessage", function(msgData) {
 | `getRmtHub(username)` | Пробив по базе RMTHub |
 | `getSales()` | Список продаж |
 | `getOrdersWith(username, isSales_bool)` | Заказы с конкретным юзером |
+| `setAvatar(base64Image)` | Возвращает `Boolean`. Меняет аватарку пользователя. |
+        
 
 ---
 

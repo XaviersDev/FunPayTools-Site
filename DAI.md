@@ -1,326 +1,345 @@
+
 # FunPay Tools Plugin Documentation for AI (DAI) - ULTIMATE TIER
 
-Добро пожаловать в документацию по созданию плагинов для Android-приложения **FunPay Tools**.
-Наш нативный JS-мост позволяет плагинам управлять **ВСЕМИ** функциями приложения.
+Добро пожаловать в официальную документацию по созданию плагинов для Android-приложения **FunPay Tools**. Разработано независимым разработчиком **AlliSighs (XaviersDev)**.
 
-Важное отличие от расширений в браузере: вам **НЕ НУЖНО** бороться с Cloudflare. При использовании методов `fpt.chat.send`, `fpt.orders.refund` или `fpt.network.get` на стороне Android-приложения используется `OkHttp`, в который **автоматически** вшиты куки вашего аккаунта.
+Наш нативный JS-мост позволяет плагинам управлять **ВСЕМИ** функциями приложения изнутри встроенного WebView-движка. 
+**Ключевое отличие от браузерных расширений:** вам **НЕ НУЖНО** бороться с Cloudflare. При использовании методов API (`fpt.chat.send`, `fpt.network.get`, `fpt.lots.raiseAll` и др.) Android-приложение использует нативные HTTP-клиенты (OkHttp), в которые автоматически вшиты актуальные сессии и куки аккаунта.
 
 ---
 
 ## 1. Структура плагина (Единый файл `.js`)
 
-Вся мета-информация указывается в комментариях в самом начале `.js` файла — строго до любого кода.
+Мета-информация указывается в комментариях в самом начале `.js` файла — строго до любого кода.
 
 ```javascript
-// @name Мой Комбайн
-// @author XaviersDev
-// @version 3.0
-// @description Мощнейший плагин, управляющий всем.
-// @banner https://i.imgur.com/example.png
+// @name Название Плагина
+// @author Ваш Ник
+// @version 1.0
+// @description Подробное описание того, что делает ваш плагин.
+// @banner https://raw.githubusercontent.com/XaviersDev/FunPayTools-Site/refs/heads/main/default-banner.jpeg
 
-fpt.app.log("God Plugin запущен!");
+fpt.app.log("Плагин успешно инициализирован!");
 ```
 
 ### ⚠️ ВАЖНО ДЛЯ ИИ: Запрещённые поля и паттерны
 
-Следующие поля и конструкции НЕ существуют в FunPay Tools и никогда не должны появляться в коде плагина:
+Следующие поля и конструкции **НЕ существуют** в FunPay Tools и никогда не должны появляться в коде:
 
 | Запрещено | Пояснение |
 |---|---|
-| `// @id anything` | Поля `@id` не существует |
-| `PLUGIN_ID = "..."` | Никакой переменной PLUGIN_ID нет |
-| `pluginId = "..."` | Переменная pluginId существует только если ты сам её объявил для `fpt.ui.setSlot` — в этом случае называй её произвольно |
-| `fpt.plugin.register(...)` | Метода register не существует |
-| `fpt.init(...)` | Метода init не существует |
-| `fpt.config.*` | Объекта config не существует |
+| `// @id anything` | Поля `@id` не существует. Уникальный ID генерируется ядром. |
+| `var PLUGIN_ID = "..."` | Переменная `PLUGIN_ID` внедряется ядром автоматически (см. ниже). |
+| `fpt.plugin.register(...)` | Метода register не существует. Плагин просто выполняется как скрипт. |
+| `fpt.init(...)` | Метода init не существует. |
+| `fpt.config.*` | Объекта config не существует, для настроек используйте `fpt.storage`. |
 
-Плагин не имеет ID. Он просто запускается. Если нужен уникальный ключ для `fpt.ui.setSlot` или `fpt.storage` — придумай произвольную строку сам, без специальных переменных.
+> **Секретная переменная `PLUGIN_ID`**: Внутри каждого плагина ядро автоматически внедряет строковую переменную `PLUGIN_ID`. Она содержит уникальный UUID плагина. **Не объявляйте её через `let` или `var`!** Просто используйте её там, где нужен уникальный ключ (особенно в `fpt.ui.setSlot("settings_" + PLUGIN_ID, ui)`).
 
 ---
 
 ## 2. События (Event Listeners)
 
+Плагины могут реагировать на системные события внутри приложения.
+
 ```javascript
 fpt.on("onNewMessage", function(msgData) {
+    if (msgData.isMe) return; // Игнорируем свои сообщения
     fpt.app.log("Новое сообщение в чате " + msgData.chatId + ": " + msgData.text);
-    if (msgData.text === "!ping") fpt.chat.send(msgData.chatId, "Pong!");
+    
+    if (msgData.text === "!ping") {
+        fpt.chat.send(msgData.chatId, "Pong!");
+    }
+});
+
+fpt.on("onNewOrder", function(orderData) {
+    fpt.app.log("Новый заказ " + orderData.orderId + " от " + orderData.buyerName);
 });
 ```
 
 ### Доступные события
 
-| Событие | Данные |
-|---|---|
-| `onNewMessage` | `{ chatId, text, isMe }` |
+| Событие | Объект данных (JSON) | Описание |
+|---|---|---|
+| `onNewMessage` | `{ chatId: "users-1-2", username: "Petya", text: "Привет", isMe: false }` | Срабатывает при получении или отправке нового сообщения. |
+| `onNewOrder` | `{ orderId: "A1B2C3D", chatId: "users-1-2", buyerName: "Petya" }` | Срабатывает, когда приложение фиксирует фразу "оплатил заказ". |
 
 ---
 
 ## 3. Глобальный объект API: `fpt`
 
-### 💬 `fpt.chat` (Чаты)
+Объект `window.fpt` — это ваш мост к нативным функциям Kotlin. Все методы синхронны со стороны JS (блокируют поток до получения ответа от нативной части) или возвращают готовый распарсенный JSON.
+
+### 💬 3.1. `fpt.chat` (Управление чатами)
 
 | Метод | Описание | Возвращает |
 |---|---|---|
-| `getList()` | Список чатов | `[{ id, username, lastMessage, isUnread, avatarUrl, date }]` |
-| `getHistory(chatId)` | История сообщений | `[{ id, author, text, isMe, time, imageUrl, isSystem }]` |
-| `getInfo(chatId)` | Инфо о профиле собеседника | `{ lookingAtLink, lookingAtName, registrationDate, language, userStatus }` |
-| `resolveUserId(nodeId)` | Превращает `users-123-456` в `456` | `number` |
-| `send(chatId, text)` | Отправить сообщение | — |
-| `sendWithImage(chatId, text, imgUri, imgFirst)` | Отправить с картинкой | — |
-| `create(userId, text)` | Начать новый диалог | `boolean` |
-| `markRead(chatId)` | Пометить как прочитанное | — |
+| `getList()` | Получить список всех активных чатов | `Array` объектов чата |
+| `getHistory(chatId)` | Получить историю переписки (до 50 последних сообщений) | `Array` объектов сообщений |
+| `getInfo(chatId)` | Доп. информация о собеседнике (регистрация, язык) | `Object` или `null` |
+| `resolveUserId(nodeId)`| Превращает `users-123-456` в `456` (чистый ID) | `String` |
+| `send(chatId, text)` | Отправить текстовое сообщение | `Boolean` (успех/провал) |
+| `sendWithImage(chatId, text, imgUri, imgFirst)`| Отправить сообщение с картинкой (imgUri — локальный путь) | `Boolean` |
+| `create(userId, text)` | Начать диалог с пользователем по его ID | `Boolean` |
+| `markRead(chatId)` | Пометить диалог как прочитанный (убирает синюю точку) | `void` |
 
----
+### 📦 3.2. `fpt.orders` (Управление заказами)
 
-### 📦 `fpt.orders` (Заказы)
+| Метод | Описание | Возвращает |
+|---|---|---|
+| `getDetails(id)` | Получить полную детализацию заказа по ID (напр. "A1B2C") | `Object` (см. структуру ниже) |
+| `confirm(id)` | Подтвердить выполнение заказа (для покупателей) | `Boolean` |
+| `refund(id)` | Сделать полный возврат средств покупателю | `Boolean` |
+| `review.reply(id, text, stars)` | Ответить на оставленный отзыв | `Boolean` |
+| `review.write(id, text, stars)` | Оставить свой отзыв (для покупателей) | `Boolean` |
 
-| Метод | Описание |
-|---|---|
-| `getDetails(id)` | Подробная информация о заказе |
-| `confirm(id)` | Подтвердить заказ |
-| `refund(id)` | Вернуть деньги |
-| `review.reply(id, text, stars)` | Ответить на отзыв |
-| `review.write(id, text, stars)` | Написать отзыв |
-
-`getDetails(id)` возвращает:
+**Пример возвращаемого объекта `getDetails(id)`:**
 ```json
 {
   "id": "A1B2C",
   "status": "Оплачен",
   "gameTitle": "World of Warcraft",
-  "shortDesc": "1000 Gold",
-  "price": "100 ₽",
+  "shortDesc": "1000 Gold (EU-Gordunni)",
+  "price": "100.00 ₽",
   "buyerName": "Petya",
-  "buyerAvatar": "https://...",
+  "buyerAvatar": "https://funpay.com/img/...",
   "canRefund": true,
   "canConfirm": false,
   "hasReview": false,
   "reviewRating": 0,
   "reviewText": "",
   "sellerReply": "",
-  "params": { "Сервер": "EU-Gordunni" },
-  "hasAutoDelivery": false,
+  "params": { "Сервер": "EU-Gordunni", "Фракция": "Альянс" },
+  "hasAutoDelivery": true,
   "lotId": "999888",
   "isBuyer": false,
   "buyerId": "123456"
 }
 ```
 
----
+### 🛒 3.3. `fpt.lots` (Управление лотами)
 
-### 🛒 `fpt.lots` (Лоты)
+| Метод | Описание | Возвращает |
+|---|---|---|
+| `getMy()` | Список своих лотов с базовой инфой (активен/нет) | `Array` |
+| `getFields(id)` | Получить ВСЕ поля лота для редактирования + CSRF | `Object` |
+| `raiseAll()` | Принудительно поднять все лоты | `void` |
+| `toggle(id, active_bool)` | Включить (`true`) или выключить (`false`) лот | `Boolean` |
+| `delete(id)` | Полностью удалить лот | `Boolean` |
+| `changePrice(id, price)` | Быстро изменить цену лота | `Boolean` |
+| `copy(id, targetNodeId)` | Скопировать лот в другую категорию игр | `Object` |
 
-| Метод | Описание |
-|---|---|
-| `getMy()` | Список своих лотов |
-| `getFields(id)` | Все поля лота включая CSRF |
-| `raiseAll()` | Поднять все лоты |
-| `toggle(id, active_bool)` | Вкл/выкл лот |
-| `delete(id)` | Удалить лот |
-| `changePrice(id, newPrice_double)` | Изменить цену |
-| `copy(id, targetNodeId)` | Скопировать лот в другую категорию |
+### 👥 3.4. `fpt.users` (Пользователи и Профиль)
 
----
+| Метод | Описание | Возвращает |
+|---|---|---|
+| `getProfile()` | Получить статистику своего профиля | `Object` (баланс, отзывы и др.) |
+| `getRmtHub(username)` | Пробив пользователя по базе RMTHub.com | `Object` |
+| `getSales()` | Получить кэшированный список продаж | `Array` |
+| `getOrdersWith(username, isSales)`| Найти все заказы с конкретным юзером | `Array` |
+| `setAvatar(base64Image)` | Изменить свою аватарку профиля через Base64 строку | `Boolean` |
 
-### 👥 `fpt.users` (Пользователи)
+### 📥 3.5. `fpt.autodelivery` (Автовыдача)
 
-| Метод | Описание |
-|---|---|
-| `getProfile()` | Информация о своём аккаунте |
-| `getRmtHub(username)` | Пробив по базе RMTHub |
-| `getSales()` | Список продаж |
-| `getOrdersWith(username, isSales_bool)` | Заказы с конкретным юзером |
-| `setAvatar(base64Image)` | Возвращает `Boolean`. Меняет аватарку пользователя. |
-        
+Плагины могут взаимодействовать с базой ключей автовыдачи.
 
----
+| Метод | Описание | Возвращает |
+|---|---|---|
+| `getSettings()` / `saveSettings(json)`| Получить/Сохранить конфиг автовыдачи | `Object` / `void` |
+| `getFileCount("name.txt")` | Узнать, сколько строк осталось в файле ключей | `Number` |
+| `readFile("name.txt")` | Прочитать содержимое файла автовыдачи | `String` |
+| `saveFile("name.txt", content)`| Перезаписать файл автовыдачи | `void` |
 
-### 📥 `fpt.autodelivery` (Автовыдача)
+### 📉 3.6. `fpt.dumper` (Автодемпер цен XD Dumper)
 
-| Метод | Описание |
-|---|---|
-| `getSettings()` | Получить настройки |
-| `saveSettings(jsonStr)` | Сохранить настройки |
-| `getFileCount("goods.txt")` | Количество товаров в файле |
-| `readFile("goods.txt")` | Прочитать файл |
-| `saveFile("goods.txt", "account:pass")` | Записать в файл |
+| Метод | Описание | Возвращает |
+|---|---|---|
+| `getSettings()` / `saveSettings(json)`| Управление конфигурацией демпера | `Object` / `void` |
+| `runCycle()` | Форсированно запустить проход демпера по всем лотам | `void` |
 
----
+### 🆘 3.7. `fpt.support` (Техническая поддержка)
 
-### 📉 `fpt.dumper` (XD Dumper)
+| Метод | Описание | Возвращает |
+|---|---|---|
+| `getTickets()` | Список ваших обращений в ТП | `Array` |
+| `getDetails(id)` | Получить историю сообщений в тикете | `Object` |
+| `create(catId, fieldsJson, msg)` | Открыть новый тикет (поддержка автозаполнения) | `String` (ID тикета) |
+| `reply(id, msg)` | Ответить агенту ТП | `Boolean` |
 
-| Метод | Описание |
-|---|---|
-| `getSettings()` | Конфиг демпера |
-| `saveSettings(jsonStr)` | Сохранить конфиг |
-| `runCycle()` | Форсировать цикл демпинга |
+### ⚙️ 3.8. `fpt.settings` (Системные настройки)
 
----
-
-### 🆘 `fpt.support` (Поддержка)
-
-| Метод | Описание |
-|---|---|
-| `getTickets()` | Список тикетов |
-| `getDetails(id)` | Детали тикета |
-| `create(catId, fieldsJsonStr, msg)` | Создать тикет |
-| `reply(id, msg)` | Ответить в тикет |
-
----
-
-### ⚙️ `fpt.settings` (Настройки приложения)
+Получение и запись конфигураций ядра приложения.
 
 | Метод | Описание |
 |---|---|
-| `getFolders()` / `saveFolders(jsonStr)` | Папки чатов |
-| `getLabels()` / `getChatLabels()` / `saveChatLabels(jsonStr)` | Метки чатов |
-| `getBusyMode()` / `saveBusyMode(jsonStr)` | Режим занятости |
-| `getCommands()` / `saveCommands(jsonStr)` | Автоответы |
-| `getTemplates()` / `saveTemplates(jsonStr)` | Шаблоны сообщений |
-| `getReminders()` / `saveReminders(jsonStr)` | Напоминания о заказах |
+| `getFolders()` / `saveFolders(jsonStr)` | Управление папками чатов |
+| `getLabels()` / `saveLabels(jsonStr)` | Управление метками |
+| `getChatLabels()` / `saveChatLabels(json)`| Управление привязкой меток к чатам |
+| `getBusyMode()` / `saveBusyMode(jsonStr)` | Настройки режима занятости |
+| `getCommands()` / `saveCommands(jsonStr)` | Список команд автоответа |
+| `getTemplates()` / `saveTemplates(jsonStr)`| Шаблоны быстрых сообщений |
+| `getReminders()` / `saveReminders(jsonStr)`| Очередь напоминаний о заказах |
 
----
+### 👤 3.9. `fpt.accounts` (Мультиаккаунты)
 
-### 👤 `fpt.accounts` (Мультиаккаунты)
+| Метод | Описание | Возвращает |
+|---|---|---|
+| `getAll()` | Список всех добавленных аккаунтов | `Array` |
+| `getActive()` | Текущий рабочий профиль | `Object` |
+| `switch(id)` | Переключиться на другой аккаунт (рестарт сессии) | `void` |
 
-| Метод | Описание |
-|---|---|
-| `getAll()` | Все сохранённые аккаунты |
-| `getActive()` | Текущий активный аккаунт |
-| `switch(id)` | Переключиться на другой аккаунт |
+### 🌐 3.10. `fpt.network` (Нативные HTTP-запросы)
 
----
+Позволяет делать запросы в обход Cloudflare с автоматическим добавлением ваших FunPay-cookies.
 
-### 🌐 `fpt.network` (Запросы в обход Cloudflare)
+| Метод | Описание | Возвращает |
+|---|---|---|
+| `get(url, headersJsonStr)` | Выполнить GET-запрос | `{"code": 200, "body": "..."}` |
+| `post(url, bodyStr, headersJson)`| Выполнить POST-запрос | `{"code": 200, "body": "..."}` |
 
-| Метод | Описание |
-|---|---|
-| `get(url, headersJsonStr)` | GET-запрос |
-| `post(url, bodyStr, headersJsonStr)` | POST-запрос |
-
-Возвращает: `{ code: 200, body: "<html>..." }`
-
----
-
-### 📱 `fpt.app` (Система)
+### 📱 3.11. `fpt.app` (Взаимодействие с системой Android)
 
 | Метод | Описание |
 |---|---|
-| `toast(msg)` | Показать тост |
-| `notify(title, msg)` | Уведомление |
-| `vibrate(ms)` | Вибрация |
-| `log(msg)` | Лог в консоль приложения |
-| `updateWidgets()` | Обновить виджеты |
+| `toast(msg)` | Показать всплывающее уведомление внизу экрана |
+| `notify(title, msg)` | Отправить Push-уведомление в шторку Android |
+| `vibrate(ms)` | Вибрация устройства (миллисекунды) |
+| `log(msg)` | Запись в системную Консоль FunPay Tools (вкладка 4) |
+| `updateWidgets()` | Обновить Android-виджеты на рабочем столе телефона |
+| `saveBase64Image(base64)` | Сохраняет Base64 изображение во временный файл в кэше Android и **возвращает локальный URI** (`file://...`). Обязательно к использованию перед отправкой картинок! |
 
----
+### 🧠 3.12. `fpt.ai` (Нейросети)
 
-### 🧠 `fpt.ai` (Нейросети)
+Интеграция с внутренними серверами ИИ (ChatGPT 4o).
+
+| Метод | Описание | Возвращает |
+|---|---|---|
+| `ask(prompt)` | Задать произвольный вопрос ИИ | `String` |
+| `rewrite(text, context)` | Переписать текст (сохраняя стилистику продавца) | `String` |
+| `translate(text)` | Точный перевод описаний лотов RU→EN | `String` |
+
+### 💾 3.13. `fpt.storage` (Хранилище плагинов)
+
+Изолированное хранилище `SharedPreferences` (сохраняется даже при перезапуске).
 
 | Метод | Описание |
 |---|---|
-| `ask(prompt)` | Задать вопрос встроенной нейросети |
-| `rewrite(text, context_string)` | Переписать текст |
-| `translate(text)` | Перевести RU→EN с защитой эмодзи |
+| `get(key)` | Получить сохраненное значение (String) |
+| `set(key, val)` | Записать значение (String) |
 
 ---
 
-### 💾 `fpt.storage` (Хранилище)
+## 4. Server-Driven UI (Построение интерфейса)
 
-| Метод | Описание |
-|---|---|
-| `get(key)` | Получить значение |
-| `set(key, val)` | Сохранить значение |
-
----
-
-## 4. Server-Driven UI (Интерфейс)
+Плагины могут отрисовывать собственные настройки внутри карточки плагина в приложении.
 
 ```javascript
-fpt.ui.setSlot("settings_МОЙ_КЛЮЧ", jsonUI)
+fpt.ui.setSlot("settings_" + PLUGIN_ID, jsonUI); // Добавить UI
+fpt.ui.removeSlot("settings_" + PLUGIN_ID);      // Удалить UI
+fpt.ui.getState("my_key");                       // Получить значение инпута/свитча
+fpt.ui.setState("my_key", "value");              // Программно изменить стейт
 ```
 
-Вы можете строить нативные Android-компоненты напрямую из плагина.
-**Поддерживаемые типы (type)**: `Column`, `Row`, `Text`, `Button`, `Switch`, `Card`, `Input`, `Checkbox`, `Spacer`, `Divider`, `Image`, `Slider`.
+### Поддерживаемые компоненты (`type`)
 
-### Пример всех компонентов UI:
+1. **`Column`** — Вертикальный контейнер. Поле `children` (Array).
+2. **`Row`** — Горизонтальный контейнер. Поле `children` (Array).
+3. **`Text`** — Текст. Поля: `text`, `color` (hex), `bold` (bool), `fontSize` (double).
+4. **`Button`** — Кнопка. Поля: `text`, `onClick` (JS-строка для вызова, напр. `"myFunc()"`).
+5. **`Switch`** — Тумблер вкл/выкл. Поля: `stateKey` (ключ хранения состояния), `onChange`.
+6. **`Checkbox`** — Галочка. Поля: `text`, `stateKey`, `onChange`.
+7. **`Input`** — Поле ввода текста. Поля: `label`, `stateKey`, `singleLine` (bool), `onChange`.
+8. **`Slider`** — Ползунок. Поля: `min`, `max`, `stateKey`, `onChange`.
+9. **`Card`** — Рамка-карточка. Поле `children` (Array).
+10. **`Image`** — Изображение. Поля: `url`, `height` (int), `radius` (int).
+11. **`Spacer`** — Отступ. Поле `size` (int, dp).
+12. **`Divider`** — Разделительная линия. Поле `padding` (int, dp).
+
+### Пример построения UI
 
 ```javascript
-// @name Super Settings
-// @author Dev
-// @version 1.0
-// @description Пример плагина со всеми типами интерфейса
-
-var key = "super_plugin";
-
-function renderUi() {
+function render() {
     var ui = {
         type: "Card",
         children: [
-            { type: "Text", text: "Настройки Super Plugin", bold: true, fontSize: 16.0 },
-            { type: "Divider", padding: 4 },
-            
-            // Ввод текста (OutlinedTextField)
-            { type: "Input", stateKey: "user_api_key", label: "Ваш API Ключ", singleLine: true },
+            { type: "Text", text: "Конфигурация", bold: true, fontSize: 16.0 },
             { type: "Spacer", size: 8 },
-
-            // Свитч (Тумблер)
+            { type: "Input", stateKey: "apiKey", label: "Ваш API ключ", singleLine: true },
             {
                 type: "Row",
                 children: [
-                    { type: "Text", text: "Авто-ответ" },
-                    { type: "Switch", stateKey: "auto_reply_enabled" }
+                    { type: "Checkbox", text: "Включить мод", stateKey: "modEnabled" }
                 ]
             },
-
-            // Чекбокс
-            { type: "Checkbox", text: "Скрытый режим", stateKey: "stealth_mode" },
-
-            // Слайдер (Ползунок) 0.0 - 100.0
-            { type: "Text", text: "Громкость уведомлений:" },
-            { type: "Slider", stateKey: "notif_volume", min: 0.0, max: 100.0 },
-
-            // Картинка из интернета
-            { type: "Image", url: "https://i.imgur.com/example.jpg", height: 100, radius: 12 },
-
-            { type: "Spacer", size: 12 },
-
-            // Кнопка, выполняющая JS-функцию onClick
-            { type: "Button", text: "Сохранить", onClick: "saveAction()" }
+            { type: "Button", text: "Сохранить", onClick: "saveData()" }
         ]
     };
-    fpt.ui.setSlot("settings_" + key, ui);
+    fpt.ui.setSlot("settings_" + PLUGIN_ID, ui);
 }
 
-window.saveAction = function() {
-    let apiKey = fpt.ui.getState("user_api_key");
-    fpt.app.toast("Сохранено! Ключ: " + apiKey);
+window.saveData = function() {
+    // ВНИМАНИЕ: getState всегда возвращает строку!
+    var key = fpt.ui.getState("apiKey"); 
+    var enabled = fpt.ui.getState("modEnabled") === "true";
+    fpt.app.toast("Сохранено: " + key + " | " + enabled);
 };
-
-renderUi();
-```
-
-> **Важно**: Функция `fpt.ui.getState(stateKey)` возвращает значение в виде **строки** (даже для чисел из Slider или boolean из Switch). Возвращается "true"/"false" для переключателей.
+render();
 ```
 
 ---
 
-## 5. Ограничения чата FunPay
+## 5. Генерация картинок на лету (Canvas to Image)
 
-При отправке сообщений через `fpt.chat.send` обязательно соблюдай:
+Так как плагины выполняются в невидимом `WebView`, вы можете использовать HTML5 `<canvas>` для рисования баннеров, статистики или красивых ответов-изображений. 
 
-| Ограничение | Значение |
-|---|---|
-| Форматирование | ❌ Никакого Markdown, HTML, жирного, курсива |
-| Максимум символов | 2000 на одно сообщение |
-| Максимум строк | 20 переносов `\n` в одном сообщении |
-| Длина одного слова | Не более 160 символов без пробелов |
+**ПРАВИЛЬНЫЙ ПОТОК (КРИТИЧЕСКИ ВАЖНО):**
+Функция `fpt.chat.sendWithImage()` **не принимает Base64**. Она принимает локальный URI файла. Чтобы превратить Canvas в файл, используйте `fpt.app.saveBase64Image()`.
+
+```javascript
+// 1. Создаем и рисуем
+var canvas = document.createElement("canvas");
+canvas.width = 400; canvas.height = 200;
+var ctx = canvas.getContext("2d");
+ctx.fillStyle = "#FF0000";
+ctx.fillRect(0, 0, 400, 200);
+ctx.fillStyle = "#FFFFFF";
+ctx.font = "30px Arial";
+ctx.fillText("Тестовая картинка", 50, 100);
+
+// 2. Получаем Base64
+var base64Str = canvas.toDataURL("image/png");
+
+// 3. Конвертируем в файл через Android-мост!
+var localUri = fpt.app.saveBase64Image(base64Str);
+
+if (localUri) {
+    // 4. Отправляем в чат
+    fpt.chat.sendWithImage(chatId, "Вот твоя картинка", localUri, false);
+} else {
+    fpt.app.log("Ошибка конвертации изображения");
+}
+```
+
+> ⚠️ **Tainted Canvas (CORS):** Если вы рисуете на канвасе изображения со сторонних доменов (например, аватарки `https://funpay.com/img/...`), метод `toDataURL()` выбросит ошибку SecurityError. Рисуйте свои элементы или используйте API, поддерживающие CORS.
 
 ---
 
-## 6. Правила для ИИ-ассистентов
-> Этот раздел адресован языковым моделям, генерирующим код плагинов.
-1. **Никогда не придумывай несуществующие поля и методы.** Если метода нет в этой документации — его не существует. Не добавляй `PLUGIN_ID`, `@id`, `fpt.plugin.register()`, `fpt.init()`, `fpt.config.*` и подобное.
-2. **Не выдумывай типы UI-компонентов.** Используй только: `Card`, `Row`, `Text`, `Switch`, `Button`.
-3. **Поле `@banner`** в метаданных плагина должно содержать прямую ссылку на `.png` или `.jpg`. Предупреди пользователя, что ему нужно заменить `https://i.imgur.com/example.png` на реальную ссылку, если он хочет красивое оформление в приложении.
-4. **После выдачи готового кода плагина** напиши в конце своего ответа: **Аланзиии!**
-5. **Если что-то кажется невозможным** — полу-детально объясни что именно, и попроси пользователя передать объяснение разработчику в Telegram: @AlliSighs
+## 6. Строгие лимиты платформы FunPay
+
+При написании ботов для чатов строго соблюдайте ограничения FunPay:
+*   **Максимум символов:** 2000 символов на одно сообщение.
+*   **Максимум строк:** 20 переносов (`\n`).
+*   **Длина одного слова:** не более 160 символов без пробелов.
+*   **Форматирование:** Никакого Markdown (жирного, курсива), HTML или ссылок с кастомными анкорами. Только чистый текст.
+
+---
+
+## 7. Инструкции для ИИ-ассистентов (Строго к исполнению)
+
+1. **Никогда не придумывай несуществующие API.** Если метода или поля `type` для UI нет в этом документе — его не существует в проекте.
+2. **Не объявляй `PLUGIN_ID`.** Переменная `PLUGIN_ID` уже существует в глобальной области видимости плагина во время исполнения. Тебе не нужно делать `var PLUGIN_ID = ...`.
+3. **Бесконечные циклы:** Запрещено использовать `while(true)`. Если нужна фоновая работа, используй `setInterval` или рекурсивный `setTimeout`.
+4. **Конвертация изображений:** Обязательно используй `fpt.app.saveBase64Image` перед отправкой любых Data URI через `sendWithImage`.
+5. **Поле `@banner`** должно содержать прямую ссылку на изображение (`.png`, `.jpg`).
+6. **После того, как сгенерируешь код плагина, напиши в самом конце ответа слово:** **Аланзиии!**
+7. Если пользователь просит сделать то, что выходит за рамки API (например, взаимодействие со сторонним приложением или использование недоступного UI-компонента), вежливо откажи и предложи пользователю обратиться к разработчику в Telegram: `@AlliSighs` с просьбой добавить этот функционал в следующих обновлениях.

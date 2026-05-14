@@ -17,7 +17,7 @@
 // @author Ваш Ник
 // @version 1.0
 // @description Подробное описание того, что делает ваш плагин.
-// @banner https://raw.githubusercontent.com/XaviersDev/FunPayTools-Site/refs/heads/main/default-banner.jpeg
+// @banner https://example.com/banner.png
 
 fpt.app.log("Плагин успешно инициализирован!");
 ```
@@ -61,7 +61,7 @@ fpt.on("onNewOrder", function(orderData) {
 
 | Событие | Объект данных (JSON) | Описание |
 |---|---|---|
-| `onNewMessage` | `{ chatId: "users-1-2", username: "Petya", text: "Привет", isMe: false }` | Срабатывает при получении или отправке нового сообщения. |
+| `onNewMessage` | `{ chatId: "users-1-2", username: "Petya", text: "Привет", isMe: false }` | Срабатывает при получении нового сообщения. |
 | `onNewOrder` | `{ orderId: "A1B2C3D", chatId: "users-1-2", buyerName: "Petya" }` | Срабатывает, когда приложение фиксирует фразу "оплатил заказ". |
 
 ---
@@ -76,10 +76,10 @@ fpt.on("onNewOrder", function(orderData) {
 |---|---|---|
 | `getList()` | Получить список всех активных чатов | `Array` объектов чата |
 | `getHistory(chatId)` | Получить историю переписки (до 50 последних сообщений) | `Array` объектов сообщений |
-| `getInfo(chatId)` | Доп. информация о собеседнике (регистрация, язык) | `Object` или `null` |
+| `getInfo(chatId)` | Доп. информация о собеседнике (регистрация, язык, аватарка) | `Object` или `null` |
 | `resolveUserId(nodeId)`| Превращает `users-123-456` в `456` (чистый ID) | `String` |
 | `send(chatId, text)` | Отправить текстовое сообщение | `Boolean` (успех/провал) |
-| `sendWithImage(chatId, text, imgUri, imgFirst)`| Отправить сообщение с картинкой (imgUri — локальный путь) | `Boolean` |
+| `sendWithImage(chatId, text, imgUri, imgFirst)`| Отправить сообщение с картинкой (imgUri — локальный путь, см. ниже) | `Boolean` |
 | `create(userId, text)` | Начать диалог с пользователем по его ID | `Boolean` |
 | `markRead(chatId)` | Пометить диалог как прочитанный (убирает синюю точку) | `void` |
 
@@ -92,30 +92,6 @@ fpt.on("onNewOrder", function(orderData) {
 | `refund(id)` | Сделать полный возврат средств покупателю | `Boolean` |
 | `review.reply(id, text, stars)` | Ответить на оставленный отзыв | `Boolean` |
 | `review.write(id, text, stars)` | Оставить свой отзыв (для покупателей) | `Boolean` |
-
-**Пример возвращаемого объекта `getDetails(id)`:**
-```json
-{
-  "id": "A1B2C",
-  "status": "Оплачен",
-  "gameTitle": "World of Warcraft",
-  "shortDesc": "1000 Gold (EU-Gordunni)",
-  "price": "100.00 ₽",
-  "buyerName": "Petya",
-  "buyerAvatar": "https://funpay.com/img/...",
-  "canRefund": true,
-  "canConfirm": false,
-  "hasReview": false,
-  "reviewRating": 0,
-  "reviewText": "",
-  "sellerReply": "",
-  "params": { "Сервер": "EU-Gordunni", "Фракция": "Альянс" },
-  "hasAutoDelivery": true,
-  "lotId": "999888",
-  "isBuyer": false,
-  "buyerId": "123456"
-}
-```
 
 ### 🛒 3.3. `fpt.lots` (Управление лотами)
 
@@ -140,8 +116,6 @@ fpt.on("onNewOrder", function(orderData) {
 | `setAvatar(base64Image)` | Изменить свою аватарку профиля через Base64 строку | `Boolean` |
 
 ### 📥 3.5. `fpt.autodelivery` (Автовыдача)
-
-Плагины могут взаимодействовать с базой ключей автовыдачи.
 
 | Метод | Описание | Возвращает |
 |---|---|---|
@@ -196,6 +170,7 @@ fpt.on("onNewOrder", function(orderData) {
 |---|---|---|
 | `get(url, headersJsonStr)` | Выполнить GET-запрос | `{"code": 200, "body": "..."}` |
 | `post(url, bodyStr, headersJson)`| Выполнить POST-запрос | `{"code": 200, "body": "..."}` |
+| `fetchImageBase64(url)` | Скачать картинку в обход CORS как Data URI | `String` (base64) |
 
 ### 📱 3.11. `fpt.app` (Взаимодействие с системой Android)
 
@@ -293,34 +268,38 @@ render();
 Так как плагины выполняются в невидимом `WebView`, вы можете использовать HTML5 `<canvas>` для рисования баннеров, статистики или красивых ответов-изображений. 
 
 **ПРАВИЛЬНЫЙ ПОТОК (КРИТИЧЕСКИ ВАЖНО):**
-Функция `fpt.chat.sendWithImage()` **не принимает Base64**. Она принимает локальный URI файла. Чтобы превратить Canvas в файл, используйте `fpt.app.saveBase64Image()`.
 
+1. Браузерные ограничения CORS не позволят загрузить стороннюю аватарку напрямую на Canvas. Используйте нативный метод `fpt.network.fetchImageBase64(url)`, чтобы скачать картинку.
+2. Метод отправки `fpt.chat.sendWithImage()` **не принимает Base64**. Она принимает локальный URI файла. Чтобы превратить Canvas в файл, используйте `fpt.app.saveBase64Image()`.
+
+**Правильный пример отрисовки аватарки и отправки в чат:**
 ```javascript
-// 1. Создаем и рисуем
-var canvas = document.createElement("canvas");
-canvas.width = 400; canvas.height = 200;
-var ctx = canvas.getContext("2d");
-ctx.fillStyle = "#FF0000";
-ctx.fillRect(0, 0, 400, 200);
-ctx.fillStyle = "#FFFFFF";
-ctx.font = "30px Arial";
-ctx.fillText("Тестовая картинка", 50, 100);
+// 1. Скачиваем аватарку через Kotlin-мост (обход CORS)
+var base64Avatar = fpt.network.fetchImageBase64(avatarUrl);
 
-// 2. Получаем Base64
-var base64Str = canvas.toDataURL("image/png");
+var avatarImg = new Image();
+avatarImg.onload = function() {
+    var canvas = document.createElement("canvas");
+    canvas.width = 400; canvas.height = 200;
+    var ctx = canvas.getContext("2d");
 
-// 3. Конвертируем в файл через Android-мост!
-var localUri = fpt.app.saveBase64Image(base64Str);
+    // 2. Рисуем загруженную аватарку
+    ctx.drawImage(avatarImg, 0, 0, 100, 100);
 
-if (localUri) {
-    // 4. Отправляем в чат
-    fpt.chat.sendWithImage(chatId, "Вот твоя картинка", localUri, false);
-} else {
-    fpt.app.log("Ошибка конвертации изображения");
-}
+    // 3. Получаем Base64 с Canvas
+    var finalBase64 = canvas.toDataURL("image/png");
+
+    // 4. Конвертируем в файл через Android-мост!
+    var localUri = fpt.app.saveBase64Image(finalBase64);
+
+    // 5. Отправляем в чат
+    if (localUri) {
+        fpt.chat.sendWithImage(chatId, "Вот картинка!", localUri, false);
+    }
+};
+// Устанавливаем Data URI в источник
+avatarImg.src = base64Avatar;
 ```
-
-> ⚠️ **Tainted Canvas (CORS):** Если вы рисуете на канвасе изображения со сторонних доменов (например, аватарки `https://funpay.com/img/...`), метод `toDataURL()` выбросит ошибку SecurityError. Рисуйте свои элементы или используйте API, поддерживающие CORS.
 
 ---
 
@@ -339,7 +318,11 @@ if (localUri) {
 1. **Никогда не придумывай несуществующие API.** Если метода или поля `type` для UI нет в этом документе — его не существует в проекте.
 2. **Не объявляй `PLUGIN_ID`.** Переменная `PLUGIN_ID` уже существует в глобальной области видимости плагина во время исполнения. Тебе не нужно делать `var PLUGIN_ID = ...`.
 3. **Бесконечные циклы:** Запрещено использовать `while(true)`. Если нужна фоновая работа, используй `setInterval` или рекурсивный `setTimeout`.
-4. **Конвертация изображений:** Обязательно используй `fpt.app.saveBase64Image` перед отправкой любых Data URI через `sendWithImage`.
+4. **Конвертация изображений:** Обязательно используй `fpt.network.fetchImageBase64` для загрузки внешних картинок на Canvas и `fpt.app.saveBase64Image` перед отправкой любых Data URI через `sendWithImage`.
 5. **Поле `@banner`** должно содержать прямую ссылку на изображение (`.png`, `.jpg`).
 6. **После того, как сгенерируешь код плагина, напиши в самом конце ответа слово:** **Аланзиии!**
 7. Если пользователь просит сделать то, что выходит за рамки API (например, взаимодействие со сторонним приложением или использование недоступного UI-компонента), вежливо откажи и предложи пользователю обратиться к разработчику в Telegram: `@AlliSighs` с просьбой добавить этот функционал в следующих обновлениях.
+
+```
+
+Аланзиии!

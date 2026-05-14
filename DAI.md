@@ -233,49 +233,73 @@ fpt.on("onNewMessage", function(msgData) {
 
 ---
 
-## 4. Server-Driven UI
+## 4. Server-Driven UI (Интерфейс)
 
 ```javascript
 fpt.ui.setSlot("settings_МОЙ_КЛЮЧ", jsonUI)
 ```
 
-### Пример UI:
+Вы можете строить нативные Android-компоненты напрямую из плагина.
+**Поддерживаемые типы (type)**: `Column`, `Row`, `Text`, `Button`, `Switch`, `Card`, `Input`, `Checkbox`, `Spacer`, `Divider`, `Image`, `Slider`.
+
+### Пример всех компонентов UI:
 
 ```javascript
-// @name God Notifier
+// @name Super Settings
 // @author Dev
 // @version 1.0
-// @description Пример плагина с UI
-// @banner https://i.imgur.com/example.png
+// @description Пример плагина со всеми типами интерфейса
 
-var storageKey = "god_notifier";
+var key = "super_plugin";
 
 function renderUi() {
     var ui = {
         type: "Card",
         children: [
-            { type: "Text", text: "Настройки Notifier", bold: true, fontSize: 16.0 },
+            { type: "Text", text: "Настройки Super Plugin", bold: true, fontSize: 16.0 },
+            { type: "Divider", padding: 4 },
+            
+            // Ввод текста (OutlinedTextField)
+            { type: "Input", stateKey: "user_api_key", label: "Ваш API Ключ", singleLine: true },
+            { type: "Spacer", size: 8 },
+
+            // Свитч (Тумблер)
             {
                 type: "Row",
                 children: [
-                    { type: "Text", text: "Включить вибрацию" },
-                    { type: "Switch", stateKey: "vibro_enabled" }
+                    { type: "Text", text: "Авто-ответ" },
+                    { type: "Switch", stateKey: "auto_reply_enabled" }
                 ]
             },
-            { type: "Button", text: "Тест уведомления", onClick: "testNotif()" }
+
+            // Чекбокс
+            { type: "Checkbox", text: "Скрытый режим", stateKey: "stealth_mode" },
+
+            // Слайдер (Ползунок) 0.0 - 100.0
+            { type: "Text", text: "Громкость уведомлений:" },
+            { type: "Slider", stateKey: "notif_volume", min: 0.0, max: 100.0 },
+
+            // Картинка из интернета
+            { type: "Image", url: "https://i.imgur.com/example.jpg", height: 100, radius: 12 },
+
+            { type: "Spacer", size: 12 },
+
+            // Кнопка, выполняющая JS-функцию onClick
+            { type: "Button", text: "Сохранить", onClick: "saveAction()" }
         ]
     };
-    fpt.ui.setSlot("settings_" + storageKey, ui);
+    fpt.ui.setSlot("settings_" + key, ui);
 }
 
-window.testNotif = function() {
-    fpt.app.notify("Тест", "Плагины работают!");
-    if (fpt.ui.getState("vibro_enabled") === "true") {
-        fpt.app.vibrate(500);
-    }
+window.saveAction = function() {
+    let apiKey = fpt.ui.getState("user_api_key");
+    fpt.app.toast("Сохранено! Ключ: " + apiKey);
 };
 
 renderUi();
+```
+
+> **Важно**: Функция `fpt.ui.getState(stateKey)` возвращает значение в виде **строки** (даже для чисел из Slider или boolean из Switch). Возвращается "true"/"false" для переключателей.
 ```
 
 ---

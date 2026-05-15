@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-  
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
@@ -38,16 +37,30 @@ export default async function handler(req, res) {
       throw new Error(`Failed to fetch donaters.json: ${errData}`);
     }
 
+    // ==========================================
+    // ЛОГИКА ОТКАЗА: ЕСЛИ КЛЮЧ УЖЕ ИСПОЛЬЗУЕТСЯ
+    // ==========================================
     for (const existingNick in donaters) {
+      // Если находим в базе точно такой же ключ
       if (donaters[existingNick] === key) {
-        delete donaters[existingNick];
+        // Проверяем, не тот же ли это самый человек просто обновляет стиль
+        if (existingNick !== nickname) {
+          // Отказываем! Ключ уже привязан к чужому нику
+          return res.status(400).json({ 
+            success: false, 
+            error: 'Key already exists' 
+          });
+        }
       }
     }
 
+    // Записываем новый ключ для ника (остальные данные не трогаются)
     donaters[nickname] = key;
 
+    // Превращаем обратно в base64
     const newContent = Buffer.from(JSON.stringify(donaters, null, 2)).toString('base64');
     
+    // Сохраняем обратно в GitHub
     const putRes = await fetch(getUrl, {
       method: 'PUT',
       headers: {

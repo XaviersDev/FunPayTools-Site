@@ -1,4 +1,3 @@
-
 export default async function handler(req, res) {
   
   if (req.method !== 'POST') {
@@ -7,21 +6,16 @@ export default async function handler(req, res) {
 
   const { secret, nickname, key } = req.body;
 
-  
   if (secret !== process.env.DONATERS_SECRET) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-  
   const REPO = 'XaviersDev/FunPayTools-Site';
-  
   const FILE_PATH = 'donaters.json';
 
   try {
     const getUrl = `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`;
-    
     
     const getRes = await fetch(getUrl, {
       headers: {
@@ -37,7 +31,6 @@ export default async function handler(req, res) {
       const fileData = await getRes.json();
       sha = fileData.sha; 
       
-      
       const content = Buffer.from(fileData.content, 'base64').toString('utf8');
       donaters = JSON.parse(content);
     } else if (getRes.status !== 404) {
@@ -45,10 +38,14 @@ export default async function handler(req, res) {
       throw new Error(`Failed to fetch donaters.json: ${errData}`);
     }
 
-    
+    for (const existingNick in donaters) {
+      if (donaters[existingNick] === key) {
+        delete donaters[existingNick];
+      }
+    }
+
     donaters[nickname] = key;
 
-    
     const newContent = Buffer.from(JSON.stringify(donaters, null, 2)).toString('base64');
     
     const putRes = await fetch(getUrl, {

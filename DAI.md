@@ -16,7 +16,7 @@
 // @author Ваш Ник
 // @version 1.0
 // @description Подробное описание того, что делает ваш плагин.
-// @banner https://example.com/banner.png
+// @banner https://funpay.tools/default-banner.jpeg
 
 fpt.app.log("Плагин успешно инициализирован!");
 ```

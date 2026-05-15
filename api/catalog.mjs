@@ -1,4 +1,9 @@
 export default async function handler(req, res) {
+
+  if (req.method === 'HEAD') {
+    return res.status(200).end();
+  }
+
   const SUPABASE_URL = process.env.SUPABASE_URL;
   const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 

@@ -3,52 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FunPay Tools | Каталог Шаблонов</title>
+    <title>FunPay Tools | Каталог</title>
     <link rel="icon" href="/logo.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/catalog/style.css">
+    <style>
+        .view-hidden { display: none !important; }
+
+        /* Home View Styles */
+        #homeView {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+            padding: 20px;
+        }
+        .home-title {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 50px;
+            color: var(--text-primary, #1a1a1a);
+            letter-spacing: -1px;
+        }
+        .cards-container {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .big-card {
+            background: var(--bg-secondary, #f4f4f5);
+            border: 2px solid var(--border-color, #e4e4e7);
+            border-radius: 24px;
+            padding: 50px 40px;
+            width: 340px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
+        .big-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary-color, #3b82f6);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+        }
+        .big-card svg {
+            width: 90px;
+            height: 90px;
+            stroke: var(--primary-color, #3b82f6);
+        }
+        .big-card span {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--text-primary, #1a1a1a);
+            line-height: 1.2;
+        }
+
+        /* Plugins View Styles */
+        #pluginsView {
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .suggest-plugin-box {
+            background: var(--bg-secondary, #f4f4f5);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            margin-bottom: 40px;
+            border: 2px dashed var(--border-color, #e4e4e7);
+        }
+        .suggest-plugin-box h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: var(--text-primary, #1a1a1a);
+        }
+        .suggest-plugin-box p {
+            color: var(--text-secondary, #52525b);
+            margin-bottom: 25px;
+            font-size: 16px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+        .suggest-plugin-box a.link {
+            color: var(--primary-color, #3b82f6);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .suggest-plugin-box a.link:hover { text-decoration: underline; }
+        .btn-huge {
+            display: inline-block;
+            padding: 18px 50px;
+            font-size: 22px;
+            font-weight: 800;
+            background: var(--primary-color, #3b82f6);
+            color: #fff;
+            border-radius: 16px;
+            text-decoration: none;
+            transition: 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-huge:hover { opacity: 0.9; transform: scale(1.02); }
+
+        .plugins-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+        }
+        .plugin-card {
+            background: #fff;
+            border: 1px solid var(--border-color, #e4e4e7);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: 0.2s;
+        }
+        .plugin-card:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
+        .plugin-banner {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background: var(--bg-secondary, #f4f4f5);
+            border-bottom: 1px solid var(--border-color, #e4e4e7);
+        }
+        .plugin-content {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        .plugin-title {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: var(--text-primary, #1a1a1a);
+        }
+        .plugin-desc {
+            font-size: 15px;
+            color: var(--text-secondary, #52525b);
+            margin-bottom: 24px;
+            flex-grow: 1;
+            line-height: 1.5;
+        }
+        .btn-copy {
+            background: var(--text-primary, #1a1a1a);
+            color: #fff;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.2s;
+        }
+        .btn-copy:hover { background: #333; }
+        .btn-copy.copied { background: #22c55e; color: #fff; }
+
+        .logo-container { cursor: pointer; }
+    </style>
 </head>
 <body>
     <header>
-        <div class="logo-container">
+        <div class="logo-container" onclick="showHome()">
             <img src="/logo.svg" alt="FunPay Tools" class="site-logo">
             <h1>FPT Catalog</h1>
         </div>
         <nav>
-            <button id="btnUpload" class="btn-outline">Опубликовать пак</button>
+            <button id="btnGoHome" class="btn-text view-hidden" onclick="showHome()">Назад к выбору</button>
+            <button id="btnUpload" class="btn-outline view-hidden">Опубликовать пак</button>
             <button id="btnDevDocs" class="btn-text">Для разработчиков</button>
         </nav>
     </header>
 
-    <!-- Stretched "каталог" hero — SVG with textLength for true graphic stretch -->
-    <div class="catalog-hero">
-        <svg viewBox="0 0 1200 110" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <text
-                x="0" y="105"
-                textLength="1200"
-                lengthAdjust="spacing"
-                font-family="Manrope, sans-serif"
-                font-weight="800"
-                font-size="130"
-                fill="none"
-                stroke="#1a1a1a"
-                stroke-width="0.6"
-                letter-spacing="-4"
-            >каталог</text>
-        </svg>
+    <!-- ГЛАВНЫЙ ЭКРАН ВЫБОРА -->
+    <div id="homeView">
+        <div class="home-title">Какой каталог вам нужен?</div>
+        <div class="cards-container">
+            <div class="big-card" onclick="showView('templatesView')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                <span>Текстовые шаблоны</span>
+            </div>
+            <div class="big-card" onclick="showView('pluginsView')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2v8"></path>
+                    <path d="m4.93 10.93 1.41 1.41"></path>
+                    <path d="M2 18h20"></path>
+                    <path d="m17.66 12.34 1.41-1.41"></path>
+                    <path d="M22 22H2"></path>
+                    <path d="M8 22v-4a4 4 0 0 1 8 0v4"></path>
+                </svg>
+                <span>Плагины для приложения</span>
+            </div>
+        </div>
     </div>
 
-    <main>
-        <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Поиск паков (автоответы, ИИ, шаблоны)...">
+    <!-- ВЬЮХА ШАБЛОНОВ -->
+    <div id="templatesView" class="view-hidden">
+        <div class="catalog-hero">
+            <svg viewBox="0 0 1200 110" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <text x="0" y="105" textLength="1200" lengthAdjust="spacing" font-family="Manrope, sans-serif" font-weight="800" font-size="130" fill="none" stroke="#1a1a1a" stroke-width="0.6" letter-spacing="-4">каталог</text>
+            </svg>
         </div>
+        <main>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Поиск паков (автоответы, ИИ, шаблоны)...">
+            </div>
+            <div id="catalogGrid" class="catalog-grid">
+                <div class="loading" id="loadingText">Загрузка каталога...</div>
+            </div>
+        </main>
+    </div>
 
-        <div id="catalogGrid" class="catalog-grid">
-            <div class="loading" id="loadingText">Загрузка каталога...</div>
+    <!-- ВЬЮХА ПЛАГИНОВ -->
+    <div id="pluginsView" class="view-hidden">
+        <div class="suggest-plugin-box">
+            <h2>Предложить плагин</h2>
+            <p>Почему нельзя добавить плагин сразу? Плагины исполняют код и могут иметь доступ к вашему аккаунту FunPay, поэтому существует риск кражи данных. В целях безопасности свободная публикация закрыта — мы проверяем код каждого плагина вручную.</p>
+            <p>Кидайте исходники админу в Telegram: <a href="https://t.me/AlliSighs" target="_blank" class="link">@AlliSighs</a><br>
+            Документация по написанию плагинов: <a href="https://funpay.tools/DAI.md" target="_blank" class="link">funpay.tools/DAI.md</a></p>
+            <a href="https://t.me/AlliSighs" target="_blank" class="btn-huge">Отправить плагин</a>
         </div>
-    </main>
+        
+        <div class="plugins-grid" id="pluginsGrid">
+            <div class="loading">Загрузка плагинов...</div>
+        </div>
+    </div>
 
     <!-- Модалка предпросмотра/скачивания -->
     <div id="packModal" class="modal">
@@ -171,6 +367,83 @@
         </div>
     </div>
 
+    <script>
+        function showHome() {
+            document.getElementById('homeView').classList.remove('view-hidden');
+            document.getElementById('templatesView').classList.add('view-hidden');
+            document.getElementById('pluginsView').classList.add('view-hidden');
+            
+            document.getElementById('btnGoHome').classList.add('view-hidden');
+            document.getElementById('btnUpload').classList.add('view-hidden');
+        }
+
+        function showView(viewId) {
+            document.getElementById('homeView').classList.add('view-hidden');
+            document.getElementById('templatesView').classList.add('view-hidden');
+            document.getElementById('pluginsView').classList.add('view-hidden');
+            
+            document.getElementById(viewId).classList.remove('view-hidden');
+            document.getElementById('btnGoHome').classList.remove('view-hidden');
+
+            if (viewId === 'templatesView') {
+                document.getElementById('btnUpload').classList.remove('view-hidden');
+            } else {
+                document.getElementById('btnUpload').classList.add('view-hidden');
+            }
+
+            if (viewId === 'pluginsView') {
+                loadPlugins();
+            }
+        }
+
+        async function loadPlugins() {
+            const grid = document.getElementById('pluginsGrid');
+            try {
+                const res = await fetch('/catalog/verifiedplugins.json');
+                const plugins = await res.json();
+                
+                if (!Array.isArray(plugins) || plugins.length === 0) {
+                    grid.innerHTML = '<div style="text-align:center; grid-column: 1/-1; color: var(--text-secondary); font-size: 18px; padding: 40px;">Пока нет доступных плагинов. Станьте первым!</div>';
+                    return;
+                }
+
+                grid.innerHTML = '';
+                plugins.forEach(p => {
+                    const card = document.createElement('div');
+                    card.className = 'plugin-card';
+                    
+                    let imgHtml = '';
+                    if (p.imageUrl) {
+                        imgHtml = `<img src="${p.imageUrl}" alt="${p.name}" class="plugin-banner" onerror="this.style.display='none'">`;
+                    }
+
+                    card.innerHTML = `
+                        ${imgHtml}
+                        <div class="plugin-content">
+                            <div class="plugin-title">${p.name}</div>
+                            <div class="plugin-desc">${p.description}</div>
+                            <button class="btn-copy" onclick="copyPluginUrl(this, '${p.pluginUrl}')">Копировать ссылку</button>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            } catch (e) {
+                grid.innerHTML = '<div style="text-align:center; grid-column: 1/-1; color: var(--text-secondary); font-size: 18px; padding: 40px;">Плагинов пока нет или произошла ошибка загрузки.</div>';
+            }
+        }
+
+        function copyPluginUrl(btn, url) {
+            navigator.clipboard.writeText(url).then(() => {
+                const oldText = btn.innerText;
+                btn.innerText = 'Скопировано!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.innerText = oldText;
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
     <script src="/catalog/script.js"></script>
 </body>
 </html>

@@ -34,9 +34,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const showModal = (actionType) => {
         if (actionType === 'reaction') {
-            modalText.innerHTML = 'Ставить реакции на отзывы можно только через мобильное приложение.<br><br><b>Данная возможность будет добавлена в обновлении 1.3!</b>';
+            modalText.innerHTML = 'Ставить реакции на отзывы можно только через мобильное приложение!</b>';
         } else if (actionType === 'add') {
-            modalText.innerHTML = 'Добавлять свои находки в ленту можно только через мобильное приложение.<br><br><b>Данная возможность будет добавлена в обновлении 1.3!</b>';
+            modalText.innerHTML = 'Добавлять свои смешные находки в ленту можно только через мобильное приложение!</b>';
         }
         modal.style.display = 'flex';
     };

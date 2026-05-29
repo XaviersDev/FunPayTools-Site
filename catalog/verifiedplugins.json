@@ -1,1 +1,8 @@
-[]
+[
+  {
+    "name": "Unique's Sniper",
+    "description": "Мониторинг рынка FunPay и мгновенные уведомления о дешёвых лотах. Задаёшь правила (категория, ключевые слова, максимальную цену, минимальное количество) — плагин в фоне сканирует разделы лотов и игровой валюты и присылает уведомление с вибрацией, как только находит подходящее предложение. Поддерживает несколько правил одновременно, защиту от повторных уведомлений и удобное меню настройки прямо в приложении.",
+    "imageUrl": "https://raw.githubusercontent.com/XaviersDev/FunPayTools-Site/refs/heads/main/catalog/plugins_assets/unique_sniper_banner.png",
+    "pluginUrl": "https://raw.githubusercontent.com/XaviersDev/FunPayTools-Site/refs/heads/main/catalog/plugins_assets/uniquesniper.js"
+  }
+]

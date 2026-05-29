@@ -45,19 +45,6 @@ export default async function handler(req, res) {
     
     
 
-    
-    if (donaters.hasOwnProperty(nickname)) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Nickname already registered' 
-      });
-    }
-
-    
-    
-    
-    
-    
     donaters[nickname] = key;
 
     

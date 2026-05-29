@@ -1,6 +1,7 @@
 // @name unique's sniper
 // @author @AlliSighs
 // @version 1.0.6-android
+// @banner https://raw.githubusercontent.com/XaviersDev/FunPayTools-Site/refs/heads/main/catalog/plugins_assets/unique_sniper_banner.png
 // @description Мониторинг рынка FunPay и уведомления о дешёвых лотах (порт под FunPay Tools)
 
 /*

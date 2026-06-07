@@ -51,6 +51,36 @@
         .cv-y { color: var(--accent-green); font-size: 1.15rem; font-weight: 700; }
         .cv-n { color: rgba(255,255,255,.22); font-size: 1.15rem; }
         .cv-p { color: #f59e0b; font-size: .82rem; font-weight: 600; }
+
+        /* Галерея */
+        .gallery-section { padding: 100px 0; }
+        .gallery-grid { columns: 3; column-gap: 16px; margin-top: 40px; }
+        @media (max-width: 900px) { .gallery-grid { columns: 2; } }
+        @media (max-width: 560px) { .gallery-grid { columns: 1; } }
+        .gallery-item { break-inside: avoid; margin-bottom: 16px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); background: var(--bg2); cursor: zoom-in; position: relative; display: block; opacity: 0; transition: opacity .4s ease, transform .2s ease, border-color .2s ease; }
+        .gallery-item.loaded { opacity: 1; }
+        .gallery-item:hover { transform: translateY(-3px); border-color: var(--accent, #a855f7); }
+        .gallery-item img { width: 100%; display: block; }
+        .gallery-item video { width: 100%; display: block; }
+        .gallery-item .gi-play { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 46px; height: 46px; border-radius: 50%; background: rgba(0,0,0,.55); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1rem; padding-left: 3px; pointer-events: none; transition: opacity .2s; }
+        .gallery-item.is-video:hover .gi-play { opacity: 0; }
+        .gallery-item .gi-author { position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 12px 9px; font-size: .8rem; font-weight: 600; color: #fff; background: linear-gradient(transparent, rgba(0,0,0,.72)); opacity: 0; transition: opacity .2s ease; pointer-events: none; }
+        .gallery-item:hover .gi-author { opacity: 1; }
+        .gallery-empty { text-align: center; color: var(--text3); font-size: .9rem; padding: 30px 0; }
+
+        /* Лайтбокс */
+        .gallery-lightbox { position: fixed; inset: 0; z-index: 9999; background: rgba(8,10,14,.92); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; padding: 30px; }
+        .gallery-lightbox.open { display: flex; }
+        .glb-figure { margin: 0; max-width: 90vw; max-height: 88vh; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .glb-figure img { max-width: 100%; max-height: 80vh; border-radius: var(--radius); border: 1px solid var(--border); }
+        .glb-figure video { max-width: 100%; max-height: 80vh; border-radius: var(--radius); border: 1px solid var(--border); }
+        .glb-figure figcaption { color: #fff; font-size: .9rem; font-weight: 600; }
+        .glb-close { position: absolute; top: 20px; right: 26px; background: none; border: none; color: #fff; font-size: 2.4rem; line-height: 1; cursor: pointer; opacity: .8; }
+        .glb-close:hover { opacity: 1; }
+        .glb-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); color: #fff; width: 48px; height: 48px; border-radius: 50%; font-size: 1.3rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .glb-nav:hover { background: rgba(255,255,255,.16); }
+        .glb-prev { left: 22px; } .glb-next { right: 22px; }
+        @media (max-width: 560px) { .glb-nav { width: 40px; height: 40px; } .glb-prev { left: 10px; } .glb-next { right: 10px; } }
     </style>
 </head>
 <body>
@@ -391,6 +421,26 @@
         </div>
     </section>
 
+    <section class="gallery-section" id="gallery">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="label-tag">🖼️ Галерея</div>
+                <h2 class="section-title">FP Tools в <span class="gradient-text">деле</span></h2>
+                <p class="section-sub">Скриншоты и видео от реальных пользователей расширения</p>
+            </div>
+            <div class="gallery-grid reveal" id="gallery-grid"></div>
+        </div>
+    </section>
+
+    <div class="gallery-lightbox" id="gallery-lightbox" aria-hidden="true">
+        <button class="glb-close" id="glb-close" aria-label="Закрыть">&times;</button>
+        <button class="glb-nav glb-prev" id="glb-prev" aria-label="Назад">&#10094;</button>
+        <figure class="glb-figure">
+            <figcaption id="glb-caption"></figcaption>
+        </figure>
+        <button class="glb-nav glb-next" id="glb-next" aria-label="Вперёд">&#10095;</button>
+    </div>
+
     <section class="cmp-section">
         <div class="container">
             <div class="section-header reveal">
@@ -428,7 +478,7 @@
                         <tr><td>Кастомизация FunPay (темы, GIF)</td><td class="tc"><span class="cv-y">✓</span></td><td class="ta"><span class="cv-n">✗</span></td></tr>
                         <tr><td>ИИ-генератор лотов и изображений</td><td class="tc"><span class="cv-y">✓</span></td><td class="ta"><span class="cv-n">✗</span></td></tr>
                         <tr><td>Уведомления в Discord</td><td class="tc"><span class="cv-y">✓</span></td><td class="ta"><span class="cv-n">✗</span></td></tr>
-                        <tr><td>Уведомления и управление в Telegram</td><td class="tc"><span class="cv-y">✓</span></td><td class="ta"><span class="cv-y">✓</span></td></tr>
+                        <tr><td>Уведомления и управление в Telegram</td><td class="tc"><span class="cv-y">✓</span></td><td class="ta"><span class="cv-p">Только уведомления</span></td></tr>
                         <tr><td>XD Демпер цен (парсинг конкурентов)</td><td class="tc"><span class="cv-n">✗</span></td><td class="ta"><span class="cv-y">✓</span></td></tr>
                         <tr><td>Полноценный мессенджер с телефона</td><td class="tc"><span class="cv-n">✗</span></td><td class="ta"><span class="cv-y">✓</span></td></tr>
                         <tr><td>Виджеты на рабочий стол</td><td class="tc"><span class="cv-n">✗</span></td><td class="ta"><span class="cv-y">✓</span></td></tr>
@@ -537,6 +587,155 @@
         </div>
     </div>
 </footer>
+
+<script>
+const GALLERY_FILES = [
+    "pr_AlliSighs_1.png",
+    "pr_AlliSighs_2.png",
+    "pr_AlliSighs_3.png",
+    "pr_AlliSighs_4.png",
+    "pr_AlliSighs_5.png",
+    "pr_AlliSighs_6.png",
+    "pr_AlliSighs_7.png",
+    "pr_AlliSighs_8.png",
+    "pr_AlliSighs_9.png",
+    "pr_AlliSighs_10.png",
+    "pr_AlliSighs_11.png",
+    "pr_AlliSighs_12.png",
+    "pr_AlliSighs_13.png",
+    "pr_AlliSighs_14.png",
+    "pr_AlliSighs_15.png",
+    "pr_AlliSighs_16.png",
+    "pr_AlliSighs_17.png",
+    "pr_AlliSighs_18.png",
+    "prv_AlliSighs_1.mp4",
+    "prv_AlliSighs_2.mp4",
+    "prv_AlliSighs_3.mp4",
+    "prv_AlliSighs_4.mp4",
+    "prv_AlliSighs_5.mp4",
+    "prv_AlliSighs_6.mp4",
+];
+
+(function initGallery() {
+    const grid = document.getElementById('gallery-grid');
+    const section = document.getElementById('gallery');
+    if (!grid || !section) return;
+
+    const BASE = 'https://raw.githubusercontent.com/XaviersDev/FunPay-Tools/main/assets/';
+
+    function isVideo(file) { return /^prv_/i.test(file) || /\.(mp4|webm)$/i.test(file); }
+
+    // Достаём @юзернейм из pr_ЮЗЕРНЕЙМ_НОМЕР.ext или prv_ЮЗЕРНЕЙМ_НОМЕР.ext
+    function authorFromName(file) {
+        const m = file.match(/^prv?_(.+)_\d+\.(png|jpe?g|mp4|webm)$/i);
+        return m ? '@' + m[1] : '';
+    }
+
+    const loaded = []; // {file, author, video} в порядке появления
+
+    if (!GALLERY_FILES.length) { section.style.display = 'none'; return; }
+
+    GALLERY_FILES.forEach((file) => {
+        const author = authorFromName(file);
+        const vid = isVideo(file);
+        const a = document.createElement('div');
+        a.className = 'gallery-item' + (vid ? ' is-video' : '');
+
+        let media;
+        if (vid) {
+            media = document.createElement('video');
+            media.src = BASE + file;
+            media.muted = true; media.loop = true; media.playsInline = true;
+            media.preload = 'metadata';
+            media.addEventListener('loadeddata', () => {
+                a.classList.add('loaded');
+                const idx = loaded.length;
+                loaded.push({ file, author, video: true });
+                a.addEventListener('click', () => openLightbox(idx));
+                a.addEventListener('mouseenter', () => { media.play().catch(()=>{}); });
+                a.addEventListener('mouseleave', () => { media.pause(); media.currentTime = 0; });
+            });
+            media.addEventListener('error', () => { a.remove(); checkEmpty(); });
+        } else {
+            media = document.createElement('img');
+            media.loading = 'lazy';
+            media.alt = 'Скриншот FP Tools' + (author ? ' от ' + author : '');
+            media.src = BASE + file;
+            media.onload = () => {
+                a.classList.add('loaded');
+                const idx = loaded.length;
+                loaded.push({ file, author, video: false });
+                a.addEventListener('click', () => openLightbox(idx));
+            };
+            media.onerror = () => { a.remove(); checkEmpty(); };
+        }
+
+        a.appendChild(media);
+        if (vid) {
+            const badge = document.createElement('span');
+            badge.className = 'gi-play';
+            badge.innerHTML = '&#9654;';
+            a.appendChild(badge);
+        }
+        if (author) {
+            const cap = document.createElement('span');
+            cap.className = 'gi-author';
+            cap.textContent = author;
+            a.appendChild(cap);
+        }
+        grid.appendChild(a);
+    });
+
+    function checkEmpty() {
+        if (!grid.querySelector('.gallery-item')) section.style.display = 'none';
+    }
+
+    // ── Лайтбокс ──
+    const lb = document.getElementById('gallery-lightbox');
+    const fig = lb.querySelector('.glb-figure');
+    const lbCap = document.getElementById('glb-caption');
+    let cur = 0;
+
+    function show(i) {
+        if (!loaded.length) return;
+        cur = (i + loaded.length) % loaded.length;
+        const item = loaded[cur];
+        // убираем старое медиа
+        const old = fig.querySelector('#glb-media');
+        if (old) old.remove();
+        let el;
+        if (item.video) {
+            el = document.createElement('video');
+            el.src = BASE + item.file;
+            el.controls = true; el.autoplay = true; el.loop = true; el.playsInline = true;
+        } else {
+            el = document.createElement('img');
+            el.src = BASE + item.file;
+            el.alt = 'Скриншот FP Tools';
+        }
+        el.id = 'glb-media';
+        fig.insertBefore(el, lbCap);
+        lbCap.textContent = item.author || '';
+    }
+    function openLightbox(i) { show(i); lb.classList.add('open'); lb.setAttribute('aria-hidden', 'false'); }
+    function closeLightbox() {
+        lb.classList.remove('open'); lb.setAttribute('aria-hidden', 'true');
+        const m = fig.querySelector('#glb-media');
+        if (m && m.tagName === 'VIDEO') m.pause();
+    }
+
+    document.getElementById('glb-close').addEventListener('click', closeLightbox);
+    document.getElementById('glb-prev').addEventListener('click', (e) => { e.stopPropagation(); show(cur - 1); });
+    document.getElementById('glb-next').addEventListener('click', (e) => { e.stopPropagation(); show(cur + 1); });
+    lb.addEventListener('click', (e) => { if (e.target === lb) closeLightbox(); });
+    document.addEventListener('keydown', (e) => {
+        if (!lb.classList.contains('open')) return;
+        if (e.key === 'Escape') closeLightbox();
+        else if (e.key === 'ArrowLeft') show(cur - 1);
+        else if (e.key === 'ArrowRight') show(cur + 1);
+    });
+})();
+</script>
 
 <script src="../script.js" defer></script>
 </body>

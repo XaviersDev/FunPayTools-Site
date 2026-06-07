@@ -59,6 +59,9 @@
         @media (max-width: 560px) { .gallery-grid { columns: 1; } }
         .gallery-item { break-inside: avoid; margin-bottom: 16px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); background: var(--bg2); cursor: zoom-in; position: relative; display: block; opacity: 0; transition: opacity .4s ease, transform .2s ease, border-color .2s ease; min-height: 140px; }
         .gallery-item.loaded { opacity: 1; }
+        .gallery-item.broken { opacity: 1; cursor: default; min-height: 140px; display: flex; align-items: center; justify-content: center; }
+        .gallery-item.broken::after { content: '🖼 нет файла'; color: var(--text3, #6b7682); font-size: .78rem; }
+        .gallery-item.broken .gi-play, .gallery-item.broken .gi-author { display: none; }
         .gallery-item:hover { transform: translateY(-3px); border-color: var(--accent, #a855f7); }
         .gallery-item img { width: 100%; display: block; }
         .gallery-item video { width: 100%; display: block; }
@@ -597,8 +600,30 @@
    Файлы, которые не удалось загрузить, скрываются автоматически.
    ============================================================ */
 const GALLERY_FILES = [
-    // "pr_AlliSighs_1.png",
-    // "prv_AlliSighs_1.mp4",
+    "pr_AlliSighs_1.png",
+    "pr_AlliSighs_2.png",
+    "pr_AlliSighs_3.png",
+    "pr_AlliSighs_4.png",
+    "pr_AlliSighs_5.png",
+    "pr_AlliSighs_6.png",
+    "pr_AlliSighs_7.png",
+    "pr_AlliSighs_8.png",
+    "pr_AlliSighs_9.png",
+    "pr_AlliSighs_10.png",
+    "pr_AlliSighs_11.png",
+    "pr_AlliSighs_12.png",
+    "pr_AlliSighs_13.png",
+    "pr_AlliSighs_14.png",
+    "pr_AlliSighs_15.png",
+    "pr_AlliSighs_16.png",
+    "pr_AlliSighs_17.png",
+    "pr_AlliSighs_18.png",
+    "prv_AlliSighs_1.mp4",
+    "prv_AlliSighs_2.mp4",
+    "prv_AlliSighs_3.mp4",
+    "prv_AlliSighs_4.mp4",
+    "prv_AlliSighs_5.mp4",
+    "prv_AlliSighs_6.mp4",
 ];
 
 (function initGallery() {
@@ -618,13 +643,8 @@ const GALLERY_FILES = [
 
     // Порядок навигации фиксируем по исходному массиву (не по скорости загрузки)
     const items = GALLERY_FILES.map((file) => ({
-        file, video: isVideo(file), author: authorFromName(file), el: null, alive: true
+        file, video: isVideo(file), author: authorFromName(file), el: null, ok: false, started: false
     }));
-    let aliveCount = items.length;
-
-    function checkEmpty() {
-        if (aliveCount <= 0) section.style.display = 'none';
-    }
 
     // ── Ленивая загрузка: медиа подгружается, только когда плитка близко к экрану ──
     const lazyIO = ('IntersectionObserver' in window)
@@ -632,23 +652,20 @@ const GALLERY_FILES = [
             entries.forEach((e) => {
                 if (e.isIntersecting) { loadTile(e.target._item); obs.unobserve(e.target); }
             });
-        }, { rootMargin: '300px 0px' })
+        }, { rootMargin: '200px 0px' })
         : null;
 
     function loadTile(item) {
-        if (!item || item._started) return;
-        item._started = true;
+        if (!item || item.started) return;
+        item.started = true;
         const a = item.el;
 
         if (item.video) {
             const v = document.createElement('video');
             v.muted = true; v.loop = true; v.playsInline = true;
-            v.preload = 'none';                 // ничего не тянем заранее
-            v.poster = '';                      // первый кадр подтянется при наведении
-            v.addEventListener('loadeddata', () => a.classList.add('loaded'), { once: true });
-            v.addEventListener('error', () => killTile(item), { once: true });
-            // ставим src только когда плитка видна — а воспроизведение по ховеру
             v.preload = 'metadata';
+            v.addEventListener('loadeddata', () => { item.ok = true; a.classList.add('loaded'); }, { once: true });
+            v.addEventListener('error', () => markBroken(item), { once: true });
             v.src = BASE + item.file;
             a.addEventListener('mouseenter', () => { v.play().catch(()=>{}); });
             a.addEventListener('mouseleave', () => { v.pause(); try { v.currentTime = 0; } catch(_){} });
@@ -657,18 +674,21 @@ const GALLERY_FILES = [
             const img = new Image();
             img.loading = 'lazy'; img.decoding = 'async';
             img.alt = 'Скриншот FP Tools' + (item.author ? ' от ' + item.author : '');
-            img.addEventListener('load', () => a.classList.add('loaded'), { once: true });
-            img.addEventListener('error', () => killTile(item), { once: true });
+            img.addEventListener('load', () => { item.ok = true; a.classList.add('loaded'); }, { once: true });
+            img.addEventListener('error', () => markBroken(item), { once: true });
             img.src = BASE + item.file;
             a.insertBefore(img, a.firstChild);
         }
     }
 
-    function killTile(item) {
-        if (!item.alive) return;
-        item.alive = false; aliveCount--;
-        if (item.el) item.el.remove();
-        checkEmpty();
+    // Файл не загрузился — НЕ убираем плитку и НЕ прячем галерею.
+    // Просто помечаем её как пустую и убираем из навигации лайтбокса.
+    function markBroken(item) {
+        item.ok = false;
+        if (item.el) {
+            item.el.classList.add('broken');
+            item.el.classList.remove('loaded');
+        }
     }
 
     // Строим лёгкие плитки-плейсхолдеры (без media), вешаем наблюдатель
@@ -702,18 +722,17 @@ const GALLERY_FILES = [
     const lbCap = document.getElementById('glb-caption');
     let cur = 0;
 
-    function nextAlive(from, dir) {
-        // ищем ближайшую «живую» (не битую) плитку в направлении dir
+    function nextOk(from, dir) {
         let i = from;
         for (let step = 0; step < items.length; step++) {
             i = (i + dir + items.length) % items.length;
-            if (items[i].alive) return i;
+            if (items[i].ok) return i;
         }
         return -1;
     }
 
     function show(i) {
-        if (!items[i] || !items[i].alive) return;
+        if (!items[i] || !items[i].ok) return;
         cur = i;
         const item = items[i];
         const old = fig.querySelector('#glb-media');
@@ -733,15 +752,15 @@ const GALLERY_FILES = [
         lbCap.textContent = item.author || '';
     }
     function openLightbox(i) {
-        if (!items[i].alive) return;
+        if (!items[i].ok) return; // по битой плитке лайтбокс не открываем
         show(i); lb.classList.add('open'); lb.setAttribute('aria-hidden', 'false');
     }
     function closeLightbox() {
         lb.classList.remove('open'); lb.setAttribute('aria-hidden', 'true');
         const m = fig.querySelector('#glb-media');
-        if (m) { if (m.tagName === 'VIDEO') m.pause(); m.remove(); } 
+        if (m) { if (m.tagName === 'VIDEO') m.pause(); m.remove(); }
     }
-    function step(dir) { const n = nextAlive(cur, dir); if (n !== -1) show(n); }
+    function step(dir) { const n = nextOk(cur, dir); if (n !== -1) show(n); }
 
     document.getElementById('glb-close').addEventListener('click', closeLightbox);
     document.getElementById('glb-prev').addEventListener('click', (e) => { e.stopPropagation(); step(-1); });

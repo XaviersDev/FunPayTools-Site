@@ -57,7 +57,7 @@
         .gallery-grid { columns: 3; column-gap: 16px; margin-top: 40px; }
         @media (max-width: 900px) { .gallery-grid { columns: 2; } }
         @media (max-width: 560px) { .gallery-grid { columns: 1; } }
-        .gallery-item { break-inside: avoid; margin-bottom: 16px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); background: var(--bg2); cursor: zoom-in; position: relative; display: block; opacity: 0; transition: opacity .4s ease, transform .2s ease, border-color .2s ease; }
+        .gallery-item { break-inside: avoid; margin-bottom: 16px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); background: var(--bg2); cursor: zoom-in; position: relative; display: block; opacity: 0; transition: opacity .4s ease, transform .2s ease, border-color .2s ease; min-height: 140px; }
         .gallery-item.loaded { opacity: 1; }
         .gallery-item:hover { transform: translateY(-3px); border-color: var(--accent, #a855f7); }
         .gallery-item img { width: 100%; display: block; }
@@ -589,31 +589,16 @@
 </footer>
 
 <script>
+/* ============================================================
+   ГАЛЕРЕЯ СКРИНШОТОВ И ВИДЕО
+   Впиши сюда имена загруженных файлов из папки assets/.
+   Фото:  pr_ЮЗЕРНЕЙМ_НОМЕР.png  (или .jpg / .jpeg)
+   Видео: prv_ЮЗЕРНЕЙМ_НОМЕР.mp4 (или .webm)
+   Файлы, которые не удалось загрузить, скрываются автоматически.
+   ============================================================ */
 const GALLERY_FILES = [
-    "pr_AlliSighs_1.png",
-    "pr_AlliSighs_2.png",
-    "pr_AlliSighs_3.png",
-    "pr_AlliSighs_4.png",
-    "pr_AlliSighs_5.png",
-    "pr_AlliSighs_6.png",
-    "pr_AlliSighs_7.png",
-    "pr_AlliSighs_8.png",
-    "pr_AlliSighs_9.png",
-    "pr_AlliSighs_10.png",
-    "pr_AlliSighs_11.png",
-    "pr_AlliSighs_12.png",
-    "pr_AlliSighs_13.png",
-    "pr_AlliSighs_14.png",
-    "pr_AlliSighs_15.png",
-    "pr_AlliSighs_16.png",
-    "pr_AlliSighs_17.png",
-    "pr_AlliSighs_18.png",
-    "prv_AlliSighs_1.mp4",
-    "prv_AlliSighs_2.mp4",
-    "prv_AlliSighs_3.mp4",
-    "prv_AlliSighs_4.mp4",
-    "prv_AlliSighs_5.mp4",
-    "prv_AlliSighs_6.mp4",
+    // "pr_AlliSighs_1.png",
+    // "prv_AlliSighs_1.mp4",
 ];
 
 (function initGallery() {
@@ -624,71 +609,92 @@ const GALLERY_FILES = [
     const BASE = 'https://raw.githubusercontent.com/XaviersDev/FunPay-Tools/main/assets/';
 
     function isVideo(file) { return /^prv_/i.test(file) || /\.(mp4|webm)$/i.test(file); }
-
-    // Достаём @юзернейм из pr_ЮЗЕРНЕЙМ_НОМЕР.ext или prv_ЮЗЕРНЕЙМ_НОМЕР.ext
     function authorFromName(file) {
         const m = file.match(/^prv?_(.+)_\d+\.(png|jpe?g|mp4|webm)$/i);
         return m ? '@' + m[1] : '';
     }
 
-    const loaded = []; // {file, author, video} в порядке появления
-
     if (!GALLERY_FILES.length) { section.style.display = 'none'; return; }
 
-    GALLERY_FILES.forEach((file) => {
-        const author = authorFromName(file);
-        const vid = isVideo(file);
-        const a = document.createElement('div');
-        a.className = 'gallery-item' + (vid ? ' is-video' : '');
+    // Порядок навигации фиксируем по исходному массиву (не по скорости загрузки)
+    const items = GALLERY_FILES.map((file) => ({
+        file, video: isVideo(file), author: authorFromName(file), el: null, alive: true
+    }));
+    let aliveCount = items.length;
 
-        let media;
-        if (vid) {
-            media = document.createElement('video');
-            media.src = BASE + file;
-            media.muted = true; media.loop = true; media.playsInline = true;
-            media.preload = 'metadata';
-            media.addEventListener('loadeddata', () => {
-                a.classList.add('loaded');
-                const idx = loaded.length;
-                loaded.push({ file, author, video: true });
-                a.addEventListener('click', () => openLightbox(idx));
-                a.addEventListener('mouseenter', () => { media.play().catch(()=>{}); });
-                a.addEventListener('mouseleave', () => { media.pause(); media.currentTime = 0; });
+    function checkEmpty() {
+        if (aliveCount <= 0) section.style.display = 'none';
+    }
+
+    // ── Ленивая загрузка: медиа подгружается, только когда плитка близко к экрану ──
+    const lazyIO = ('IntersectionObserver' in window)
+        ? new IntersectionObserver((entries, obs) => {
+            entries.forEach((e) => {
+                if (e.isIntersecting) { loadTile(e.target._item); obs.unobserve(e.target); }
             });
-            media.addEventListener('error', () => { a.remove(); checkEmpty(); });
-        } else {
-            media = document.createElement('img');
-            media.loading = 'lazy';
-            media.alt = 'Скриншот FP Tools' + (author ? ' от ' + author : '');
-            media.src = BASE + file;
-            media.onload = () => {
-                a.classList.add('loaded');
-                const idx = loaded.length;
-                loaded.push({ file, author, video: false });
-                a.addEventListener('click', () => openLightbox(idx));
-            };
-            media.onerror = () => { a.remove(); checkEmpty(); };
-        }
+        }, { rootMargin: '300px 0px' })
+        : null;
 
-        a.appendChild(media);
-        if (vid) {
+    function loadTile(item) {
+        if (!item || item._started) return;
+        item._started = true;
+        const a = item.el;
+
+        if (item.video) {
+            const v = document.createElement('video');
+            v.muted = true; v.loop = true; v.playsInline = true;
+            v.preload = 'none';                 // ничего не тянем заранее
+            v.poster = '';                      // первый кадр подтянется при наведении
+            v.addEventListener('loadeddata', () => a.classList.add('loaded'), { once: true });
+            v.addEventListener('error', () => killTile(item), { once: true });
+            // ставим src только когда плитка видна — а воспроизведение по ховеру
+            v.preload = 'metadata';
+            v.src = BASE + item.file;
+            a.addEventListener('mouseenter', () => { v.play().catch(()=>{}); });
+            a.addEventListener('mouseleave', () => { v.pause(); try { v.currentTime = 0; } catch(_){} });
+            a.insertBefore(v, a.firstChild);
+        } else {
+            const img = new Image();
+            img.loading = 'lazy'; img.decoding = 'async';
+            img.alt = 'Скриншот FP Tools' + (item.author ? ' от ' + item.author : '');
+            img.addEventListener('load', () => a.classList.add('loaded'), { once: true });
+            img.addEventListener('error', () => killTile(item), { once: true });
+            img.src = BASE + item.file;
+            a.insertBefore(img, a.firstChild);
+        }
+    }
+
+    function killTile(item) {
+        if (!item.alive) return;
+        item.alive = false; aliveCount--;
+        if (item.el) item.el.remove();
+        checkEmpty();
+    }
+
+    // Строим лёгкие плитки-плейсхолдеры (без media), вешаем наблюдатель
+    items.forEach((item, idx) => {
+        const a = document.createElement('div');
+        a.className = 'gallery-item' + (item.video ? ' is-video' : '');
+        a._item = item;
+        item.el = a;
+
+        if (item.video) {
             const badge = document.createElement('span');
             badge.className = 'gi-play';
             badge.innerHTML = '&#9654;';
             a.appendChild(badge);
         }
-        if (author) {
+        if (item.author) {
             const cap = document.createElement('span');
             cap.className = 'gi-author';
-            cap.textContent = author;
+            cap.textContent = item.author;
             a.appendChild(cap);
         }
+        a.addEventListener('click', () => openLightbox(idx));
         grid.appendChild(a);
-    });
 
-    function checkEmpty() {
-        if (!grid.querySelector('.gallery-item')) section.style.display = 'none';
-    }
+        if (lazyIO) lazyIO.observe(a); else loadTile(item);
+    });
 
     // ── Лайтбокс ──
     const lb = document.getElementById('gallery-lightbox');
@@ -696,13 +702,22 @@ const GALLERY_FILES = [
     const lbCap = document.getElementById('glb-caption');
     let cur = 0;
 
+    function nextAlive(from, dir) {
+        // ищем ближайшую «живую» (не битую) плитку в направлении dir
+        let i = from;
+        for (let step = 0; step < items.length; step++) {
+            i = (i + dir + items.length) % items.length;
+            if (items[i].alive) return i;
+        }
+        return -1;
+    }
+
     function show(i) {
-        if (!loaded.length) return;
-        cur = (i + loaded.length) % loaded.length;
-        const item = loaded[cur];
-        // убираем старое медиа
+        if (!items[i] || !items[i].alive) return;
+        cur = i;
+        const item = items[i];
         const old = fig.querySelector('#glb-media');
-        if (old) old.remove();
+        if (old) { if (old.tagName === 'VIDEO') old.pause(); old.remove(); }
         let el;
         if (item.video) {
             el = document.createElement('video');
@@ -717,22 +732,26 @@ const GALLERY_FILES = [
         fig.insertBefore(el, lbCap);
         lbCap.textContent = item.author || '';
     }
-    function openLightbox(i) { show(i); lb.classList.add('open'); lb.setAttribute('aria-hidden', 'false'); }
+    function openLightbox(i) {
+        if (!items[i].alive) return;
+        show(i); lb.classList.add('open'); lb.setAttribute('aria-hidden', 'false');
+    }
     function closeLightbox() {
         lb.classList.remove('open'); lb.setAttribute('aria-hidden', 'true');
         const m = fig.querySelector('#glb-media');
-        if (m && m.tagName === 'VIDEO') m.pause();
+        if (m) { if (m.tagName === 'VIDEO') m.pause(); m.remove(); } 
     }
+    function step(dir) { const n = nextAlive(cur, dir); if (n !== -1) show(n); }
 
     document.getElementById('glb-close').addEventListener('click', closeLightbox);
-    document.getElementById('glb-prev').addEventListener('click', (e) => { e.stopPropagation(); show(cur - 1); });
-    document.getElementById('glb-next').addEventListener('click', (e) => { e.stopPropagation(); show(cur + 1); });
+    document.getElementById('glb-prev').addEventListener('click', (e) => { e.stopPropagation(); step(-1); });
+    document.getElementById('glb-next').addEventListener('click', (e) => { e.stopPropagation(); step(1); });
     lb.addEventListener('click', (e) => { if (e.target === lb) closeLightbox(); });
     document.addEventListener('keydown', (e) => {
         if (!lb.classList.contains('open')) return;
         if (e.key === 'Escape') closeLightbox();
-        else if (e.key === 'ArrowLeft') show(cur - 1);
-        else if (e.key === 'ArrowRight') show(cur + 1);
+        else if (e.key === 'ArrowLeft') step(-1);
+        else if (e.key === 'ArrowRight') step(1);
     });
 })();
 </script>

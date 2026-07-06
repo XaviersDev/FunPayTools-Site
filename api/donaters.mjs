@@ -1,11 +1,9 @@
 export default async function handler(req, res) {
-
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
   const { secret, nickname, key, action } = req.body;
-
 
   if (secret !== process.env.DONATERS_SECRET) {
     return res.status(401).json({ error: 'Unauthorized' });
@@ -16,9 +14,10 @@ export default async function handler(req, res) {
   }
 
   const isDelete = action === 'delete';
+  const isGet = action === 'get'; // <--- ДОБАВИЛИ ЭТО
 
-  // Для записи нужен ключ; для удаления он не требуется.
-  if (!isDelete && !key) {
+  // Для записи нужен ключ; для удаления и ПОЛУЧЕНИЯ он не требуется.
+  if (!isDelete && !isGet && !key) {
     return res.status(400).json({ error: 'key is required' });
   }
 
@@ -29,7 +28,7 @@ export default async function handler(req, res) {
   try {
     const getUrl = `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`;
 
-
+    // Запрашиваем файл напрямую с GitHub (без кэша)
     const getRes = await fetch(getUrl, {
       headers: {
         'Authorization': `Bearer ${GITHUB_TOKEN}`,
@@ -43,18 +42,27 @@ export default async function handler(req, res) {
     if (getRes.ok) {
       const fileData = await getRes.json();
       sha = fileData.sha;
-
       const content = Buffer.from(fileData.content, 'base64').toString('utf8');
       donaters = JSON.parse(content);
     } else if (getRes.status !== 404) {
-
       const errData = await getRes.text();
       throw new Error(`Failed to fetch donaters.json: ${errData}`);
     }
 
+    // --- ДОБАВЛЕННЫЙ БЛОК ДЛЯ ПОЛУЧЕНИЯ СТИЛЯ ---
+    if (isGet) {
+      // Ищем стиль, игнорируя регистр букв в нике
+      const lowerNick = nickname.toLowerCase();
+      const foundKey = Object.keys(donaters).find(k => k.toLowerCase() === lowerNick);
+      
+      return res.status(200).json({
+        success: true,
+        style_key: foundKey ? donaters[foundKey] : null
+      });
+    }
+    // ---------------------------------------------
 
     if (isDelete) {
-      // Идемпотентное удаление: если ника нет - считаем успехом, ничего не коммитим.
       if (!Object.prototype.hasOwnProperty.call(donaters, nickname)) {
         return res.status(200).json({
           success: true,
@@ -67,9 +75,7 @@ export default async function handler(req, res) {
       donaters[nickname] = key;
     }
 
-
     const newContent = Buffer.from(JSON.stringify(donaters, null, 2)).toString('base64');
-
     const commitMessage = isDelete
       ? `🤖 Bot: Remove donater style for ${nickname}`
       : `🤖 Bot: Update donater style for ${nickname}`;
@@ -93,7 +99,6 @@ export default async function handler(req, res) {
       throw new Error(`Failed to commit donaters.json: ${errData}`);
     }
 
-
     return res.status(200).json({
       success: true,
       message: isDelete ? 'Removed successfully from GitHub' : 'Saved successfully to GitHub',
@@ -105,4 +110,3 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message });
   }
 }
-

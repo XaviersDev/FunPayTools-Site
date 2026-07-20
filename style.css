@@ -1098,3 +1098,9 @@ a { color: inherit; text-decoration: none; }
 
     .teaser-block { flex-direction: column; text-align: center; }
 }
+
+td span[style*="255,255,255"],
+td span[style*="255, 255, 255"] {
+    color: #ef4444 !important;
+    opacity: 1 !important;
+}

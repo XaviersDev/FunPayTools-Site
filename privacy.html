@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Политика конфиденциальности FunPay Tools</title>
+    <meta name="description" content="Какие данные обрабатывает приложение FunPay Tools для Android и как они защищены.">
+    <link rel="canonical" href="https://funpay.tools/privacy">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+    <link rel="icon" href="../logo.svg" type="image/svg+xml">
+    <style>
+        body { background: #0b0b12; color: #e7e7f0; font-family: 'Golos Text', system-ui, sans-serif; margin: 0; }
+        .policy { max-width: 820px; margin: 0 auto; padding: 48px 16px 80px; line-height: 1.7; }
+        .policy h1 { font-family: 'Unbounded', sans-serif; font-size: clamp(1.5rem, 4vw, 2.2rem); margin: 0 0 8px; }
+        .policy h2 { font-family: 'Unbounded', sans-serif; font-size: 1.1rem; margin: 36px 0 10px; color: #c4b5fd; }
+        .policy p, .policy li { color: #b9b9c9; font-size: 0.98rem; }
+        .policy a { color: #c4b5fd; }
+        .policy .updated { color: #8a8aa0; font-size: 0.9rem; }
+        .policy table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.92rem; }
+        .policy th, .policy td { text-align: left; padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; color: #b9b9c9; }
+        .policy th { color: #e7e7f0; font-weight: 600; }
+        .policy .back { display: inline-block; margin-bottom: 24px; color: #8a8aa0; text-decoration: none; }
+        @media (max-width: 600px) { .policy table, .policy thead, .policy tbody, .policy tr, .policy th, .policy td { display: block; } .policy thead { display: none; } .policy td { border: 0; padding: 4px 0; } .policy tr { border-bottom: 1px solid rgba(255,255,255,0.08); padding: 10px 0; } }
+    </style>
+</head>
+<body>
+<main class="policy">
+    <a class="back" href="/android">← FunPay Tools для Android</a>
+    <h1>Политика конфиденциальности</h1>
+    <p class="updated">Приложение FunPay Tools для Android. Редакция от 11 октября 2026.</p>
+
+    <p>FunPay Tools (далее «приложение») помогает продавцам работать с площадкой FunPay с телефона. Здесь описано, какие данные приложение обрабатывает, куда они передаются и как их удалить. Приложение неофициальное и не связано с администрацией FunPay.</p>
+
+    <p>Оператор данных: Dmytro Starobynskyi (XaviersDev), контакт: <a href="mailto:starobinskiy05@gmail.com">starobinskiy05@gmail.com</a>, Telegram <a href="https://t.me/fptools">@fptools</a>.</p>
+
+    <h2>1. Данные для входа в FunPay</h2>
+    <p>Для работы с вашим аккаунтом приложению нужен ключ входа FunPay (golden_key) и cookies сессии. Вы вводите ключ сами или входите через сайт FunPay во встроенном браузере. Ключ и cookies:</p>
+    <ul>
+        <li>хранятся только на вашем устройстве, в закрытом хранилище приложения;</li>
+        <li>отправляются только на сайт funpay.com, так же как это делает обычный браузер;</li>
+        <li>не передаются разработчику и третьим лицам.</li>
+    </ul>
+    <p>Переписка, заказы, лоты и баланс загружаются с FunPay и показываются на устройстве. Разработчик их не собирает.</p>
+
+    <h2>2. Что передаётся на другие серверы</h2>
+    <table>
+        <thead><tr><th>Когда</th><th>Что передаётся</th><th>Куда</th></tr></thead>
+        <tbody>
+            <tr><td>Вы нажимаете функцию ИИ (переписать ответ, ответ на отзыв, ИИ-переменные)</td><td>Текст черновика и данные, которые вы разрешили ИИ в настройках</td><td>Сервер ИИ FunPay Tools</td></tr>
+            <tr><td>Перевод сообщений и описаний</td><td>Переводимый текст</td><td>Google Translate</td></tr>
+            <tr><td>Поиск пользователя по нику, новый чат</td><td>Ник или ID пользователя FunPay</td><td>Сервер FunPay Tools, RMTHub</td></tr>
+            <tr><td>Общий чат</td><td>Ваш ник FunPay и сообщения, которые вы отправляете в общий чат</td><td>Сервер общего чата FunPay Tools</td></tr>
+            <tr><td>Лента отзывов</td><td>Отзывы и реакции, которые вы добавляете сами, и случайный ID установки</td><td>Сервер FunPay Tools</td></tr>
+            <tr><td>Активация PRO-ключа</td><td>Ключ и идентификатор устройства (ANDROID_ID), чтобы ключ работал на одном телефоне</td><td>Firebase (Google)</td></tr>
+            <tr><td>Статистика и аналитика</td><td>Случайный ID установки, обезличенные события использования приложения</td><td>Firebase Analytics (Google)</td></tr>
+            <tr><td>Показ рекламы (бесплатная версия)</td><td>Рекламный идентификатор и технические данные устройства</td><td>Рекламная сеть Start.io</td></tr>
+            <tr><td>Проверка обновлений</td><td>Обычный запрос без личных данных</td><td>GitHub</td></tr>
+        </tbody>
+    </table>
+    <p>Все передачи идут по зашифрованному соединению (HTTPS). Данные не продаются.</p>
+
+    <h2>3. Плагины</h2>
+    <p>Плагины вы устанавливаете сами. Они работают внутри приложения с теми же правами. Устанавливайте только плагины, которым доверяете: разработчик приложения не отвечает за сторонние плагины.</p>
+
+    <h2>4. Разрешения на устройстве</h2>
+    <ul>
+        <li><b>Уведомления</b>: о новых сообщениях и заказах.</li>
+        <li><b>Фоновая служба, автозапуск, работа без оптимизации батареи</b>: чтобы приложение получало сообщения и отвечало покупателям, когда экран выключен.</li>
+        <li><b>Точные будильники</b>: автоподнятие лотов вовремя.</li>
+        <li><b>Полноэкранные уведомления</b>: функция «Вызов продавца», если вы её включили.</li>
+    </ul>
+    <p>Приложение не запрашивает доступ к контактам, геолокации, камере и микрофону.</p>
+
+    <h2>5. Хранение и удаление</h2>
+    <p>Данные на устройстве удаляются вместе с приложением или кнопкой выхода из аккаунта. Чтобы удалить ваши сообщения общего чата, отзывы из ленты или привязку PRO-ключа на сервере, напишите на <a href="mailto:starobinskiy05@gmail.com">starobinskiy05@gmail.com</a>. Мы удалим их в течение 30 дней.</p>
+
+    <h2>6. Дети</h2>
+    <p>Приложение предназначено для продавцов FunPay и не рассчитано на детей младше 16 лет.</p>
+
+    <h2>7. Изменения</h2>
+    <p>Если политика изменится, новая редакция появится на этой странице с новой датой.</p>
+</main>
+</body>
+</html>

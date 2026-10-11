@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FunPay Edge: копия FunPay Tools</title>
+<meta name="description" content="Разбор APK приложения «FunPay Edge» (ru.dengrig_denis.funpay) из RuStore: совпадения с исходным кодом FunPay Tools.">
+<style>
+  :root {
+    --bg: #000000; --card: #0b0b0b; --line: rgba(255,255,255,0.10);
+    --text: #f2f2f2; --muted: #b5b5b5; --dim: #7a7a7a;
+    --accent: #AA00AA; --link: #FF55FF; --good: #55FF55; --code-bg: rgba(170,0,170,0.16);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 900px; margin: 0 auto; padding: 40px 16px 72px; }
+  h1 { font-size: clamp(1.6rem, 5vw, 2.3rem); line-height: 1.2; margin: 0 0 8px; }
+  h2 { font-size: 1.2rem; margin: 44px 0 10px; color: var(--link); padding-left: 10px; border-left: 3px solid var(--accent); }
+  p { margin: 0 0 12px; color: var(--muted); }
+  .meta { color: var(--dim); font-size: 0.92rem; margin-bottom: 20px; }
+  .lead { font-size: 1.08rem; color: var(--text); background: var(--card);
+          border: 1px solid var(--line); border-left: 3px solid var(--accent);
+          border-radius: 10px; padding: 14px 16px; }
+  a { color: var(--link); }
+  code { font-family: ui-monospace, "JetBrains Mono", Menlo, Consolas, monospace; font-size: 0.88em;
+         background: var(--code-bg); padding: 2px 6px; border-radius: 5px; color: #FF99FF;
+         word-break: break-word; }
+  .table-wrap { overflow-x: auto; margin: 12px 0 14px; border: 1px solid var(--line); border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+  th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+  th { color: var(--text); background: var(--card); font-weight: 600; white-space: nowrap; }
+  td { color: var(--muted); }
+  tr:last-child td { border-bottom: 0; }
+  ol, ul { color: var(--muted); padding-left: 22px; margin: 0 0 12px; }
+  li { margin-bottom: 6px; }
+  .verdict { color: var(--text); font-weight: 600; }
+  .ok { color: var(--good); }
+  footer { margin-top: 48px; color: var(--dim); font-size: 0.85rem; border-top: 1px solid var(--line); padding-top: 16px; }
+  @media (max-width: 600px) {
+    th, td { padding: 8px 9px; font-size: 0.86rem; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+<h1>FunPay Edge: копия FunPay Tools</h1>
+<div class="meta">10.10.2026 · XaviersDev, разработчик <a href="https://github.com/XaviersDev/FunPay-Tools-Android">FunPay Tools</a></div>
+
+<p class="lead">Приложение «FunPay Edge» в RuStore (пакет <code>ru.dengrig_denis.funpay</code>, на телефоне подписано просто «FunPay») собрано на коде FunPay Tools. В APK посимвольно совпадают десятки внутренних строк и 29 классов с теми же полями, а упоминания автора удалены.</p>
+
+<h2>Совпадающие строки</h2>
+<p>Это служебные сообщения журнала, которые придуманы в FunPay Tools. На сайте FunPay их нет, сами собой они совпасть не могут. Все совпадают символ в символ, вместе с эмодзи.</p>
+<div class="table-wrap"><table>
+<tr><th>Строка внутри APK FunPay Edge</th><th>Где в исходниках FunPay Tools</th></tr>
+<tr><td><code>🟢 Онлайн-пинг OK</code></td><td><a href="https://github.com/XaviersDev/FunPay-Tools-Android/blob/main/app/src/main/java/ru/allisighs/funpaytools/FunPayRepository.kt">FunPayRepository.kt</a></td></tr>
+<tr><td><code>📶 Ожидание сети (ошибка DNS)...</code></td><td><a href="https://github.com/XaviersDev/FunPay-Tools-Android/blob/main/app/src/main/java/ru/allisighs/funpaytools/FunPayRepository.kt">FunPayRepository.kt</a></td></tr>
+<tr><td><code>🧹 Все данные приложения полностью очищены</code></td><td><a href="https://github.com/XaviersDev/FunPay-Tools-Android/blob/main/app/src/main/java/ru/allisighs/funpaytools/FunPayRepository.kt">FunPayRepository.kt</a></td></tr>
+<tr><td><code>⚠️ Картинка не загрузилась — отправляю только текст</code></td><td><a href="https://github.com/XaviersDev/FunPay-Tools-Android/blob/main/app/src/main/java/ru/allisighs/funpaytools/FunPayRepository.kt">FunPayRepository.kt</a></td></tr>
+<tr><td><code>⛔ Картинка не загрузилась и текст пустой — сообщение не отправлено</code></td><td><a href="https://github.com/XaviersDev/FunPay-Tools-Android/blob/main/app/src/main/java/ru/allisighs/funpaytools/FunPayRepository.kt">FunPayRepository.kt</a></td></tr>
+<tr><td><code>❌ Сервер не ответил на загрузку картинки (пустой ответ)</code></td><td><a href="https://github.com/XaviersDev/FunPay-Tools-Android/blob/main/app/src/main/java/ru/allisighs/funpaytools/FunPayRepository.kt">FunPayRepository.kt</a></td></tr>
+<tr><td><code>✅ FunPay подтвердил отправку ответа</code></td><td><a href="https://github.com/XaviersDev/FunPay-Tools-Android/blob/main/app/src/main/java/ru/allisighs/funpaytools/FunPayRepository.kt">FunPayRepository.kt</a></td></tr>
+<tr><td><code>⚠️ Неожиданный ответ от FunPay</code></td><td><a href="https://github.com/XaviersDev/FunPay-Tools-Android/blob/main/app/src/main/java/ru/allisighs/funpaytools/FunPayRepository.kt">FunPayRepository.kt</a></td></tr>
+<tr><td><code>❌ User ID не найден</code></td><td><a href="https://github.com/XaviersDev/FunPay-Tools-Android/blob/main/app/src/main/java/ru/allisighs/funpaytools/FunPayRepository.kt">FunPayRepository.kt</a></td></tr>
+</table></div>
+<p>Всего в APK нашлось 283 строки из исходников FunPay Tools длиной от 12 символов. Сюда вынесены только те, что не могут взяться с сайта FunPay.</p>
+
+<h2>Совпадающие модели данных</h2>
+<p>29 классов в APK называются так же, как в FunPay Tools, и внутри у них те же поля с теми же именами. Остальные классы переименованы с префиксом Edge (<code>EdgeRepository</code>, <code>EdgeSessionKeeper</code>...).</p>
+<div class="table-wrap"><table>
+<tr><th>Класс</th><th>Поля в FunPay Tools</th><th>В APK FunPay Edge</th><th>Исходник</th></tr>
+<tr><td><code>Account</code></td><td>id, goldenKey, phpSessionId, username, userId, avatarUrl, isActive, addedAt, runInBackground, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword</td><td>все 14 тех же + goldenSeal</td><td><a href="https://github.com/XaviersDev/FunPay-Tools-Android/blob/main/app/src/main/java/ru/allisighs/funpaytools/AccountModels.kt">AccountModels.kt</a></td></tr>
+<tr><td><code>FloodChatSettings</code> (функция «Флудилка»)</td><td>enabled, pinFirst, folderId, customDisplayName = «Флудилка»</td><td>те же 4 поля и строка «Флудилка»</td><td>MainActivity.kt</td></tr>
+<tr><td><code>FunPayUserProfile</code></td><td>userId, username, avatarUrl, isOnline, registrationDate, ratingValue, reviewCount, reviewCountShort, offerGroups, reviews, continueToken</td><td>все те же + ещё 5 новых</td><td><a href="https://github.com/XaviersDev/FunPay-Tools-Android/blob/main/app/src/main/java/ru/allisighs/funpaytools/Profiles.kt">Profiles.kt</a></td></tr>
+<tr><td><code>ProfileOfferGroup</code></td><td>categoryName, categoryUrl, offers</td><td>те же</td><td><a href="https://github.com/XaviersDev/FunPay-Tools-Android/blob/main/app/src/main/java/ru/allisighs/funpaytools/Profiles.kt">Profiles.kt</a></td></tr>
+<tr><td><code>ProfileReview</code></td><td>rating, text, date, detail, sellerReply</td><td>те же + orderId</td><td><a href="https://github.com/XaviersDev/FunPay-Tools-Android/blob/main/app/src/main/java/ru/allisighs/funpaytools/Profiles.kt">Profiles.kt</a></td></tr>
+<tr><td><code>TicketDetails</code></td><td>id, title, status, comments, additionalFields, createdAt, responsible, canReply</td><td>те же</td><td><a href="https://github.com/XaviersDev/FunPay-Tools-Android/blob/main/app/src/main/java/ru/allisighs/funpaytools/FunPaySupport.kt">FunPaySupport.kt</a></td></tr>
+<tr><td><code>TicketFieldOption</code></td><td>value, text</td><td>те же</td><td><a href="https://github.com/XaviersDev/FunPay-Tools-Android/blob/main/app/src/main/java/ru/allisighs/funpaytools/FunPaySupport.kt">FunPaySupport.kt</a></td></tr>
+<tr><td><code>WallpaperEffect</code></td><td>STATIC, PARALLAX</td><td>те же</td><td><a href="https://github.com/XaviersDev/FunPay-Tools-Android/blob/main/app/src/main/java/ru/allisighs/funpaytools/ThemeManager.kt">ThemeManager.kt</a></td></tr>
+</table></div>
+<p>Ещё совпадают по имени: <code>AccountsData</code>, <code>ApiFactory</code>, <code>ChatListMode</code>, <code>GlobalProxyAuthenticator</code>, <code>LogManager</code>, <code>LotUrlParser</code>, <code>OrderNewResult</code>, <code>ProfileOffer</code>, <code>ProfileUiState</code>, <code>Stats</code>, <code>TicketAttachment</code>, <code>TicketCategory</code>, <code>TicketComment</code>, <code>TicketField</code>, <code>UpdateInfo</code>, <code>FunPayRepositoryKt</code>, <code>ISettingsKt</code>, <code>ProfilesKt</code>, <code>SupportScreenKt</code>.</p>
+
+<h2>Как проверить самому за 5 минут</h2>
+<p>Нужен только APK из RuStore и бесплатный декомпилятор <a href="https://github.com/skylot/jadx">jadx</a>.</p>
+<ol>
+  <li>Скачать приложение «FunPay Edge» из RuStore и открыть APK в jadx-gui.</li>
+  <li>Поиск по тексту (Ctrl+Shift+F): <code>Онлайн-пинг OK</code>.</li>
+  <li>Открыть <a href="https://github.com/XaviersDev/FunPay-Tools-Android/blob/main/app/src/main/java/ru/allisighs/funpaytools/FunPayRepository.kt">FunPayRepository.kt</a> на GitHub и найти ту же строку.</li>
+  <li>Повторить с любой строкой из таблицы выше или открыть класс <code>ru.dengrig_denis.funpayedge.FloodChatSettings</code>.</li>
+</ol>
+<p>Что покажет jadx: строки сидят в тех же по смыслу местах, только классы переименованы.</p>
+<div class="table-wrap"><table>
+<tr><th>Строка</th><th>Метод в FunPay Edge</th><th>Метод в FunPay Tools</th></tr>
+<tr><td><code>🧹 Все данные приложения полностью очищены</code></td><td><code>EdgeRepository.clearAllData</code></td><td><code>FunPayRepository.clearAllData</code></td></tr>
+<tr><td><code>🟢 Онлайн-пинг OK</code></td><td><code>EdgeFunPayActions.touchOnline</code></td><td><code>FunPayRepository.pingOnlineStatus</code></td></tr>
+<tr><td><code>⚠️ Картинка не загрузилась — отправляю только текст</code></td><td><code>EdgeChatMessenger.sendComposite</code></td><td><code>FunPayRepository.sendWithOptionalImage</code></td></tr>
+<tr><td><code>❌ User ID не найден</code></td><td><code>EdgeFunPayActions.postReviewReply</code></td><td><code>FunPayRepository.replyToReview</code></td></tr>
+<tr><td><code>Флудилка</code></td><td><code>FloodChatSettings</code></td><td><code>FloodChatSettings</code></td></tr>
+</table></div>
+
+<h2>Что это за APK</h2>
+<div class="table-wrap"><table>
+<tr><td>Название в RuStore</td><td>FunPay Edge</td></tr>
+<tr><td>Название на телефоне</td><td>FunPay</td></tr>
+<tr><td>Пакет</td><td><code>ru.dengrig_denis.funpay</code></td></tr>
+<tr><td>Код внутри</td><td><code>ru.dengrig_denis.funpayedge</code></td></tr>
+<tr><td>Версия</td><td>1.0-free-v16 (versionCode 81)</td></tr>
+<tr><td>Подпись</td><td>CN=FunPay Free, O=FunPay Edge, C=SA, сертификат от 26.07.2026</td></tr>
+<tr><td>SHA-256 сертификата</td><td><code>49d208d1a5e8b8ee7579ea8c3ded1810351dc0d46f395e905dce59c50dcb6476</code></td></tr>
+</table></div>
+<p>Упоминаний FunPay Tools, AlliSighs и funpay.tools в APK нет ни одного. Исходники FunPay Tools лежат открыто на <a href="https://github.com/XaviersDev/FunPay-Tools-Android">GitHub</a>, лицензия запрещает копирование и распространение. Даты коммитов в репозитории показывают, когда каждая строка появилась у нас.</p>
+<p>В клоне есть и свои функции: магазин с покупками, пополнение баланса, рейтинг доверия, push от RuStore. Но основа (модели, репозиторий, тикеты, профили, журнал) взята из FunPay Tools.</p>
+
+<h2>Есть ли вредоносный код</h2>
+<p>Признаков не найдено. Это разбор APK без запуска, полной гарантии он не даёт.</p>
+<ul>
+  <li>Ключ входа <code>golden_key</code> уходит только на funpay.com.</li>
+  <li>На сторонние сервисы (api.funpaylitebot.com, Firebase fp-helper) уходит только ID чужого профиля, чтобы показать значок «пользуется ботом».</li>
+  <li>Нет загрузки кода на лету, доступа к SMS, контактам и специальным возможностям.</li>
+</ul>
+<p class="verdict">Итог: это не вирус, а переделанная без разрешения копия FunPay Tools, выложенная в RuStore как «FunPay Edge».</p>
+
+<footer>XaviersDev · <a href="https://github.com/XaviersDev/FunPay-Tools-Android">github.com/XaviersDev/FunPay-Tools-Android</a> · <a href="https://funpay.tools">funpay.tools</a></footer>
+</main>
+</body>
+</html>

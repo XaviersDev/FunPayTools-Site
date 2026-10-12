@@ -8,21 +8,25 @@
     <link rel="canonical" href="https://funpay.tools/privacy">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../style.css">
-    <link rel="icon" href="../logo.svg" type="image/svg+xml">
+    <link rel="icon" href="/logo.svg" type="image/svg+xml">
+    <meta name="color-scheme" content="dark">
     <style>
-        body { background: #0b0b12; color: #e7e7f0; font-family: 'Golos Text', system-ui, sans-serif; margin: 0; }
-        .policy { max-width: 820px; margin: 0 auto; padding: 48px 16px 80px; line-height: 1.7; }
+        html, body { background: #000 !important; color: #fff !important; margin: 0; padding: 0; }
+        body { font-family: 'Golos Text', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+        .policy, .policy * { color: #fff !important; background: transparent !important; }
+        .policy { max-width: 820px; margin: 0 auto; padding: 48px 16px 80px; line-height: 1.7; box-sizing: border-box; }
         .policy h1 { font-family: 'Unbounded', sans-serif; font-size: clamp(1.5rem, 4vw, 2.2rem); margin: 0 0 8px; }
-        .policy h2 { font-family: 'Unbounded', sans-serif; font-size: 1.1rem; margin: 36px 0 10px; color: #c4b5fd; }
-        .policy p, .policy li { color: #b9b9c9; font-size: 0.98rem; }
-        .policy a { color: #c4b5fd; }
-        .policy .updated { color: #8a8aa0; font-size: 0.9rem; }
+        .policy h2 { font-family: 'Unbounded', sans-serif; font-size: 1.1rem; margin: 36px 0 10px; }
+        .policy p, .policy li { font-size: 0.98rem; }
+        .policy ul { padding-left: 22px; }
+        .policy a { text-decoration: underline; }
+        .policy .updated, .policy .back { opacity: .7; }
+        .policy .updated { font-size: 0.9rem; }
+        .policy .back { display: inline-block; margin-bottom: 24px; text-decoration: none; }
         .policy table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.92rem; }
-        .policy th, .policy td { text-align: left; padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; color: #b9b9c9; }
-        .policy th { color: #e7e7f0; font-weight: 600; }
-        .policy .back { display: inline-block; margin-bottom: 24px; color: #8a8aa0; text-decoration: none; }
-        @media (max-width: 600px) { .policy table, .policy thead, .policy tbody, .policy tr, .policy th, .policy td { display: block; } .policy thead { display: none; } .policy td { border: 0; padding: 4px 0; } .policy tr { border-bottom: 1px solid rgba(255,255,255,0.08); padding: 10px 0; } }
+        .policy th, .policy td { text-align: left; padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.2); vertical-align: top; }
+        .policy th { font-weight: 600; }
+        @media (max-width: 600px) { .policy table, .policy thead, .policy tbody, .policy tr, .policy th, .policy td { display: block; } .policy thead { display: none; } .policy td { border: 0; padding: 4px 0; } .policy tr { border-bottom: 1px solid rgba(255,255,255,0.2); padding: 10px 0; } }
     </style>
 </head>
 <body>

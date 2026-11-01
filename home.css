@@ -50,6 +50,7 @@ img { display: block; max-width: 100%; height: auto; }
     padding-bottom: 12px;
 }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; }
+.brand img { border-radius: 8px; box-shadow: 0 0 0 1px #D6E4F5; }
 .nav-links { display: flex; gap: 26px; margin-left: auto; font-size: 14.5px; color: var(--muted); }
 .nav-links a { position: relative; transition: color .2s; }
 .nav-links a::after {

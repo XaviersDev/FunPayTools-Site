@@ -1,8 +1,4 @@
 // Управление модалками
-const devModal = document.getElementById('devModal');
-document.getElementById('btnDevDocs').onclick = () => devModal.style.display = 'flex';
-document.getElementById('closeDevModal').onclick = () => devModal.style.display = 'none';
-
 const uploadModal = document.getElementById('uploadModal');
 document.getElementById('btnUpload').onclick = () => uploadModal.style.display = 'flex';
 document.getElementById('closeUploadModal').onclick = () => uploadModal.style.display = 'none';

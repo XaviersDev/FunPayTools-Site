@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FunPay Tools | Каталог</title>
-    <link rel="icon" href="/logo.svg" type="image/svg+xml">
+    <link rel="icon" href="/assets/favicon.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -36,9 +36,8 @@
             justify-content: center;
         }
         .big-card {
-            background: rgba(0, 0, 0, 0.4); /* Черный полупрозрачный фон */
-            backdrop-filter: blur(12px); /* Добавляет красивое размытие */
-            border: 2px solid rgba(255, 255, 255, 0.1); /* Легкая граница */
+            background: #FFFFFF;
+            border: 1px solid var(--border-color);
             border-radius: 24px;
             padding: 50px 40px;
             width: 340px;
@@ -50,21 +49,40 @@
             gap: 25px;
         }
         .big-card:hover {
-            transform: translateY(-8px);
-            border-color: var(--primary-color, #3b82f6);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            background: rgba(0, 0, 0, 0.6); /* Чуть темнеет при наведении */
+            border-color: var(--primary-color);
         }
         .big-card svg {
             width: 90px;
             height: 90px;
-            stroke: var(--primary-color, #3b82f6);
+            stroke: var(--primary-color);
         }
         .big-card span {
             font-size: 26px;
             font-weight: 800;
-            color: #ffffff; /* Белый текст, чтобы хорошо читался на черном */
+            color: var(--text-primary);
             line-height: 1.2;
+        }
+        .pname {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1;
+            gap: 6px;
+        }
+        .pname .top { font-size: 26px; font-weight: 800; color: var(--text-primary); white-space: nowrap; }
+        .pname .fit {
+            font-weight: 800;
+            color: var(--primary-color);
+            white-space: nowrap;
+            letter-spacing: -0.01em;
+            line-height: 0.9;
+            font-size: 40px;
+        }
+        .big-card small {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-top: -14px;
         }
 
         /* Plugins View Styles */
@@ -74,21 +92,20 @@
             margin: 0 auto;
         }
         .suggest-plugin-box {
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(12px);
+            background: #FFFFFF;
             border-radius: 20px;
             padding: 40px 30px;
             text-align: center;
             margin-bottom: 40px;
-            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border: 2px dashed #BFD8F7;
         }
         .suggest-plugin-box h2 {
             font-size: 28px;
             margin-bottom: 15px;
-            color: #ffffff;
+            color: var(--text-primary);
         }
         .suggest-plugin-box p {
-            color: rgba(255, 255, 255, 0.8);
+            color: var(--text-secondary);
             margin-bottom: 25px;
             font-size: 16px;
             max-width: 700px;
@@ -97,7 +114,7 @@
             line-height: 1.6;
         }
         .suggest-plugin-box a.link {
-            color: var(--primary-color, #3b82f6);
+            color: var(--primary-color);
             text-decoration: none;
             font-weight: 600;
         }
@@ -107,7 +124,7 @@
             padding: 18px 50px;
             font-size: 22px;
             font-weight: 800;
-            background: var(--primary-color, #3b82f6);
+            background: var(--primary-color);
             color: #fff;
             border-radius: 16px;
             text-decoration: none;
@@ -115,7 +132,7 @@
             border: none;
             cursor: pointer;
         }
-        .btn-huge:hover { opacity: 0.9; transform: scale(1.02); }
+        .btn-huge:hover { background: var(--primary-hover); transform: scale(1.02); }
 
         .plugins-grid {
             display: grid;
@@ -123,25 +140,23 @@
             gap: 24px;
         }
         .plugin-card {
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #FFFFFF;
+            border: 1px solid var(--border-color);
             border-radius: 16px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             transition: 0.2s;
         }
-        .plugin-card:hover { 
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-            border-color: rgba(255, 255, 255, 0.2);
+        .plugin-card:hover {
+            border-color: #BFD8F7;
         }
         .plugin-banner {
             width: 100%;
             height: 180px;
             object-fit: cover;
-            background: rgba(0, 0, 0, 0.2);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: var(--surface-light);
+            border-bottom: 1px solid var(--border-color);
         }
         .plugin-content {
             padding: 24px;
@@ -153,19 +168,20 @@
             font-size: 20px;
             font-weight: 800;
             margin-bottom: 12px;
-            color: #ffffff;
+            color: var(--text-primary);
         }
         .plugin-desc {
             font-size: 15px;
-            color: rgba(255, 255, 255, 0.7);
+            color: var(--text-secondary);
             margin-bottom: 24px;
             flex-grow: 1;
             line-height: 1.5;
         }
+        .plugin-actions { display: flex; gap: 10px; }
         .btn-copy {
-            background: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: var(--surface-light);
+            color: var(--primary-color);
+            border: 1px solid var(--border-color);
             padding: 14px;
             border-radius: 12px;
             font-weight: 700;
@@ -174,14 +190,19 @@
             width: 100%;
             transition: 0.2s;
         }
-        .btn-copy:hover { 
-            background: rgba(255, 255, 255, 0.2); 
+        .btn-copy:hover {
+            background: #E3EFFF;
+            border-color: #BFD8F7;
         }
-        .btn-copy.copied { 
-            background: #22c55e; 
-            color: #fff; 
+        .plugin-actions .btn-copy { font-size: 14px; white-space: nowrap; padding: 13px 10px; }
+        .btn-copy.solid { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
+        .btn-copy.solid:hover { background: var(--primary-hover); }
+        .btn-copy.copied {
+            background: #22c55e;
+            color: #fff;
             border-color: #22c55e;
         }
+        .plugin-hint { font-size: 13px; color: var(--text-secondary); margin-top: 12px; line-height: 1.5; }
 
         .logo-container { cursor: pointer; }
     </style>
@@ -189,13 +210,12 @@
 <body>
     <header>
         <div class="logo-container" onclick="showHome()">
-            <img src="/logo.svg" alt="FunPay Tools" class="site-logo">
+            <img src="/assets/logo.png" alt="FunPay Tools" class="site-logo">
             <h1>FPT Catalog</h1>
         </div>
         <nav>
             <button id="btnGoHome" class="btn-text view-hidden" onclick="showHome()">Назад к выбору</button>
             <button id="btnUpload" class="btn-outline view-hidden">Опубликовать пак</button>
-            <button id="btnDevDocs" class="btn-text">Для разработчиков</button>
         </nav>
     </header>
 
@@ -211,14 +231,39 @@
                     <line x1="16" y1="17" x2="8" y2="17"></line>
                     <polyline points="10 9 9 9 8 9"></polyline>
                 </svg>
-                <span>Текстовые шаблоны</span>
+                <span>Шаблоны</span>
             </div>
-            <div class="big-card" onclick="showView('pluginsView')">
+            <div class="big-card" onclick="showView('platformView')">
                 <!-- Новая иконка пазла -->
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M19 14V8a2 2 0 0 0-2-2h-4.5a1.5 1.5 0 0 1-3 0H5a2 2 0 0 0-2 2v4.5a1.5 1.5 0 0 1 0 3V20a2 2 0 0 0 2 2h4.5a1.5 1.5 0 0 0 3 0H17a2 2 0 0 0 2-2v-4.5a1.5 1.5 0 0 1 0-3Z"/>
                 </svg>
-                <span>Плагины для приложения</span>
+                <span>Плагины</span>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ВЫБОР ПЛАТФОРМЫ ДЛЯ ПЛАГИНОВ -->
+    <div id="platformView" class="view-hidden">
+        <div id="homeView2" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;text-align:center;padding:20px;">
+            <div class="home-title">Для какого приложения?</div>
+            <div class="cards-container">
+                <div class="big-card" onclick="openPlugins('desktop')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="3" width="20" height="14" rx="2"></rect>
+                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
+                    <span class="pname"><b class="top">FunPay Tools</b><b class="fit">Desktop</b></span>
+                </div>
+                <div class="big-card" onclick="openPlugins('android')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="6" y="2" width="12" height="20" rx="2.5"></rect>
+                        <line x1="11" y1="18" x2="13" y2="18"></line>
+                    </svg>
+                    <span class="pname"><b class="top">FunPay Tools</b><b class="fit">Android</b></span>
+                </div>
             </div>
         </div>
     </div>
@@ -227,7 +272,7 @@
     <div id="templatesView" class="view-hidden">
         <div class="catalog-hero">
             <svg viewBox="0 0 1200 110" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <text x="0" y="105" textLength="1200" lengthAdjust="spacing" font-family="Manrope, sans-serif" font-weight="800" font-size="130" fill="none" stroke="#1a1a1a" stroke-width="0.6" letter-spacing="-4">каталог</text>
+                <text x="0" y="105" textLength="1200" lengthAdjust="spacing" font-family="Manrope, sans-serif" font-weight="800" font-size="130" fill="none" stroke="#CFE0F5" stroke-width="0.8" letter-spacing="-4">каталог</text>
             </svg>
         </div>
         <main>
@@ -243,13 +288,13 @@
     <!-- ВЬЮХА ПЛАГИНОВ -->
     <div id="pluginsView" class="view-hidden">
         <div class="suggest-plugin-box">
-            <h2>Предложить плагин</h2>
-            <p>Почему нельзя добавить плагин сразу? Плагины исполняют код и могут иметь доступ к вашему аккаунту FunPay, поэтому существует риск кражи данных. В целях безопасности свободная публикация закрыта - мы проверяем код каждого плагина вручную.</p>
+            <h2 id="pluginsTitle">Предложить плагин</h2>
+            <p>Почему нельзя добавить плагин сразу? Плагины исполняют код и могут иметь доступ к вашему аккаунту FunPay, поэтому существует риск кражи данных. В целях безопасности свободная публикация закрыта, мы проверяем код каждого плагина вручную.</p>
             <p>Кидайте исходники админу в Telegram: <a href="https://t.me/AlliSighs" target="_blank" class="link">@AlliSighs</a><br>
-            Документация по написанию плагинов: <a href="https://funpay.tools/DAI.md" target="_blank" class="link">funpay.tools/DAI.md</a></p>
+            Документация по написанию плагинов: <a id="docsLink" href="https://funpay.tools/DAI.md" target="_blank" class="link">funpay.tools/DAI.md</a></p>
             <a href="https://t.me/AlliSighs" target="_blank" class="btn-huge">Отправить плагин</a>
         </div>
-        
+
         <div class="plugins-grid" id="pluginsGrid">
             <div class="loading">Загрузка плагинов...</div>
         </div>
@@ -310,107 +355,67 @@
         </div>
     </div>
 
-    <!-- Модалка "Для Разработчиков" -->
-    <div id="devModal" class="modal">
-        <div class="modal-content dev-modal-wide">
-            <div class="modal-header">
-                <h2>Спецификация .fptools и API</h2>
-                <span id="closeDevModal" class="close">&times;</span>
-            </div>
-            <div class="modal-body dev-docs">
-                <h3>1. Что такое формат .fptools?</h3>
-                <p>Формат <b>.fptools</b> — это стандартизированный JSON-контейнер. Он используется для обмена настройками, шаблонами, автоответами и правилами ИИ между пользователями приложения FunPay Tools. Файл имеет структуру обычного JSON, но сохраняется с расширением <code>.fptools</code> для привязки к приложению Android/PC.</p>
-
-                <h3>2. Структура корневого объекта</h3>
-                <pre><code>{
-  "version": 1,
-  "author": "Nickname",
-  "description": "Описание пака",
-  "data": { ... }
-}</code></pre>
-
-                <h3>3. Модели данных (внутри объекта <code>data</code>)</h3>
-
-                <h4>Шаблоны сообщений (<code>templates</code>)</h4>
-                <p>Массив объектов. Ключи:</p>
-                <ul>
-                    <li><code>id</code> (String) — Уникальный UUID.</li>
-                    <li><code>name</code> (String) — Название кнопки шаблона.</li>
-                    <li><code>text</code> (String) — Текст сообщения. Поддерживает плейсхолдеры: <code>$username</code>, <code>$date</code>, <code>$welcome</code>.</li>
-                    <li><code>imageUri</code> (String | null) — URI картинки.</li>
-                    <li><code>imageFirst</code> (Boolean) — Порядок отправки.</li>
-                </ul>
-
-                <h4>Автоответы (<code>auto_responses</code>)</h4>
-                <p>Массив объектов. Ключи:</p>
-                <ul>
-                    <li><code>trigger</code> (String) — Слово или фраза-триггер.</li>
-                    <li><code>response</code> (String) — Текст ответа бота.</li>
-                    <li><code>exactMatch</code> (Boolean) — Точное совпадение.</li>
-                    <li><code>caseSensitive</code> (Boolean) — Учет регистра.</li>
-                    <li><code>callMode</code> (Boolean) — Режим вызова продавца.</li>
-                    <li><code>callStyle</code> (String) — <code>"notification"</code> или <code>"fullscreen"</code>.</li>
-                    <li><code>callAutoReplyTextRaw</code> (String | null) — Сообщение при дозвоне.</li>
-                </ul>
-
-                <h4>Ответы на отзывы (<code>review_reply_settings</code>)</h4>
-                <p>Объект. Ключи: <code>enabled</code>, <code>useAi</code>, <code>aiLength</code>, <code>aiWritingStyle</code>, <code>aiCustomInstruction</code>, <code>aiFallbackText</code>, <code>manualTemplates</code>, <code>disabledStars</code>.</p>
-
-                <h4>Приветствие (<code>greeting_settings</code>)</h4>
-                <p>Объект. Ключи: <code>enabled</code>, <code>text</code>, <code>cooldownHours</code>, <code>ignoreSystemMessages</code>.</p>
-
-                <h3>4. Импорт и отказоустойчивость</h3>
-                <p>Парсер приложения обрабатывает каждый элемент массива в отдельном блоке <code>try-catch</code>. Если один элемент невалиден — остальные импортируются корректно.</p>
-
-                <div class="highlight-box">
-                    <p style="color:var(--text-primary);font-size:13px;font-weight:600;margin-bottom:8px;">Логика парсера Kotlin</p>
-                    <ol>
-                        <li>Читаем объект <code>data</code>.</li>
-                        <li>Итерируем массив <code>templates</code>.</li>
-                        <li>Каждый элемент — отдельный <code>try-catch</code>.</li>
-                        <li>При <code>JSONException</code> — элемент пропускается, цикл продолжается.</li>
-                        <li>Итог: корректные элементы импортируются успешно.</li>
-                    </ol>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script>
+        const VIEWS = ['homeView', 'platformView', 'templatesView', 'pluginsView'];
+        const PLATFORMS = {
+            desktop: {
+                json: '/catalog/desktopplugins.json',
+                docs: 'https://funpay.tools/DAID.md',
+                title: 'Плагины для FunPay Tools Desktop',
+            },
+            android: {
+                json: '/catalog/verifiedplugins.json',
+                docs: 'https://funpay.tools/DAI.md',
+                title: 'Плагины для приложения на Android',
+            },
+        };
+        let platform = 'android';
+
+        function setView(viewId) {
+            VIEWS.forEach(v => document.getElementById(v).classList.toggle('view-hidden', v !== viewId));
+            if (viewId === 'platformView') requestAnimationFrame(fitNames);
+            document.getElementById('btnGoHome').classList.toggle('view-hidden', viewId === 'homeView');
+            document.getElementById('btnUpload').classList.toggle('view-hidden', viewId !== 'templatesView');
+            window.scrollTo(0, 0);
+        }
+
         function showHome() {
-            document.getElementById('homeView').classList.remove('view-hidden');
-            document.getElementById('templatesView').classList.add('view-hidden');
-            document.getElementById('pluginsView').classList.add('view-hidden');
-            
-            document.getElementById('btnGoHome').classList.add('view-hidden');
-            document.getElementById('btnUpload').classList.add('view-hidden');
+            setView('homeView');
+            history.replaceState(null, '', '/catalog');
         }
 
         function showView(viewId) {
-            document.getElementById('homeView').classList.add('view-hidden');
-            document.getElementById('templatesView').classList.add('view-hidden');
-            document.getElementById('pluginsView').classList.add('view-hidden');
-            
-            document.getElementById(viewId).classList.remove('view-hidden');
-            document.getElementById('btnGoHome').classList.remove('view-hidden');
+            setView(viewId);
+            if (viewId === 'platformView') history.replaceState(null, '', '/catalog?view=plugins');
+            if (viewId === 'templatesView') history.replaceState(null, '', '/catalog?view=templates');
+        }
 
-            if (viewId === 'templatesView') {
-                document.getElementById('btnUpload').classList.remove('view-hidden');
-            } else {
-                document.getElementById('btnUpload').classList.add('view-hidden');
-            }
+        function openPlugins(p) {
+            platform = PLATFORMS[p] ? p : 'android';
+            const cfg = PLATFORMS[platform];
+            const docs = document.getElementById('docsLink');
+            docs.href = cfg.docs;
+            docs.textContent = cfg.docs.replace('https://', '');
+            document.getElementById('pluginsTitle').textContent = 'Предложить плагин';
+            setView('pluginsView');
+            history.replaceState(null, '', '/catalog?view=plugins&platform=' + platform);
+            loadPlugins();
+        }
 
-            if (viewId === 'pluginsView') {
-                loadPlugins();
-            }
+        function esc(t) {
+            const d = document.createElement('div');
+            d.textContent = t == null ? '' : String(t);
+            return d.innerHTML;
         }
 
         async function loadPlugins() {
             const grid = document.getElementById('pluginsGrid');
+            const cfg = PLATFORMS[platform];
+            grid.innerHTML = '<div class="loading">Загрузка плагинов...</div>';
             try {
-                const res = await fetch('/catalog/verifiedplugins.json');
+                const res = await fetch(cfg.json, { cache: 'no-cache' });
                 const plugins = await res.json();
-                
+
                 if (!Array.isArray(plugins) || plugins.length === 0) {
                     grid.innerHTML = '<div style="text-align:center; grid-column: 1/-1; color: var(--text-secondary); font-size: 18px; padding: 40px;">Пока нет доступных плагинов. Станьте первым!</div>';
                     return;
@@ -420,26 +425,72 @@
                 plugins.forEach(p => {
                     const card = document.createElement('div');
                     card.className = 'plugin-card';
-                    
-                    let imgHtml = '';
-                    if (p.imageUrl) {
-                        imgHtml = `<img src="${p.imageUrl}" alt="${p.name}" class="plugin-banner" onerror="this.style.display='none'">`;
-                    }
-
+                    const img = p.imageUrl ? `<img src="${esc(p.imageUrl)}" alt="${esc(p.name)}" class="plugin-banner" onerror="this.style.display='none'">` : '';
+                    const actions = platform === 'desktop'
+                        ? `<div class="plugin-actions">
+                               <button class="btn-copy solid" data-act="download">Скачать</button>
+                               <button class="btn-copy" data-act="copy">Копировать ссылку</button>
+                           </div>
+                           <div class="plugin-hint">В программе: Плагины, затем "Каталог плагинов" или "Из файла".</div>`
+                        : `<button class="btn-copy" data-act="copy">Копировать ссылку</button>`;
                     card.innerHTML = `
-                        ${imgHtml}
+                        ${img}
                         <div class="plugin-content">
-                            <div class="plugin-title">${p.name}</div>
-                            <div class="plugin-desc">${p.description}</div>
-                            <button class="btn-copy" onclick="copyPluginUrl(this, '${p.pluginUrl}')">Копировать ссылку</button>
+                            <div class="plugin-title">${esc(p.name)}</div>
+                            <div class="plugin-desc">${esc(p.description)}</div>
+                            ${actions}
                         </div>
                     `;
+                    card.querySelectorAll('[data-act]').forEach(b => {
+                        b.onclick = () => b.dataset.act === 'copy' ? copyPluginUrl(b, p.pluginUrl) : downloadPlugin(b, p);
+                    });
                     grid.appendChild(card);
                 });
             } catch (e) {
                 grid.innerHTML = '<div style="text-align:center; grid-column: 1/-1; color: var(--text-secondary); font-size: 18px; padding: 40px;">Плагинов пока нет или произошла ошибка загрузки.</div>';
             }
         }
+
+        async function downloadPlugin(btn, p) {
+            const old = btn.innerText;
+            try {
+                const res = await fetch(p.pluginUrl);
+                const blob = new Blob([await res.text()], { type: 'text/javascript' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = (p.pluginUrl.split('/').pop() || 'plugin.js').split('?')[0];
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+            } catch (e) {
+                window.open(p.pluginUrl, '_blank');
+            }
+            btn.innerText = 'Готово';
+            setTimeout(() => btn.innerText = old, 1600);
+        }
+
+        // нижнее слово в карточке платформы ровно в ширину "FunPay Tools"
+        function fitNames() {
+            document.querySelectorAll('.pname').forEach(n => {
+                const top = n.querySelector('.top'), fit = n.querySelector('.fit');
+                fit.style.fontSize = '40px';
+                const w = top.getBoundingClientRect().width, f = fit.getBoundingClientRect().width;
+                if (w > 0 && f > 0) fit.style.fontSize = (40 * w / f).toFixed(2) + 'px';
+            });
+        }
+        window.addEventListener('resize', fitNames);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitNames);
+
+        // ссылки вида /catalog?view=plugins&platform=desktop
+        window.addEventListener('DOMContentLoaded', () => {
+            const q = new URLSearchParams(location.search);
+            if (q.get('view') === 'templates') showView('templatesView');
+            else if (q.get('view') === 'plugins') {
+                if (PLATFORMS[q.get('platform')]) openPlugins(q.get('platform'));
+                else showView('platformView');
+            }
+        });
 
         function copyPluginUrl(btn, url) {
             navigator.clipboard.writeText(url).then(() => {

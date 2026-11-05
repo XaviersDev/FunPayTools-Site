@@ -1,0 +1,8 @@
+[
+  {
+    "name": "Приветствие",
+    "description": "Здоровается с покупателем, когда он пишет первым. Свой текст и картинка, переменные $username, $date и $time, пауза между приветствиями, рабочие часы и пропуск чатов, где вы уже отвечали.",
+    "imageUrl": "https://raw.githubusercontent.com/XaviersDev/FunPayTools-Site/refs/heads/main/catalog/plugins_assets/greeting_banner.jpg",
+    "pluginUrl": "https://raw.githubusercontent.com/XaviersDev/FunPayTools-Site/refs/heads/main/catalog/plugins_assets/greeting.js"
+  }
+]

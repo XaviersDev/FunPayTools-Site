@@ -1,8 +1,26 @@
 [
   {
     "name": "Unique's Sniper",
-    "description": "Мониторинг рынка FunPay и мгновенные уведомления о дешёвых лотах. Задаёшь правила (категория, ключевые слова, максимальную цену, минимальное количество) — плагин в фоне сканирует разделы лотов и игровой валюты и присылает уведомление с вибрацией, как только находит подходящее предложение. Поддерживает несколько правил одновременно, защиту от повторных уведомлений и удобное меню настройки прямо в приложении.",
+    "description": "Следит за разделами FunPay и сразу сообщает о дешёвых лотах. Задаёте правила: раздел, ключевые слова, максимальную цену и минимальное количество. Плагин в фоне обходит разделы лотов и игровой валюты, не повторяет уже показанные предложения и хранит список последних находок.",
     "imageUrl": "https://raw.githubusercontent.com/XaviersDev/FunPayTools-Site/refs/heads/main/catalog/plugins_assets/unique_sniper_banner.png",
     "pluginUrl": "https://raw.githubusercontent.com/XaviersDev/FunPayTools-Site/refs/heads/main/catalog/plugins_assets/uniquesniper.js"
+  },
+  {
+    "name": "AutoSMM",
+    "description": "Авто-накрутка через SMM-панели. После оплаты плагин просит у покупателя ссылку, переспрашивает её, создаёт заказ у поставщика и сам следит за статусом. При сбое возвращает деньги. Несколько поставщиков, привязки лотов к услугам, свои тексты сообщений, команда \"!прогресс\" и статистика прибыли. Автор оригинала: @xvimp.",
+    "imageUrl": "https://raw.githubusercontent.com/XaviersDev/FunPayTools-Site/refs/heads/main/catalog/plugins_assets/autosmm_banner.png",
+    "pluginUrl": "https://raw.githubusercontent.com/XaviersDev/FunPayTools-Site/refs/heads/main/catalog/plugins_assets/autosmm_xvimp.js"
+  },
+  {
+    "name": "AutoRobux",
+    "description": "Авто-выдача Robux через сервис RBXCrate: после оплаты плагин просит ник и ссылку на плейс, создаёт заказ в сервисе и следит за статусом. Сам считает цену GamePass с учётом комиссии Roblox, ведёт журнал заказов и чёрный список, пишет покупателю на русском и английском. Автор оригинала: @drakelovc.",
+    "imageUrl": "https://raw.githubusercontent.com/XaviersDev/FunPayTools-Site/refs/heads/main/catalog/plugins_assets/autorobux_banner.png",
+    "pluginUrl": "https://raw.githubusercontent.com/XaviersDev/FunPayTools-Site/refs/heads/main/catalog/plugins_assets/autorobuxdrake.js"
+  },
+  {
+    "name": "MUVSell Rent",
+    "description": "Перепродажа аренды Steam-аккаунтов с muvsell.store. Покупатель оплачивает лот, плагин арендует аккаунт с вашего баланса MUVSell и присылает логин и пароль. Коды Steam Guard по команде \"!код\", продление, бонус за отзыв, скрытие лотов без аккаунтов, цены по наценке и статистика прибыли. Автор оригинала: @MUVSell.",
+    "imageUrl": "https://raw.githubusercontent.com/XaviersDev/FunPayTools-Site/refs/heads/main/catalog/plugins_assets/muvsellrent_banner.png",
+    "pluginUrl": "https://raw.githubusercontent.com/XaviersDev/FunPayTools-Site/refs/heads/main/catalog/plugins_assets/muvsellrent.js"
   }
 ]

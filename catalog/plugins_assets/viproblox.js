@@ -1,6 +1,6 @@
 // @name VipRoblox
 // @author @xvimp
-// @version 1.0.0
+// @version 1.0.1
 // @description Аренда VIP-серверов Roblox: новая ссылка на каждый заказ, таймеры аренды, очередь, бонус за отзыв. После аренды старая ссылка перестаёт работать.
 // @banner https://raw.githubusercontent.com/XaviersDev/FunPayTools-Site/refs/heads/main/catalog/plugins_assets/viproblox_banner.png
 
@@ -176,7 +176,9 @@
     // --- заказ в одном виде для обеих платформ
     function orderInfo(orderId, eventText) {
         var d = null;
-        try { d = fpt.orders.getDetails(String(orderId)); } catch (e) {}
+        for (var attempt = 0; attempt < 2 && !d; attempt++) {
+            try { d = fpt.orders.getDetails(String(orderId)); } catch (e) {}
+        }
         if (!d) return null;
         var params = {};
         if (Array.isArray(d.params)) d.params.forEach(function (p) { if (p && p.name) params[p.name] = p.value; });
@@ -215,6 +217,28 @@
         if (!f || f[name] === undefined || f[name] === null) return "";
         var v = f[name];
         return typeof v === "object" ? String(v.value === undefined || v.value === null ? "" : v.value) : String(v);
+    }
+    // Названия лота (рус. и англ.) по его ID. В заказе FunPay номера лота нет, есть только название на языке покупателя,
+    // поэтому привязку "по ID" сверяем через названия.
+    var lotTitleCache = {};
+    function lotTitles(lotId, fresh) {
+        var id = String(lotId), hit = lotTitleCache[id];
+        if (!fresh && hit && now() - hit[0] < 900) return hit[1];
+        var f = null;
+        try { f = fpt.lots.getFields(id); } catch (e) {}
+        var titles = f ? [lotField(f, "fields[summary][ru]"), lotField(f, "fields[summary][en]")].filter(Boolean) : [];
+        if (titles.length || !hit) lotTitleCache[id] = [now(), titles];
+        return titles.length ? titles : (hit ? hit[1] : []);
+    }
+    // Подходит ли привязка (текст из названия лота или ID лота) к заказу
+    function lotMatches(match, title, lotId) {
+        var m = String(match || "").trim(), desc = norm(title);
+        if (!m) return false;
+        if (/^\d+$/.test(m)) {
+            if (lotId && String(lotId) === m) return true;
+            return lotTitles(m).some(function (t) { t = norm(t); return t.length > 2 && desc.indexOf(t) >= 0; });
+        }
+        return desc.indexOf(norm(m)) >= 0;
     }
     function seenOrder(orderId) {
         var done = load("done_orders", []);
@@ -429,12 +453,14 @@
         return 0;
     }
     function matchLot(text, lotId) {
-        var desc = String(text || "").toLowerCase();
-        for (var i = 0; i < S.lots.length; i++) {
-            var lot = S.lots[i];
-            if (lotId && (lot.lotIds || []).indexOf(String(lotId)) >= 0) return lot;
-            var name = String(lot.match || "").toLowerCase().trim();
-            if (name && desc.indexOf(name) >= 0) return lot;
+        var desc = norm(text), i;
+        for (i = 0; i < S.lots.length; i++) {
+            var name = norm(S.lots[i].match);
+            if (name && desc.indexOf(name) >= 0) return S.lots[i];
+        }
+        for (i = 0; i < S.lots.length; i++) {
+            var ids = S.lots[i].lotIds || [];
+            for (var j = 0; j < ids.length; j++) if (lotMatches(ids[j], text, lotId)) return S.lots[i];
         }
         return null;
     }

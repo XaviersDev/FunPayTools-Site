@@ -1,7 +1,7 @@
 // @name MUVSell Rent
 // @author @MUVSell
-// @version 1.0.6
-// @description Перепродажа аренды Steam-аккаунтов MUVSell: выдача логина и пароля после оплаты, коды Steam Guard, продления, наличие, цены и статистика.
+// @version 1.1.0
+// @description Перепродажа аренды Steam-аккаунтов MUVSell: выдача логина и пароля после оплаты, коды Steam Guard, продления, автовыставление лотов, наличие, цены и статистика.
 // @banner https://raw.githubusercontent.com/XaviersDev/FunPayTools-Site/refs/heads/main/catalog/plugins_assets/muvsellrent_banner.png
 
 (function () {
@@ -176,7 +176,9 @@
     // --- заказ в одном виде для обеих платформ
     function orderInfo(orderId, eventText) {
         var d = null;
-        try { d = fpt.orders.getDetails(String(orderId)); } catch (e) {}
+        for (var attempt = 0; attempt < 2 && !d; attempt++) {
+            try { d = fpt.orders.getDetails(String(orderId)); } catch (e) {}
+        }
         if (!d) return null;
         var params = {};
         if (Array.isArray(d.params)) d.params.forEach(function (p) { if (p && p.name) params[p.name] = p.value; });
@@ -215,6 +217,28 @@
         if (!f || f[name] === undefined || f[name] === null) return "";
         var v = f[name];
         return typeof v === "object" ? String(v.value === undefined || v.value === null ? "" : v.value) : String(v);
+    }
+    // Названия лота (рус. и англ.) по его ID. В заказе FunPay номера лота нет, есть только название на языке покупателя,
+    // поэтому привязку "по ID" сверяем через названия.
+    var lotTitleCache = {};
+    function lotTitles(lotId, fresh) {
+        var id = String(lotId), hit = lotTitleCache[id];
+        if (!fresh && hit && now() - hit[0] < 900) return hit[1];
+        var f = null;
+        try { f = fpt.lots.getFields(id); } catch (e) {}
+        var titles = f ? [lotField(f, "fields[summary][ru]"), lotField(f, "fields[summary][en]")].filter(Boolean) : [];
+        if (titles.length || !hit) lotTitleCache[id] = [now(), titles];
+        return titles.length ? titles : (hit ? hit[1] : []);
+    }
+    // Подходит ли привязка (текст из названия лота или ID лота) к заказу
+    function lotMatches(match, title, lotId) {
+        var m = String(match || "").trim(), desc = norm(title);
+        if (!m) return false;
+        if (/^\d+$/.test(m)) {
+            if (lotId && String(lotId) === m) return true;
+            return lotTitles(m).some(function (t) { t = norm(t); return t.length > 2 && desc.indexOf(t) >= 0; });
+        }
+        return desc.indexOf(norm(m)) >= 0;
     }
     function seenOrder(orderId) {
         var done = load("done_orders", []);
@@ -286,7 +310,18 @@
     var TEXTS = {
         delivery: "🎮 {game}: аккаунт готов!\n\n👤 Логин: {login}\n🔑 Пароль: {password}\n⏳ Срок: {hours} ч., до {expires}\n\n🔐 Код Steam Guard: !код\n⌛ Сколько осталось: !время\n📋 Все команды: !помощь\n\n🛒 Новая покупка лота выдаст другой аккаунт. Хорошей игры! 🎯",
         extended: "✅ Готово! Аренда {game} продлена на {hours} ч.\n👤 Аккаунт тот же: {login}, вход без изменений.\n🕒 Играйте до {expires}",
-        ext_usage: "🔄 Чтобы продлить этот же аккаунт, купите лот продления:\n{links}\nПосле оплаты время само добавится к аккаунту {login}.",
+        ext_usage: "🔄 Как продлить: напишите {word} и срок, часы или дни.\nНапример: {word} 3 или {word} 2д\nНесколько аккаунтов? Добавьте логин: {word} 3 логин",
+        ext_links: "🔄 Чтобы продлить этот же аккаунт, купите лот продления:\n{links}\nПосле оплаты время само добавится к аккаунту {login}.",
+        ext_lot_ready: "🧾 Лот для продления создан специально для вас!\n\n🎮 {game} · +{time}\n💰 К оплате: {price} ₽\n👉 {link}\n\n⏱ Лот доступен {minutes} мин. После оплаты время само добавится к аккаунту {login}.",
+        ext_lot_fail: "😔 Лот для продления сейчас создать не вышло.\nПопробуйте через пару минут, продавец уже в курсе. Покупка основного лота выдаст новый аккаунт, а не продлит этот.",
+        ext_title_ru: "⏩ ПРОДЛЕНИЕ {game} на {time} #{tag}",
+        ext_title_en: "EXTENSION {game} for {time} #{tag}",
+        ext_desc_ru: "Персональный лот для продления аренды {game} на {time}. После оплаты время добавится к вашему текущему аккаунту, логин и пароль не меняются. Лот создан для одного покупателя и скоро исчезнет.",
+        ext_desc_en: "Personal offer to extend your {game} rental for {time}. After payment the time is added to the same account, login and password stay the same. This offer is made for one buyer and will disappear soon.",
+        ap_title_ru: "{game} | Аренда Steam на {time} | Автовыдача ⚡",
+        ap_title_en: "{game} | Steam rental {time} | Auto delivery",
+        ap_desc_ru: "🎮 Лицензионный Steam-аккаунт {game} в аренду на {time}.\n⚡ Логин и пароль придут в чат сами, сразу после оплаты, круглосуточно.\n🔄 Продлить тот же аккаунт можно командой в чате (ниже). Новая покупка лота выдаст другой аккаунт.\n\n📋 Команды в чате заказа:\n{commands}\n\n⏳ Когда срок выйдет, доступ закроется автоматически.",
+        ap_desc_en: "Licensed Steam account {game} for rent for {time}. Login and password arrive in the chat automatically right after payment, 24/7. Chat commands: !code - Steam Guard code, !time - time left, !extend 3 - add 3 hours to the same account, !help - all commands. Buying the offer again gives you a new account.",
         ext_none: "🔄 Отдельного лота продления сейчас нет. Напишите продавцу, он продлит аренду вручную. Покупка основного лота выдаст новый аккаунт.",
         review_offer: "🎁 Небольшой подарок: оставьте отзыв на {stars}★ к этому заказу, и мы бесплатно добавим {bonus} ч. к аренде, пока она идёт.",
         review_bonus: "💚 Спасибо за отзыв! Аренда {login} продлена на {hours} ч. в подарок.\n🕒 Играйте до {expires}",
@@ -307,7 +342,10 @@
         problem: "⚠️ Автовыдача не сработала. Продавец уже получил уведомление и скоро всё выдаст вручную. Спасибо за терпение!",
     };
     var TEXT_LABELS = {
-        delivery: "Выдача аккаунта", extended: "Аренда продлена", ext_usage: "Как продлить (есть лот продления)", ext_none: "Как продлить (лота продления нет)",
+        delivery: "Выдача аккаунта", extended: "Аренда продлена", ext_usage: "Как продлить (подсказка)", ext_links: "Как продлить (постоянный лот продления)", ext_lot_ready: "Лот продления готов", ext_lot_fail: "Лот продления создать не удалось",
+        ext_title_ru: "Название лота продления (рус.)", ext_title_en: "Название лота продления (англ.)", ext_desc_ru: "Описание лота продления (рус.)", ext_desc_en: "Описание лота продления (англ.)",
+        ap_title_ru: "Автовыставление: название (рус.)", ap_title_en: "Автовыставление: название (англ.)", ap_desc_ru: "Автовыставление: описание (рус.)", ap_desc_en: "Автовыставление: описание (англ.)",
+        ext_none: "Как продлить (лота продления нет)",
         review_offer: "Предложение бонуса за отзыв", review_bonus: "Бонус за отзыв начислен", kick_ok: "Сессии закрыты (!кик)", kick_fail: "!кик не удался",
         pass_wait: "Пароль меняется (!пароль)", pass_ok: "Пароль изменён", pass_fail: "!пароль не удался", code: "Код Steam Guard (!код)",
         code_which: "Несколько аккаунтов, нужен логин", code_fail: "Код не получен", time_left: "Сколько осталось (!время)", creds: "Данные аккаунта (!данные)",
@@ -328,6 +366,8 @@
         autoRefund: false, reviewBonus: false, bonusHours: 2, bonusStars: 5,
         notifyEnd: true, warnMin: 30, extWord: "!продление", buyerCmds: true,
         pollSec: 60, priceMin: 5, notifySales: true, texts: {},
+        extTemp: true, extMinutes: 10,
+        apDurations: [1, 3, 6, 12, 24, 72, 168, 336, 720], lotCap: 20, apOwn: null, apActive: true, apFilter: "",
     };
     var S = load("settings", null) || {};
     (function () { for (var k in DEFAULTS) if (S[k] === undefined) S[k] = JSON.parse(JSON.stringify(DEFAULTS[k])); })();
@@ -518,17 +558,11 @@
         titlesAt = now();
         var changed = false;
         MAPS.forEach(function (m) {
-            var titles = lotTitles(m.lotId);
+            var titles = lotTitles(m.lotId, true);
             if (titles.length && JSON.stringify(titles) !== JSON.stringify(m.titles || [])) { m.titles = titles; changed = true; }
         });
         if (changed) saveMaps();
         return changed;
-    }
-    function lotTitles(lotId) {
-        var f = null;
-        try { f = fpt.lots.getFields(String(lotId)); } catch (e) {}
-        if (!f) return [];
-        return [lotField(f, "fields[summary][ru]"), lotField(f, "fields[summary][en]")].filter(Boolean);
     }
     function matchOrder(order) {
         if (order.lotId) { var direct = mapByLot(order.lotId); if (direct) return [direct]; }
@@ -551,12 +585,22 @@
     }
 
     onOrder(function (e) {
-        if (!S.enabled || !e || e.iAmBuyer || !e.orderId || !MAPS.length) return;
+        if (!S.enabled || !e || e.iAmBuyer || !e.orderId || (!MAPS.length && !Object.keys(EXT).length)) return;
         var o = orderInfo(e.orderId, e.text);
         if (!o) o = { id: String(e.orderId), title: String(e.text || ""), amount: 1, price: 0, buyerName: e.buyerName || "", lotId: "", chatId: "" };
         if (o.iAmBuyer) return;
         if (!o.buyerName) o.buyerName = e.buyerName || "";
         var chatId = String(e.chatId || o.chatId || "");
+        var extTag = extFor(o);
+        if (extTag) {
+            if (seenOrder(o.id)) return;
+            try { payExt(o, chatId, extTag); } catch (ex0) {
+                log("ошибка продления по заказу #" + o.id + ": " + ex0);
+                sendTo(chatId, t("problem"));
+                notify("MUVSell Rent: ошибка в заказе #" + o.id, String(ex0).slice(0, 200));
+            }
+            return;
+        }
         var found = matchOrder(o);
         if (!found.length) return;                // не наш лот
         if (seenOrder(o.id)) return;
@@ -604,7 +648,7 @@
         return null;
     }
     function commandsText() {
-        var lines = ["• !код: код Steam Guard", "• !время: сколько осталось", "• !данные: логин и пароль ещё раз", "• " + S.extWord + ": как продлить этот аккаунт"];
+        var lines = ["• !код: код Steam Guard", "• !время: сколько осталось", "• !данные: логин и пароль ещё раз", S.extTemp ? "• " + S.extWord + " 3: продлить этот аккаунт на 3 ч (или " + S.extWord + " 2д на 2 дня)" : "• " + S.extWord + ": как продлить этот аккаунт"];
         if (S.buyerCmds) lines.push("• !кик: выкинуть всех чужих из аккаунта", "• !пароль: сменить пароль");
         return lines.join("\n");
     }
@@ -614,11 +658,21 @@
         if (!RENT[chatId]) return;      // этому покупателю плагин ничего не выдавал: молчим, на !код может отвечать другой плагин
         var rec, r;
         if (cmd === String(S.extWord || "!продление").toLowerCase() || cmd === "!extend") {
-            rec = pickRec(chatId, /^\d+[дdчh]?$/i.test(arg) ? "" : arg, S.extWord);
+            var words = arg ? arg.split(/\s+/) : [];
+            var spans = words.filter(function (w) { return /^\d+[дdчh]?$/i.test(w); });
+            rec = pickRec(chatId, words.filter(function (w) { return spans.indexOf(w) < 0; })[0] || "", S.extWord + " 3");
             if (!rec) return;
-            var links = MAPS.filter(function (m) { return m.ext && m.gameId === rec.gameId && !m.off; })
-                .map(function (m) { return "• " + dur(int(m.hours, 1)) + " за 1 шт.: https://funpay.com/lots/offer?id=" + m.lotId; });
-            return sendTo(chatId, links.length ? t("ext_usage", { links: links.join("\n"), login: rec.login, game: rec.game, word: S.extWord }) : t("ext_none", { login: rec.login, game: rec.game }));
+            var em = mapByLot(rec.lot) || MAPS.filter(function (x) { return x.gameId === rec.gameId && !x.ext; })[0] || null;
+            var links = MAPS.filter(function (x) { return x.ext && x.gameId === rec.gameId && !x.off; })
+                .map(function (x) { return "• " + dur(int(x.hours, 1)) + " за 1 шт.: https://funpay.com/lots/offer?id=" + x.lotId; });
+            if (!S.extTemp || !S.fpEdit) {
+                return sendTo(chatId, links.length ? t("ext_links", { links: links.join("\n"), login: rec.login, game: rec.game, word: S.extWord }) : t("ext_none", { login: rec.login, game: rec.game }));
+            }
+            var eh = spans.length ? parseHours(spans[0]) : int((em || {}).hours, 0);
+            if (!eh) return sendTo(chatId, t("ext_usage", { word: S.extWord }));
+            var same = Object.keys(EXT).map(function (k) { return EXT[k]; }).filter(function (x) { return x.rid === rec.id && int(x.hours, 0) === eh && x.until > now() + 60; })[0];
+            if (same) return sendTo(chatId, extReady(rec, same));     // лот на этот срок уже ждёт оплату: повторяем ссылку
+            return makeExtLot(chatId, rec, em, eh);
         }
         if (["!код", "!code", "!гуард", "!guard", "!кодстим", "!sg"].indexOf(cmd) >= 0) {
             rec = pickRec(chatId, arg, "!код");
@@ -694,6 +748,366 @@
         if (m.mine || m.text.trim().charAt(0) !== "!") return;
         try { onCommand(m.chatId, m.text); } catch (e) { log("ошибка команды: " + e); }
     });
+
+    // --- лоты FunPay: создание, правка и удаление через форму сайта (одинаково на Android и на компьютере)
+    var RATE_RX = /много предложений|подождите|too many|слишком часто/i;
+    var EN_MIN = 140;        // короче FunPay английское описание не принимает
+    function ascii(s) { return String(s || "").replace(/[^\x20-\x7E\n]/g, "").replace(/[ \t]+/g, " ").trim(); }
+    function durEn(hours) {
+        if (hours % 24 === 0) { var d = hours / 24; return d + (d > 1 ? " days" : " day"); }
+        return hours + (hours > 1 ? " hours" : " hour");
+    }
+    function unent(s) {
+        return String(s || "").replace(/&quot;/g, '"').replace(/&#0?39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&");
+    }
+    function tagAttr(tag, name) {
+        var m = new RegExp('(?:^|\\s)' + name + '\\s*=\\s*"([^"]*)"').exec(tag) || new RegExp("(?:^|\\s)" + name + "\\s*=\\s*'([^']*)'").exec(tag);
+        return m ? unent(m[1]) : null;
+    }
+    function hasFlag(tag, name) { return new RegExp('(?:^|\\s)' + name + '(?:\\s|=|$)').test(tag); }
+    // Форма лота: query это "node=123" для нового лота или "offer=456" для существующего
+    function lotForm(query) {
+        var r = funpayGet("lots/offerEdit?" + query);
+        if (r.code !== 200) return { err: r.code ? "FunPay ответил " + r.code : "нет связи с FunPay" };
+        var at = r.body.search(/<form\b[^>]*form-offer-editor/);
+        if (at < 0) return { err: "FunPay не отдал форму лота" };
+        var end = r.body.indexOf("</form>", at);
+        var html = r.body.slice(at, end < 0 ? r.body.length : end);
+        var fields = {}, selects = {}, m;
+        var ix = /<input\b([^>]*)>/g;
+        while ((m = ix.exec(html))) {
+            var name = tagAttr(m[1], "name"), type = (tagAttr(m[1], "type") || "text").toLowerCase();
+            if (!name || name === "query") continue;
+            if (type === "checkbox") { if (hasFlag(m[1], "checked")) fields[name] = "on"; continue; }
+            if (type === "radio" && !hasFlag(m[1], "checked")) continue;
+            fields[name] = tagAttr(m[1], "value") || "";
+        }
+        var tx = /<textarea\b([^>]*)>([\s\S]*?)<\/textarea>/g;
+        while ((m = tx.exec(html))) { var tn = tagAttr(m[1], "name"); if (tn) fields[tn] = unent(m[2]).replace(/^\n/, ""); }
+        var sx = /<select\b([^>]*)>([\s\S]*?)<\/select>/g;
+        while ((m = sx.exec(html))) {
+            var sn = tagAttr(m[1], "name");
+            if (!sn) continue;
+            var g = html.lastIndexOf("form-group", m.index), cls = "";
+            if (g >= 0) { var q0 = html.lastIndexOf('"', g), q1 = html.indexOf('"', g); cls = html.slice(q0 + 1, q1); }
+            if (/\bhidden\b/.test(cls) && !/\blot-field\b/.test(cls)) continue;    // скрытые служебные списки не трогаем
+            var opts = [], chosen = "", ox = /<option\b([^>]*)>([\s\S]*?)<\/option>/g, o;
+            while ((o = ox.exec(m[2]))) {
+                var v = tagAttr(o[1], "value") || "";
+                opts.push([v, unent(o[2].replace(/<[^>]*>/g, "")).trim()]);
+                if (hasFlag(o[1], "selected")) chosen = v;
+            }
+            selects[sn] = opts;
+            fields[sn] = chosen;
+        }
+        return { fields: fields, selects: selects };
+    }
+    function fpPost(path, fields) {
+        var r;
+        if (DESKTOP) r = fpt.funpay.request("POST", path, fields) || {};
+        else r = http("POST", "https://funpay.com/" + path, form(fields), { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8", "X-Requested-With": "XMLHttpRequest", "Accept": "application/json, text/javascript, */*; q=0.01" });
+        var j = r.json;
+        if (j === undefined || j === null) { try { j = JSON.parse(r.body); } catch (e) { j = null; } }
+        if (!j || typeof j !== "object") return { ok: false, error: r.code ? "FunPay ответил " + r.code : "нет связи с FunPay", errors: {} };
+        var errors = {};
+        if (Array.isArray(j.errors)) j.errors.forEach(function (x) { if (Array.isArray(x)) errors[x[0]] = x[1]; });
+        else if (j.errors && typeof j.errors === "object") errors = j.errors;
+        var names = Object.keys(errors);
+        if (j.error || names.length) return { ok: false, error: String(j.error || names.map(function (n) { return n + ": " + errors[n]; }).join("; ")).slice(0, 200), errors: errors };
+        return { ok: true, errors: {} };
+    }
+    function myLotsIn(sub) {
+        var r = funpayGet("lots/" + sub + "/trade");
+        if (r.code !== 200) return null;
+        var out = [], rx = /<a\b([^>]*\bclass="[^"]*\btc-item\b[^"]*"[^>]*)>([\s\S]*?)<\/a>/g, m;
+        while ((m = rx.exec(r.body))) {
+            var id = tagAttr(m[1], "data-offer") || (/(?:offer|id)=(\d+)/.exec(tagAttr(m[1], "href") || "") || [])[1];
+            var d = /class="[^"]*\btc-desc-text\b[^"]*"[^>]*>([\s\S]*?)<\/div>/.exec(m[2]);
+            if (id) out.push({ id: String(id), desc: d ? unent(d[1].replace(/<[^>]*>/g, " ")) : "" });
+        }
+        return out;
+    }
+    var PREFER = ["аренд", "rent", "steam", "pc", "пк", "windows", "стандарт", "standard", "друг", "любая", "other"];
+    var AVOID = ["android", "ios", "mobile", "(ps)", "ps4", "ps5", "playstation", "xbox", "switch", "nintendo", "epic", "origin"];
+    // Что выбрать в выпадающем списке формы: игру по названию, иначе аренду/Steam/PC, иначе первый не мобильный вариант
+    function pickOption(opts, game) {
+        var list = opts.filter(function (o) { return o[0]; }).map(function (o) { return [o[0], o[1].toLowerCase()]; });
+        var g = norm(game), best = null;
+        function avoided(t) { return AVOID.some(function (a) { return t.indexOf(a) >= 0; }); }
+        list.forEach(function (o) {
+            var core = o[1].replace(/^\([^)]*\)\s*/, "");
+            if (g && (core === g || (core.length > 3 && g.indexOf(core) >= 0))) {
+                var score = [avoided(o[1]) ? 1 : 0, -core.length];
+                if (!best || score[0] < best[0][0] || (score[0] === best[0][0] && score[1] < best[0][1])) best = [score, o[0]];
+            }
+        });
+        if (best) return best[1];
+        for (var i = 0; i < PREFER.length; i++) for (var j = 0; j < list.length; j++) if (list[j][1].indexOf(PREFER[i]) >= 0) return list[j][0];
+        for (var k = 0; k < list.length; k++) if (!avoided(list[k][1])) return list[k][0];
+        return list.length ? list[0][0] : "";
+    }
+    // Создаёт лот. → {id} или {err, rate}
+    function createLot(sub, mapFields, game, texts, price, active, amount) {
+        var before = myLotsIn(sub);
+        if (!before) return { err: "раздел " + sub + " не открылся" };
+        var f = lotForm("node=" + sub);
+        if (f.err) return { err: f.err };
+        var fields = f.fields, selects = f.selects, name;
+        for (name in (mapFields || {})) if (mapFields[name]) fields[name] = String(mapFields[name]);
+        for (name in selects) {
+            var valid = selects[name].some(function (o) { return o[0] && o[0] === fields[name]; });
+            var byText = selects[name].filter(function (o) { return o[0] && norm(o[1]) === norm(fields[name]); })[0];   // в карте значение может быть подписью варианта
+            if (!valid) fields[name] = byText ? byText[0] : pickOption(selects[name], game);
+        }
+        fields.offer_id = "0";
+        fields.node_id = String(sub);
+        fields["fields[summary][ru]"] = texts[0];
+        fields["fields[summary][en]"] = texts[1];
+        fields["fields[desc][ru]"] = texts[2];
+        fields["fields[desc][en]"] = texts[3];
+        fields.price = String(price);
+        fields.amount = String(amount);
+        if (active) fields.active = "on"; else delete fields.active;
+        delete fields.auto_delivery;        // автовыдача FunPay выключена: выдаёт плагин
+        delete fields.secrets;
+        delete fields.deleted;
+        var saved = false, reason = "";
+        for (var attempt = 0; attempt < 4 && !saved; attempt++) {
+            var res = fpPost("lots/offerSave", fields);
+            if (res.ok) { saved = true; break; }
+            reason = res.error;
+            if (RATE_RX.test(reason)) return { err: reason, rate: true };
+            var changed = false;
+            for (name in res.errors) {      // FunPay назвал незаполненные поля: дозаполняем
+                if (!fields[name]) { fields[name] = selects[name] ? pickOption(selects[name], game) : "1"; changed = true; }
+            }
+            if (!changed) return { err: reason || "FunPay не принял лот" };
+        }
+        if (!saved) return { err: reason || "FunPay не принял лот" };
+        var had = {};
+        before.forEach(function (l) { had[l.id] = 1; });
+        for (var i = 0; i < 4; i++) {       // новый лот появляется в списке не мгновенно
+            var after = myLotsIn(sub) || [];
+            var fresh = after.filter(function (l) { return !had[l.id]; });
+            var hit = fresh.filter(function (l) { return norm(l.desc) === norm(texts[0]); })[0] || (fresh.length === 1 ? fresh[0] : null);
+            if (hit) return { id: hit.id };
+        }
+        return { err: "лот создан, но FunPay его пока не показывает, привяжите его вручную" };
+    }
+    function editLot(lotId, patch) {
+        var f = lotForm("offer=" + lotId);
+        if (f.err) return f.err;
+        for (var k in patch) f.fields[k] = patch[k];
+        delete f.fields.deleted;
+        var res = fpPost("lots/offerSave", f.fields);
+        return res.ok ? "" : (res.error || "FunPay не принял лот");
+    }
+    function deleteLot(lotId) {
+        var ok = false;
+        try { ok = fpt.lots.delete(String(lotId)) !== false; } catch (e) {}
+        return ok;
+    }
+
+    // --- карта "игра MUVSell → раздел FunPay" с muvsell.store
+    var MAP_URL = SITE + "/downloads/muvsell_funpay_map.json";
+    var fpMapCache = [0, null];
+    function fpMap(force) {
+        if (force || !fpMapCache[1] || now() - fpMapCache[0] > 3600) {
+            var r = http("GET", MAP_URL, null, { "Accept": "application/json" });
+            if (r.code === 200 && r.json && Array.isArray(r.json.games) && r.json.games.length) {
+                fpMapCache = [now(), r.json];
+                save("fpmap", r.json);
+            } else {
+                log("карта игр не скачалась: " + (r.code || r.error || "нет связи"));
+                if (!fpMapCache[1]) fpMapCache = [now() - 3000, load("fpmap", null)];
+            }
+        }
+        return fpMapCache[1] || { games: [] };
+    }
+    function fpGame(gameId) {
+        var games = fpMap().games || [];
+        for (var i = 0; i < games.length; i++) if (games[i].game_id === gameId) return games[i];
+        return null;
+    }
+
+    // --- автовыставление
+    var CREATED = load("created", {});      // "игра:часы" → {lotId, subcat, titles}: чтобы не плодить дубли
+    function lotTexts(game, hours) {
+        function make(key, lang) {
+            return t(key).replace(/\{game\}/g, game).replace(/\{time\}/g, lang === "en" ? durEn(hours) : dur(hours)).replace(/\{commands\}/g, commandsText());
+        }
+        var ru = make("ap_title_ru", "ru").slice(0, 100), en = ascii(make("ap_title_en", "en"));
+        if (!en) en = ascii(game + " Steam account rental " + durEn(hours) + " auto delivery");
+        var descEn = ascii(make("ap_desc_en", "en"));
+        if (descEn.length < EN_MIN) descEn = ascii(descEn + " " + TEXTS.ap_desc_en.replace(/\{game\}/g, game).replace(/\{time\}/g, durEn(hours)));
+        return [ru, en.slice(0, 100), make("ap_desc_ru", "ru"), descEn];
+    }
+    function sellable() {
+        var prods = {}, out = [];
+        (products() || []).forEach(function (p) { if (p.available) prods[p.id] = p; });
+        var q = norm(S.apFilter);
+        (fpMap().games || []).forEach(function (g) {
+            if (prods[g.game_id] && (!q || norm(g.name).indexOf(q) >= 0)) out.push([g, prods[g.game_id]]);
+        });
+        return out;
+    }
+    function plan() {
+        var have = {};
+        MAPS.forEach(function (m) { if (!m.ext) have[m.gameId + ":" + int(m.hours, 0)] = 1; });
+        var out = [];
+        sellable().forEach(function (gp) {
+            (S.apDurations || []).forEach(function (h) { if (!have[gp[0].game_id + ":" + h]) out.push({ g: gp[0], prod: gp[1], hours: h }); });
+        });
+        return out;
+    }
+    function newMap(g, lotId, hours, titles, price) {
+        var sub = int(g.funpay.subcategory_id, 0);
+        var m = { lotId: String(lotId), subcat: sub, titles: titles, gameId: g.game_id, game: g.name, hours: hours, auto: true, price: price, markup: S.apOwn, reprice: true };
+        MAPS.push(m);
+        CREATED[g.game_id + ":" + hours] = { lotId: String(lotId), subcat: sub, titles: titles };
+        saveMaps();
+        save("created", CREATED);
+        return m;
+    }
+    var job = null;         // долгая работа идёт по одному лоту за шаг, чтобы FunPay не посчитал это спамом
+    function jobLine() {
+        if (!job) return "";
+        var s = job.stats;
+        return job.title + ": " + job.i + " из " + job.items.length + " · готово " + s.done + (s.restored ? " · восстановлено " + s.restored : "") + (s.skipped ? " · пропущено " + s.skipped : "") + " · ошибок " + s.failed;
+    }
+    function startJob(kind, title, items) {
+        if (job && !job.over) return false;
+        job = { kind: kind, title: title, items: items, i: 0, stats: { done: 0, restored: 0, skipped: 0, failed: 0 }, reasons: {}, counts: {}, over: false, limited: false };
+        return true;
+    }
+    function jobReason(text) { job.reasons[text] = (job.reasons[text] || 0) + 1; }
+    function finishJob() {
+        job.over = true;
+        var s = job.stats, top = Object.keys(job.reasons).sort(function (a, b) { return job.reasons[b] - job.reasons[a]; }).slice(0, 4);
+        job.result = (job.limited ? "FunPay временно запретил менять лоты (обычно на несколько часов). Позже запустите ещё раз, плагин доделает только оставшееся. " : "") +
+            job.title + " завершено. Готово: " + s.done + (s.restored ? ", восстановлено привязок: " + s.restored : "") + (s.skipped ? ", пропущено по лимиту раздела: " + s.skipped : "") + ", ошибок: " + s.failed +
+            (top.length ? ". Причины: " + top.map(function (r) { return job.reasons[r] + "× " + r; }).join("; ") : "");
+        notify("MUVSell Rent", job.result);
+        save("created", CREATED);
+        saveMaps();
+    }
+    function jobStep() {
+        if (!job || job.over) return;
+        if (job.stop || job.i >= job.items.length) return finishJob();
+        var it = job.items[job.i++], s = job.stats;
+        if (job.kind === "create") {
+            var g = it.g, hours = it.hours, sub = int(g.funpay.subcategory_id, 0), key = g.game_id + ":" + hours;
+            if (MAPS.some(function (m) { return !m.ext && m.gameId === g.game_id && int(m.hours, 0) === hours; })) return;
+            var price = priceFor(it.prod, hours, { markup: S.apOwn });
+            var old = CREATED[key];
+            if (old && !mapByLot(old.lotId)) {          // привязку удаляли, а лот на FunPay остался: возвращаем привязку, дубль не создаём
+                if (lotTitles(old.lotId, true).length) { newMap(g, old.lotId, hours, old.titles || [], price); s.restored++; return; }
+                delete CREATED[key];
+            }
+            if (job.counts[sub] === undefined) job.counts[sub] = MAPS.filter(function (m) { return m.auto && String(m.subcat) === String(sub); }).length;
+            if (job.counts[sub] >= int(S.lotCap, 20)) { s.skipped++; return; }
+            var texts = lotTexts(g.name, hours);
+            var res = createLot(sub, g.funpay.fields, g.name, texts, price, !!S.apActive, 1000);
+            if (res.rate) { job.limited = true; job.i--; return finishJob(); }
+            if (res.id) { newMap(g, res.id, hours, [texts[0], texts[1]], price); job.counts[sub]++; s.done++; }
+            else { s.failed++; jobReason(res.err + " (" + g.name + ", " + dur(hours) + ")"); log("автовыставление: " + g.name + " " + dur(hours) + " не создан: " + res.err); }
+        } else if (job.kind === "delete") {
+            var gone = deleteLot(it.lotId) || !lotTitles(it.lotId, true).length;      // уже удалён на FunPay: просто чистим привязку
+            if (gone) {
+                MAPS = MAPS.filter(function (m) { return m !== it; });
+                delete HIDDEN[it.lotId];
+                delete CREATED[it.gameId + ":" + it.hours];
+                save("hidden", HIDDEN);
+                s.done++;
+            } else { s.failed++; jobReason("лот " + it.lotId + " не удалён" + lastErr()); }
+        } else if (job.kind === "retext") {
+            var tx = lotTexts(it.game, int(it.hours, 1));
+            var err = editLot(it.lotId, { "fields[summary][ru]": tx[0], "fields[summary][en]": tx[1], "fields[desc][ru]": tx[2], "fields[desc][en]": tx[3] });
+            if (RATE_RX.test(err)) { job.limited = true; job.i--; return finishJob(); }
+            if (!err) { it.titles = [tx[0], tx[1]]; s.done++; } else { s.failed++; jobReason(err); }
+        }
+    }
+
+    // --- временный лот продления: покупатель пишет "!продление 3", плагин создаёт лот на этот срок, оплата продлевает тот же аккаунт
+    var EXT = load("extlots", {});          // метка → {lotId, rid, chat, gameId, game, hours, price, mapLot, until}
+    function extTexts(game, hours, tag) {
+        function title(key, lang) {
+            var text = t(key, { game: game, time: lang === "en" ? durEn(hours) : dur(hours), hours: hours, tag: tag }).replace("#" + tag, "");
+            text = lang === "en" ? ascii(text) : text.replace(/\s+/g, " ").trim();
+            return text.slice(0, 100 - tag.length - 2).trim() + " #" + tag;
+        }
+        var descEn = ascii(t("ext_desc_en", { game: game, time: durEn(hours), hours: hours, tag: tag }));
+        if (descEn.length < EN_MIN) descEn = ascii(descEn + " " + TEXTS.ext_desc_en.replace(/\{game\}/g, game).replace(/\{time\}/g, durEn(hours)));
+        return [title("ext_title_ru", "ru"), title("ext_title_en", "en"), t("ext_desc_ru", { game: game, time: dur(hours), hours: hours, tag: tag }), descEn];
+    }
+    function extReady(rec, e) {
+        return t("ext_lot_ready", { game: rec.game, login: rec.login, time: dur(int(e.hours, 1)), hours: e.hours, price: e.price,
+            link: "https://funpay.com/lots/offer?id=" + e.lotId, minutes: Math.max(1, Math.ceil((e.until - now()) / 60)) });
+    }
+    function dropExt(tag) {
+        var e = EXT[tag];
+        delete EXT[tag];
+        save("extlots", EXT);
+        if (e && !deleteLot(e.lotId)) log("лот продления " + e.lotId + " не удалён" + lastErr());
+    }
+    function extCleanup() {
+        Object.keys(EXT).forEach(function (tag) { if (num(EXT[tag].until) < now()) dropExt(tag); });
+    }
+    function extFor(order) {
+        var tags = Object.keys(EXT), text = String(order.title || "") + "\n" + String(order.text || "");
+        for (var i = 0; i < tags.length; i++) if (new RegExp("#" + tags[i] + "(?![A-Za-z0-9])", "i").test(text)) return tags[i];
+        return "";
+    }
+    var extBusy = {};
+    function makeExtLot(chatId, rec, m, hours) {
+        if (extBusy[rec.id]) return;
+        extBusy[rec.id] = 1;
+        try {
+            Object.keys(EXT).forEach(function (tag) { if (EXT[tag].rid === rec.id) dropExt(tag); });   // старый лот на другой срок убираем
+            var g = fpGame(rec.gameId), prod = product(rec.gameId);
+            var sub = (m && m.subcat) || (g && g.funpay && g.funpay.subcategory_id);
+            var err = "нет раздела FunPay или игры в каталоге MUVSell", lotId = "", price = 0, tag = "";
+            if (prod && sub) {
+                price = priceFor(prod, hours, m);
+                var abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+                for (var i = 0; i < 5; i++) tag += abc.charAt(Math.floor(Math.random() * abc.length));
+                var res = createLot(int(sub, 0), g && g.funpay ? g.funpay.fields : null, rec.game, extTexts(rec.game, hours, tag), price, true, 1);
+                lotId = res.id || "";
+                err = res.err || "";
+            }
+            if (!lotId) {
+                sendTo(chatId, t("ext_lot_fail"));
+                return notify("MUVSell Rent: лот продления не создан", (rec.buyer || "") + ", " + rec.game + ", " + dur(hours) + ": " + err);
+            }
+            var e = { lotId: String(lotId), rid: rec.id, chat: chatId, gameId: rec.gameId, game: rec.game, hours: hours, price: price, mapLot: m ? m.lotId : "",
+                until: now() + Math.max(1, int(S.extMinutes, 10)) * 60 };
+            EXT[tag] = e;
+            save("extlots", EXT);
+            sendTo(chatId, extReady(rec, e));
+            if (S.notifySales) notify("MUVSell Rent: лот продления", (rec.buyer || "") + ": " + rec.game + " +" + dur(hours) + " за " + price + "₽ (лот " + lotId + ")");
+        } finally {
+            delete extBusy[rec.id];
+        }
+    }
+    function payExt(order, chatId, tag) {
+        var e = EXT[tag];
+        delete EXT[tag];                    // сразу, чтобы второй заказ того же лота не продлил дважды
+        save("extlots", EXT);
+        if (!deleteLot(e.lotId)) log("лот продления " + e.lotId + " не удалён" + lastErr());
+        var hours = int(e.hours, 1) * Math.max(1, order.amount);
+        var rec = recById(e.rid);
+        var m = mapByLot(e.mapLot) || { gameId: e.gameId, game: e.game, lotId: "", hours: e.hours };
+        if (!String(S.key || "").trim()) return fail(order, chatId, "no_key", m);
+        if (rec && rec.exp > now()) {
+            var err = extend(rec, hours, chatId, order, "extended", "ext");
+            if (!err) return;
+            if (err !== "bad_request" && err !== "not_found") return fail(order, chatId, err, m);
+            rec.exp = 0;
+            saveRent();
+        }
+        var res = newRental(m, order, chatId, hours);      // аренда уже закончилась: выдаём аккаунт на оплаченное время
+        if (res.err) fail(order, chatId, res.err, m);
+    }
 
     // --- фон: наличие, цены, окончания аренды
     var state = { low: false, priceAt: 0, pollAt: 0 }, busy = false;
@@ -811,6 +1225,7 @@
         busy = true;
         try {
             if (passWait.length) passwords();
+            if (Object.keys(EXT).length) extCleanup();
             if (S.enabled && now() - state.pollAt >= Math.max(15, int(S.pollSec, 60))) {
                 state.pollAt = now();
                 endNotices();
@@ -823,13 +1238,18 @@
             busy = false;
         }
     }, 10000);
+    setInterval(function () {
+        if (busy || !job || job.over) return;
+        busy = true;
+        try { jobStep(); } catch (e) { log("ошибка работы с лотами: " + e); job.stats.failed++; } finally { busy = false; }
+    }, 4000);
 
     // --- настройки
-    var view = "main", draft = {}, textKey = 0, period = "7";
+    var view = "main", draft = {}, textKey = 0, period = "7", planShown = null, sure = "";
     var PERIODS = { today: "Сегодня", "7": "7 дней", "30": "30 дней", all: "Всё время" };
     function tri(v, global) { return v === undefined || v === null ? "как в общих (" + (global ? "да" : "нет") + ")" : (v ? "да" : "нет"); }
     function render() {
-        var kids = [H("MUVSell Rent")].concat(tabs([["main", "Главная"], ["maps", "Привязки"], ["rent", "Аренды"], ["stat", "Статистика"], ["set", "Настройки"], ["text", "Сообщения"]], view, "window.mvsView"));
+        var kids = [H("MUVSell Rent")].concat(tabs([["main", "Главная"], ["maps", "Привязки"], ["rent", "Аренды"], ["stat", "Статистика"], ["auto", "Автовыставление"], ["set", "Настройки"], ["text", "Сообщения"]], view, "window.mvsView"));
         if (view === "main") {
             kids.push(Sw("Плагин работает", "m_on", S.enabled, "window.mvsOn()"));
             kids.push(Card(
@@ -918,6 +1338,37 @@
             ));
             Object.keys(games).sort(function (x, y) { return games[y] - games[x]; }).slice(0, 8).forEach(function (g) { kids.push(T(g + ": " + games[g].toFixed(2) + "₽")); });
             kids.push(hint("Выручка считается по сумме заказа на FunPay, без учёта комиссии вывода."));
+        } else if (view === "auto") {
+            kids.push(hint("Плагин сам создаёт лоты для игр из каталога MUVSell: по одному на каждую игру и срок, в нужном разделе FunPay, с ценой по наценке. Лоты сразу привязаны."));
+            if (job) {
+                kids.push(Card(
+                    T(job.over ? job.result : jobLine(), { bold: !job.over }),
+                    job.over ? Btn("Скрыть", "window.mvsJob('hide')", true) : Row(Btn("Обновить", "window.mvsView('auto')", true), Btn("Остановить", "window.mvsJob('stop')", true))
+                ));
+                if (!job.over) kids.push(hint("Можно закрыть настройки: работа идёт в фоне, по одному лоту раз в несколько секунд."));
+            }
+            kids.push(Card(
+                In("Сроки аренды через запятую: часы числом или дни с буквой д", "a_durs", (S.apDurations || []).map(function (h) { return h % 24 === 0 ? h / 24 + "д" : String(h); }).join(", ")),
+                In("Не больше стольких лотов плагина в одном разделе", "a_cap", S.lotCap),
+                In("Наценка новых лотов, % (пусто: общая)", "a_own", S.apOwn === null || S.apOwn === undefined ? "" : S.apOwn),
+                In("Только игры с такими словами в названии (пусто: все)", "a_filter", S.apFilter),
+                Sw("Создавать лоты сразу активными", "a_active", S.apActive, ""),
+                Row(Btn("Сохранить", "window.mvsAuto('save')"), Btn("Показать план", "window.mvsAuto('plan')", true, "Считаю..."))
+            ));
+            if (planShown) {
+                var pc = [T("К созданию: " + planShown.length + " " + plural(planShown.length, "лот", "лота", "лотов"), { bold: true })];
+                planShown.slice(0, 10).forEach(function (p) { pc.push(T(p.g.name + ", " + dur(p.hours) + ": " + priceFor(p.prod, p.hours, { markup: S.apOwn }) + "₽ (раздел " + p.g.funpay.subcategory_id + ")")); });
+                if (planShown.length > 10) pc.push(hint("и ещё " + (planShown.length - 10)));
+                if (planShown.length) pc.push(Btn(sure === "create" ? "Точно создать " + planShown.length + "?" : "Создать недостающие лоты", "window.mvsAuto('create')"));
+                kids.push({ type: "Card", children: pc });
+            }
+            var autos = MAPS.filter(function (m) { return m.auto; }).length;
+            kids.push(Card(
+                T("Лотов автовыставления: " + autos, { bold: true }),
+                Row(Btn("Переписать их тексты по шаблонам", "window.mvsAuto('retext')", true), Btn(sure === "delete" ? "Точно удалить " + autos + "?" : "Удалить их с FunPay", "window.mvsAuto('delete')", true))
+            ));
+            kids.push(hint("Названия и описания лотов правятся во вкладке \"Сообщения\" (шаблоны \"Автовыставление\"). Начните с одной игры: впишите её название в фильтр и посмотрите, какой лот получится." +
+                (DESKTOP ? " При удалении лотов программа спросит разрешение." : "")));
         } else if (view === "set") {
             kids.push(Card(
                 T("Цены", { bold: true }),
@@ -944,6 +1395,8 @@
                 Sw("Писать покупателю, что аренда закончилась", "s_end", S.notifyEnd, ""),
                 In("Предупреждать за, минут (0: не писать)", "s_warn", S.warnMin),
                 In("Слово для продления", "s_word", S.extWord),
+                Sw("По команде продления создавать временный лот на нужный срок", "s_exttemp", S.extTemp, ""),
+                In("Сколько минут временный лот ждёт оплату", "s_extmin", S.extMinutes),
                 Sw("Разрешить покупателю !кик и !пароль", "s_cmds", S.buyerCmds, ""),
                 Sw("Уведомлять меня о выдачах и продлениях", "s_ntf", S.notifySales, "")
             ));
@@ -956,7 +1409,7 @@
                 In("Текст", "t_text", (S.texts || {})[key] || TEXTS[key], true),
                 Row(Btn("Сохранить", "window.mvsTextSave()"), Btn("Вернуть стандартный", "window.mvsTextReset()", true))
             ));
-            kids.push(hint("Переменные: {game}, {login}, {password}, {hours}, {expires}, {left}, {code}, {ttl}, {word}, {links}, {bonus}, {stars}, {reason}, {commands}. " + NL_HINT));
+            kids.push(hint("Переменные: {game}, {login}, {password}, {hours}, {expires}, {left}, {code}, {ttl}, {word}, {links}, {bonus}, {stars}, {reason}, {commands}. В текстах лотов: {game}, {time}, {commands}, {tag}; в сообщении о лоте продления ещё {price}, {link}, {minutes}. " + NL_HINT));
         }
         kids.push(hint("Автор оригинального плагина: @MUVSell"));
         show(kids);
@@ -980,9 +1433,11 @@
         var text = gs("d_lot"), m = /id=(\d+)/.exec(text) || /(\d{4,})/.exec(text);
         if (!m) { toast("Не вижу ID лота"); return render(); }
         if (mapByLot(m[1])) { toast("Лот " + m[1] + " уже привязан"); return render(); }
-        var titles = lotTitles(m[1]);
+        var lf = null;
+        try { lf = fpt.lots.getFields(m[1]); } catch (e) {}
+        var titles = lf ? [lotField(lf, "fields[summary][ru]"), lotField(lf, "fields[summary][en]")].filter(Boolean) : [];
         if (!titles.length) { toast("Лот " + m[1] + " не открывается" + lastErr()); return render(); }
-        draft = { lotId: m[1], titles: titles };
+        draft = { lotId: m[1], titles: titles, subcat: int(lotField(lf, "node_id"), 0) };
         render();
     };
     window.mvsDraftSearch = function () {
@@ -1005,7 +1460,7 @@
         var hours = parseHours(gs("d_hours"));
         if (!hours) return toast("Нужен срок от " + MIN_HOURS + " до " + MAX_HOURS + " ч: число часов или дни с буквой д");
         MAPS = MAPS.filter(function (m) { return String(m.lotId) !== String(draft.lotId); });
-        MAPS.push({ lotId: draft.lotId, titles: draft.titles, gameId: draft.gameId, game: draft.game, hours: hours, reprice: false, ext: on("d_ext") });
+        MAPS.push({ lotId: draft.lotId, subcat: draft.subcat || 0, titles: draft.titles, gameId: draft.gameId, game: draft.game, hours: hours, reprice: false, ext: on("d_ext") });
         saveMaps();
         toast("Привязано: лот " + draft.lotId + ", " + draft.game + ", " + dur(hours) + " за 1 шт.");
         draft = {};
@@ -1058,9 +1513,51 @@
         var word = gs("s_word").trim().split(/\s+/)[0] || "!продление";
         S.extWord = word.charAt(0) === "!" ? word : "!" + word;
         S.buyerCmds = on("s_cmds"); S.notifySales = on("s_ntf");
+        S.extTemp = on("s_exttemp"); S.extMinutes = clamp(int(gs("s_extmin"), 10), 1, 120);
         saveS();
         cache.costs = {};
         toast("Сохранено");
+        render();
+    };
+    window.mvsJob = function (act) {
+        if (act === "stop" && job) job.stop = true;
+        if (act === "hide") job = null;
+        render();
+    };
+    window.mvsAuto = function (act) {
+        if (act !== sure) { var was = sure; sure = ""; if ((act === "create" || act === "delete") && was !== act) { if (act === "delete" || planShown) { sure = act; return render(); } } }
+        if (act === "save" || act === "plan") {
+            var durs = [];
+            gs("a_durs").split(/[,;]+/).forEach(function (x) { var h = parseHours(x); if (h && durs.indexOf(h) < 0) durs.push(h); });
+            if (!durs.length) { toast("Укажите хотя бы один срок"); return render(); }
+            S.apDurations = durs.sort(function (a, b) { return a - b; });
+            S.lotCap = clamp(int(gs("a_cap"), 20), 1, 200);
+            var own = gs("a_own").trim();
+            S.apOwn = own === "" ? null : num(own);
+            S.apFilter = gs("a_filter").trim();
+            S.apActive = on("a_active");
+            saveS();
+            planShown = null;
+            if (act === "save") { toast("Сохранено"); return render(); }
+        }
+        if (act === "plan" || act === "create") {
+            if (!String(S.key).trim()) { toast("Сначала впишите API-ключ MUVSell"); return render(); }
+            if (!products(true)) { toast("Каталог MUVSell не загрузился: " + (lastApiError || "нет связи")); return render(); }
+            if (!(fpMap(act === "plan").games || []).length) { toast("Карта игр с muvsell.store не загрузилась"); return render(); }
+            var p = plan();
+            if (act === "plan") { planShown = p; if (!p.length) toast("Создавать нечего: лоты на все игры и сроки уже есть"); return render(); }
+            sure = "";
+            if (!p.length) { toast("Создавать нечего"); return render(); }
+            if (!S.fpEdit) { toast("В настройках выключено \"Плагин может менять цену и видимость лотов\""); return render(); }
+            if (!startJob("create", "Создание лотов", p)) toast("Уже идёт другая работа с лотами");
+            planShown = null;
+            return render();
+        }
+        var autos = MAPS.filter(function (m) { return m.auto; });
+        sure = "";
+        if (!autos.length) { toast("Лотов автовыставления нет"); return render(); }
+        if (act === "retext" && !startJob("retext", "Перезапись текстов", autos)) toast("Уже идёт другая работа с лотами");
+        if (act === "delete" && !startJob("delete", "Удаление лотов", autos)) toast("Уже идёт другая работа с лотами");
         render();
     };
     window.mvsTextNext = function () { textKey = (textKey + 1) % TEXT_KEYS.length; render(); };

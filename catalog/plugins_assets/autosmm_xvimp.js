@@ -1,6 +1,6 @@
 // @name AutoSMM
 // @author @xvimp
-// @version 1.0.0
+// @version 1.0.1
 // @description Авто-накрутка через SMM-панели: после оплаты просит у покупателя ссылку, создаёт заказ у поставщика, следит за статусом и возвращает деньги при сбое.
 // @banner https://raw.githubusercontent.com/XaviersDev/FunPayTools-Site/refs/heads/main/catalog/plugins_assets/autosmm_banner.png
 
@@ -176,7 +176,9 @@
     // --- заказ в одном виде для обеих платформ
     function orderInfo(orderId, eventText) {
         var d = null;
-        try { d = fpt.orders.getDetails(String(orderId)); } catch (e) {}
+        for (var attempt = 0; attempt < 2 && !d; attempt++) {
+            try { d = fpt.orders.getDetails(String(orderId)); } catch (e) {}
+        }
         if (!d) return null;
         var params = {};
         if (Array.isArray(d.params)) d.params.forEach(function (p) { if (p && p.name) params[p.name] = p.value; });
@@ -215,6 +217,28 @@
         if (!f || f[name] === undefined || f[name] === null) return "";
         var v = f[name];
         return typeof v === "object" ? String(v.value === undefined || v.value === null ? "" : v.value) : String(v);
+    }
+    // Названия лота (рус. и англ.) по его ID. В заказе FunPay номера лота нет, есть только название на языке покупателя,
+    // поэтому привязку "по ID" сверяем через названия.
+    var lotTitleCache = {};
+    function lotTitles(lotId, fresh) {
+        var id = String(lotId), hit = lotTitleCache[id];
+        if (!fresh && hit && now() - hit[0] < 900) return hit[1];
+        var f = null;
+        try { f = fpt.lots.getFields(id); } catch (e) {}
+        var titles = f ? [lotField(f, "fields[summary][ru]"), lotField(f, "fields[summary][en]")].filter(Boolean) : [];
+        if (titles.length || !hit) lotTitleCache[id] = [now(), titles];
+        return titles.length ? titles : (hit ? hit[1] : []);
+    }
+    // Подходит ли привязка (текст из названия лота или ID лота) к заказу
+    function lotMatches(match, title, lotId) {
+        var m = String(match || "").trim(), desc = norm(title);
+        if (!m) return false;
+        if (/^\d+$/.test(m)) {
+            if (lotId && String(lotId) === m) return true;
+            return lotTitles(m).some(function (t) { t = norm(t); return t.length > 2 && desc.indexOf(t) >= 0; });
+        }
+        return desc.indexOf(norm(m)) >= 0;
     }
     function seenOrder(orderId) {
         var done = load("done_orders", []);
@@ -375,14 +399,10 @@
         return "in_progress";
     }
     function matchMap(lotId, title) {
-        var desc = String(title || "").toLowerCase();
-        for (var i = 0; i < S.maps.length; i++) {
-            var match = String(S.maps[i].match || "").trim();
-            if (!match) continue;
-            if ((lotId && match === String(lotId)) || desc.indexOf(match.toLowerCase()) >= 0) return S.maps[i];
-        }
+        for (var i = 0; i < S.maps.length; i++) if (lotMatches(S.maps[i].match, title, lotId)) return S.maps[i];
         return null;
     }
+    var lastMiss = load("last_miss", null);    // последний заказ, к которому не подошла ни одна привязка
 
     function doRefund(orderId, reason) {
         if (!S.refund) return notify("AutoSMM: нужен возврат вручную", "Заказ #" + orderId + ". Причина: " + reason);
@@ -432,7 +452,14 @@
         if (o && o.iAmBuyer) return;
         var title = (o && o.title) || String(e.text || ""), lotId = o ? o.lotId : "";
         var m = matchMap(lotId, title);
-        if (!m) return;
+        if (!m) {
+            if (S.maps.length) {
+                lastMiss = { orderId: String(e.orderId), title: String(title).slice(0, 200), ts: now() };
+                save("last_miss", lastMiss);
+                log("заказ #" + e.orderId + ": привязка не подошла, название в заказе: \"" + lastMiss.title + "\"");
+            }
+            return;
+        }
         if (seenOrder(e.orderId)) return;
         var chatId = String(e.chatId || (o && o.chatId) || "");
         var buyer = e.buyerName || (o && o.buyerName) || "";
@@ -618,6 +645,11 @@
             ));
             if (DESKTOP && S.refund) kids.push(hint("При первом возврате программа спросит разрешение. Выберите \"Разрешать всегда\", иначе возврат будет ждать вас."));
             kids.push(hint("Ждут ссылку: " + Object.keys(waiting).length + " · в работе: " + Object.keys(active).length));
+            if (lastMiss) kids.push(Card(
+                T("Последний заказ без привязки: #" + lastMiss.orderId + ", " + when(lastMiss.ts), { bold: true }),
+                T("Название в заказе: \"" + lastMiss.title + "\""),
+                hint("Если это лот накрутки, поправьте привязку: её текст должен встречаться в этом названии. Надёжнее указать ID лота.")
+            ));
         } else if (view === "prov") {
             if (!S.providers.length) kids.push(hint("Поставщиков нет. Добавьте панель ниже."));
             S.providers.forEach(function (p, i) {
@@ -631,7 +663,7 @@
             });
             kids.push(Btn("Добавить поставщика", "window.smmProvAdd()", true));
         } else if (view === "maps") {
-            kids.push(hint("Привязка срабатывает, если её текст есть в названии купленного лота или равен ID лота."));
+            kids.push(hint("Привязка срабатывает, если её текст есть в названии купленного лота. Надёжнее вписать ID лота (число из адреса funpay.com/lots/offer?id=...): тогда плагин сам сверит название на русском и английском."));
             S.maps.forEach(function (m, i) {
                 var p = provider(m.provider);
                 kids.push(Card(
@@ -640,6 +672,11 @@
                     Btn("Удалить", "window.smmMapDel(" + i + ")", true)
                 ));
             });
+            kids.push(Card(
+                T("Проверка по заказу", { bold: true }),
+                In("Номер заказа, который должен был сработать", "c_order", gs("c_order")),
+                Btn("Проверить", "window.smmCheck()", true, "Проверяю...")
+            ));
             if (!S.providers.length) {
                 kids.push(hint("Сначала добавьте поставщика."));
             } else {
@@ -729,6 +766,16 @@
         saveS();
         fpt.ui.setState("n_match", ""); fpt.ui.setState("n_service", ""); fpt.ui.setState("n_mult", "1");
         toast("Привязка добавлена");
+        render();
+    };
+    window.smmCheck = function () {
+        var id = gs("c_order").trim().replace(/^#/, "");
+        if (!id) return toast("Впишите номер заказа");
+        var o = orderInfo(id);
+        if (!o) { toast("Заказ " + id + " не открылся" + lastErr()); return render(); }
+        var m = matchMap(o.lotId, o.title);
+        toast(m ? "Подходит привязка \"" + m.match + "\". Количество в заказе: " + o.amount + ", поставщику уйдёт " + Math.max(1, Math.round(o.amount * (num(m.mult) || 1)))
+            : "Ни одна привязка не подошла. Название в заказе: \"" + o.title + "\"");
         render();
     };
     window.smmMapDel = function (i) { S.maps.splice(i, 1); saveS(); render(); };

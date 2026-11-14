@@ -25,7 +25,7 @@
   },
   {
     "name": "MUVSell Rent",
-    "description": "Перепродажа аренды Steam-аккаунтов с muvsell.store. Покупатель оплачивает лот, плагин арендует аккаунт с вашего баланса MUVSell и присылает логин и пароль. Коды Steam Guard по команде \"!код\", продление, бонус за отзыв, скрытие лотов без аккаунтов, цены по наценке и статистика прибыли. Автор оригинала: @MUVSell.",
+    "description": "Перепродажа аренды Steam-аккаунтов с muvsell.store. Покупатель оплачивает лот, плагин арендует аккаунт с вашего баланса MUVSell и присылает логин и пароль. Автовыставление лотов по каталогу MUVSell, коды Steam Guard по команде \"!код\", продление того же аккаунта командой \"!продление\", бонус за отзыв, скрытие лотов без аккаунтов, цены по наценке и статистика прибыли. Автор оригинала: @MUVSell.",
     "imageUrl": "https://raw.githubusercontent.com/XaviersDev/FunPayTools-Site/refs/heads/main/catalog/plugins_assets/muvsellrent_banner.png",
     "pluginUrl": "https://raw.githubusercontent.com/XaviersDev/FunPayTools-Site/refs/heads/main/catalog/plugins_assets/muvsellrent.js"
   }

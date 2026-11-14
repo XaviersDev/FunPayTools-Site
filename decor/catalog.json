@@ -1,0 +1,292 @@
+{
+ "base": "https://funpay.tools/decor/",
+ "frames": [
+  {
+   "id": 1,
+   "name": "Красный неон",
+   "file": "frames/f01.webp"
+  },
+  {
+   "id": 2,
+   "name": "Голубой неон",
+   "file": "frames/f02.webp"
+  },
+  {
+   "id": 3,
+   "name": "Фиолетовый неон",
+   "file": "frames/f03.webp"
+  },
+  {
+   "id": 4,
+   "name": "Оранжевый неон",
+   "file": "frames/f04.webp"
+  },
+  {
+   "id": 5,
+   "name": "Неоновый градиент",
+   "file": "frames/f05.webp"
+  },
+  {
+   "id": 6,
+   "name": "Серебряная орбита",
+   "file": "frames/f06.webp"
+  },
+  {
+   "id": 7,
+   "name": "Солнечная вспышка",
+   "file": "frames/f07.webp"
+  },
+  {
+   "id": 8,
+   "name": "Нимб",
+   "file": "frames/f08.webp"
+  },
+  {
+   "id": 9,
+   "name": "Молния",
+   "file": "frames/f09.webp"
+  },
+  {
+   "id": 10,
+   "name": "Чёрные розы",
+   "file": "frames/f10.webp"
+  },
+  {
+   "id": 11,
+   "name": "Белые розы",
+   "file": "frames/f11.webp"
+  },
+  {
+   "id": 12,
+   "name": "Фиолетовые розы",
+   "file": "frames/f12.webp"
+  },
+  {
+   "id": 13,
+   "name": "Лисичка",
+   "file": "frames/f13.webp"
+  },
+  {
+   "id": 14,
+   "name": "Чёрная кошка",
+   "file": "frames/f14.webp"
+  },
+  {
+   "id": 15,
+   "name": "Белая кошка",
+   "file": "frames/f15.webp"
+  },
+  {
+   "id": 16,
+   "name": "Бирюзовый вихрь",
+   "file": "frames/f16.webp"
+  },
+  {
+   "id": 17,
+   "name": "Листва",
+   "file": "frames/f17.webp"
+  },
+  {
+   "id": 18,
+   "name": "Полумесяц",
+   "file": "frames/f18.webp"
+  },
+  {
+   "id": 19,
+   "name": "Крылья",
+   "file": "frames/f19.webp"
+  },
+  {
+   "id": 20,
+   "name": "Клыки",
+   "file": "frames/f20.webp"
+  },
+  {
+   "id": 21,
+   "name": "Бабочки",
+   "file": "frames/f21.webp"
+  },
+  {
+   "id": 22,
+   "name": "Галактика",
+   "file": "frames/f22.webp"
+  },
+  {
+   "id": 23,
+   "name": "Звёздная орбита",
+   "file": "frames/f23.webp"
+  },
+  {
+   "id": 24,
+   "name": "Планета",
+   "file": "frames/f24.webp"
+  },
+  {
+   "id": 25,
+   "name": "Комета",
+   "file": "frames/f25.webp"
+  },
+  {
+   "id": 26,
+   "name": "Сакура",
+   "file": "frames/f26.webp"
+  },
+  {
+   "id": 27,
+   "name": "Ветка с луной",
+   "file": "frames/f27.webp"
+  },
+  {
+   "id": 28,
+   "name": "Талисман",
+   "file": "frames/f28.webp"
+  },
+  {
+   "id": 29,
+   "name": "Лёд",
+   "file": "frames/f29.webp"
+  },
+  {
+   "id": 30,
+   "name": "Пламя",
+   "file": "frames/f30.webp"
+  }
+ ],
+ "banners": [
+  {
+   "id": 1,
+   "name": "Белые розы",
+   "file": "banners/b01.webp"
+  },
+  {
+   "id": 2,
+   "name": "Красный фонарь",
+   "file": "banners/b02.webp"
+  },
+  {
+   "id": 3,
+   "name": "Мотылёк",
+   "file": "banners/b03.webp"
+  },
+  {
+   "id": 4,
+   "name": "Лесное озеро",
+   "file": "banners/b04.webp"
+  },
+  {
+   "id": 5,
+   "name": "Ночное небо",
+   "file": "banners/b05.webp"
+  },
+  {
+   "id": 6,
+   "name": "Чёрные розы",
+   "file": "banners/b06.webp"
+  },
+  {
+   "id": 7,
+   "name": "Фиолетовая волна",
+   "file": "banners/b07.webp"
+  },
+  {
+   "id": 8,
+   "name": "Красная сакура",
+   "file": "banners/b08.webp"
+  },
+  {
+   "id": 9,
+   "name": "Светлячки",
+   "file": "banners/b09.webp"
+  },
+  {
+   "id": 10,
+   "name": "Розовая сакура",
+   "file": "banners/b10.webp"
+  },
+  {
+   "id": 11,
+   "name": "Пламя",
+   "file": "banners/b11.webp"
+  },
+  {
+   "id": 12,
+   "name": "Витраж",
+   "file": "banners/b12.webp"
+  },
+  {
+   "id": 14,
+   "name": "Паутина",
+   "file": "banners/b14.webp"
+  },
+  {
+   "id": 15,
+   "name": "Неоновые лучи",
+   "file": "banners/b15.webp"
+  },
+  {
+   "id": 16,
+   "name": "Бирюзовая сеть",
+   "file": "banners/b16.webp"
+  },
+  {
+   "id": 17,
+   "name": "Кровавая луна",
+   "file": "banners/b17.webp"
+  },
+  {
+   "id": 18,
+   "name": "Глаза",
+   "file": "banners/b18.webp"
+  },
+  {
+   "id": 19,
+   "name": "Сердце",
+   "file": "banners/b19.webp"
+  },
+  {
+   "id": 20,
+   "name": "Лунный замок",
+   "file": "banners/b20.webp"
+  },
+  {
+   "id": 21,
+   "name": "Вороны",
+   "file": "banners/b21.webp"
+  },
+  {
+   "id": 22,
+   "name": "Призрачная роза",
+   "file": "banners/b22.webp"
+  },
+  {
+   "id": 23,
+   "name": "Бабочки",
+   "file": "banners/b23.webp"
+  },
+  {
+   "id": 24,
+   "name": "Руки",
+   "file": "banners/b24.webp"
+  },
+  {
+   "id": 25,
+   "name": "Снежный барс",
+   "file": "banners/b25.webp"
+  },
+  {
+   "id": 26,
+   "name": "Алый взгляд",
+   "file": "banners/b26.webp"
+  },
+  {
+   "id": 27,
+   "name": "Белый волк",
+   "file": "banners/b27.webp"
+  },
+  {
+   "id": 28,
+   "name": "Когти",
+   "file": "banners/b28.webp"
+  }
+ ]
+}

@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Comfortaa:wght@700&family=Caveat:wght@700&family=Ruslan+Display&family=Unbounded:wght@800&display=swap" rel="stylesheet">
     <style>
         :root {
             --ink: #101524;
@@ -254,6 +255,7 @@
         .sliders { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
         .sl { padding: 14px 18px 18px; border-radius: 24px; background: rgba(255,255,255,0.45); border: 1px solid var(--glass-line);
             box-shadow: 0 10px 26px rgba(70, 60, 150, 0.12), inset 0 1px 0 #fff; }
+        .orb .ft-aa { font-size: 17px; line-height: 1; color: inherit; }
         .sl-head { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-size: 14px; font-weight: 600; }
         .sl-head .material-icons-round { font-size: 18px; color: var(--ink-2); }
         .sl-head output { margin-left: auto; font-weight: 800; font-variant-numeric: tabular-nums; }
@@ -478,6 +480,18 @@
                         <button type="button" class="orb eff" data-val="pulse"><span class="material-icons-round">graphic_eq</span><i class="orb-tip">Пульсация</i></button>
                         <button type="button" class="orb eff" data-val="glitch"><span class="material-icons-round">bolt</span><i class="orb-tip">Глитч</i></button>
                         <button type="button" class="orb dark" id="btn-rand-anim"><span class="material-icons-round">casino</span><i class="orb-tip">Случайная</i></button>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="label"><span>Шрифт</span><span>как ник выглядит на FunPay</span></div>
+                    <div class="orbs">
+                        <button type="button" class="orb ft active" data-val=""><span class="ft-aa">Aa</span><i class="orb-tip">Обычный</i></button>
+                        <button type="button" class="orb ft" data-val="pixel"><span class="ft-aa" style="font-family:'Press Start 2P',monospace;font-size:11px">Aa</span><i class="orb-tip">Пиксельный</i></button>
+                        <button type="button" class="orb ft" data-val="round"><span class="ft-aa" style="font-family:'Comfortaa',sans-serif">Aa</span><i class="orb-tip">Округлый</i></button>
+                        <button type="button" class="orb ft" data-val="hand"><span class="ft-aa" style="font-family:'Caveat',cursive;font-size:21px">Aa</span><i class="orb-tip">Рукописный</i></button>
+                        <button type="button" class="orb ft" data-val="gothic"><span class="ft-aa" style="font-family:'Ruslan Display',serif">Aa</span><i class="orb-tip">Готический</i></button>
+                        <button type="button" class="orb ft" data-val="wide"><span class="ft-aa" style="font-family:'Unbounded',sans-serif;font-size:15px">Aa</span><i class="orb-tip">Широкий</i></button>
                     </div>
                 </div>
 
@@ -841,6 +855,15 @@ void main(){
         });
         ribbon.addEventListener('wheel', (e) => { if (e.deltaY) { e.preventDefault(); ribbon.scrollLeft += e.deltaY; } }, { passive: false });
 
+        const FONTS = { pixel: ["'Press Start 2P', monospace", '0.78em', '0'], round: ["'Comfortaa', sans-serif", '1em', '0'], hand: ["'Caveat', cursive", '1.25em', '0'], gothic: ["'Ruslan Display', serif", '1.05em', '0.02em'], wide: ["'Unbounded', sans-serif", '0.92em', '0'] };
+        let currentFont = '';
+        function setFont(f) {
+            currentFont = FONTS[f] ? f : '';
+            document.querySelectorAll('.orb.ft').forEach((b) => b.classList.toggle('active', b.dataset.val === currentFont));
+            const el = $('nick-el'), d = FONTS[currentFont];
+            el.style.fontFamily = d ? d[0] : ''; el.style.fontSize = d ? d[1] : ''; el.style.letterSpacing = d ? d[2] : '';
+        }
+        document.querySelectorAll('.orb.ft').forEach((b) => b.addEventListener('click', () => setFont(b.dataset.val)));
         function applyPreset(p) {
             c1.value = p.c1; c2.value = p.c2;
             useC3 = !!p.c3; if (useC3) c3.value = p.c3;
@@ -850,6 +873,7 @@ void main(){
             setAnims(Array.isArray(p.an) ? p.an : [p.an || 'none']);
             currentOverlay = OVS.includes(p.ov) ? p.ov : 'none';
             if ('pc' in p) partColor = p.pc || null;
+            if ('ft' in p) setFont(p.ft || '');
             ovParts = [];
             render();
         }
@@ -864,6 +888,7 @@ void main(){
         function makeKey() {
             const config = { c1: c1.value, c2: c2.value, c3: useC3 ? c3.value : null, ang: angle.value, scl: scale.value, spd: speed.value,
                 an: activeAnims(), ov: currentOverlay, pc: partColor };
+            if (currentFont) config.ft = currentFont;
             return 'FPT-STYLE-' + btoa(JSON.stringify(config));
         }
         async function copyText(t) {
@@ -892,7 +917,7 @@ void main(){
                 const cfg = JSON.parse(atob(key.slice(10)));
                 if (!cfg || !cfg.c1 || !cfg.c2) throw 0;
                 applyPreset({ c1: cfg.c1, c2: cfg.c2, c3: cfg.c3 || '', ang: cfg.ang ?? 180, an: cfg.an || ['none'], ov: cfg.ov || 'none',
-                    scl: cfg.scl ?? 100, spd: cfg.spd ?? 3, pc: cfg.pc || null });
+                    scl: cfg.scl ?? 100, spd: cfg.spd ?? 3, pc: cfg.pc || null, ft: cfg.ft || '' });
                 dlg.close();
             } catch { $('dlg-err').textContent = 'Ключ не читается. Скопируй его целиком, начиная с FPT-STYLE-.'; }
         });

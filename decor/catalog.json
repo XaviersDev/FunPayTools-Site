@@ -156,137 +156,164 @@
   {
    "id": 1,
    "name": "Белые розы",
-   "file": "banners/b01.webp"
+   "file": "banners/b01.webp",
+   "ar": 13.68
   },
   {
    "id": 2,
    "name": "Красный фонарь",
-   "file": "banners/b02.webp"
+   "file": "banners/b02.webp",
+   "ar": 13.3
   },
   {
    "id": 3,
    "name": "Мотылёк",
-   "file": "banners/b03.webp"
+   "file": "banners/b03.webp",
+   "ar": 13.49
   },
   {
    "id": 4,
    "name": "Лесное озеро",
-   "file": "banners/b04.webp"
+   "file": "banners/b04.webp",
+   "ar": 13.12
   },
   {
    "id": 5,
    "name": "Ночное небо",
-   "file": "banners/b05.webp"
+   "file": "banners/b05.webp",
+   "ar": 13.12
   },
   {
    "id": 6,
    "name": "Чёрные розы",
-   "file": "banners/b06.webp"
+   "file": "banners/b06.webp",
+   "ar": 13.12
   },
   {
    "id": 7,
    "name": "Фиолетовая волна",
-   "file": "banners/b07.webp"
+   "file": "banners/b07.webp",
+   "ar": 13.49
   },
   {
    "id": 8,
    "name": "Красная сакура",
-   "file": "banners/b08.webp"
+   "file": "banners/b08.webp",
+   "ar": 14.49
   },
   {
    "id": 9,
    "name": "Светлячки",
-   "file": "banners/b09.webp"
+   "file": "banners/b09.webp",
+   "ar": 14.49
   },
   {
    "id": 10,
    "name": "Розовая сакура",
-   "file": "banners/b10.webp"
+   "file": "banners/b10.webp",
+   "ar": 13.87
   },
   {
    "id": 11,
    "name": "Пламя",
-   "file": "banners/b11.webp"
+   "file": "banners/b11.webp",
+   "ar": 14.71
   },
   {
    "id": 12,
    "name": "Витраж",
-   "file": "banners/b12.webp"
+   "file": "banners/b12.webp",
+   "ar": 14.28
   },
   {
    "id": 14,
    "name": "Паутина",
-   "file": "banners/b14.webp"
+   "file": "banners/b14.webp",
+   "ar": 13.87
   },
   {
    "id": 15,
    "name": "Неоновые лучи",
-   "file": "banners/b15.webp"
+   "file": "banners/b15.webp",
+   "ar": 13.49
   },
   {
    "id": 16,
    "name": "Бирюзовая сеть",
-   "file": "banners/b16.webp"
+   "file": "banners/b16.webp",
+   "ar": 13.68
   },
   {
    "id": 17,
    "name": "Кровавая луна",
-   "file": "banners/b17.webp"
+   "file": "banners/b17.webp",
+   "ar": 13.04
   },
   {
    "id": 18,
    "name": "Глаза",
-   "file": "banners/b18.webp"
+   "file": "banners/b18.webp",
+   "ar": 13.19
   },
   {
    "id": 19,
    "name": "Сердце",
-   "file": "banners/b19.webp"
+   "file": "banners/b19.webp",
+   "ar": 13.69
   },
   {
    "id": 20,
    "name": "Лунный замок",
-   "file": "banners/b20.webp"
+   "file": "banners/b20.webp",
+   "ar": 14.6
   },
   {
    "id": 21,
    "name": "Вороны",
-   "file": "banners/b21.webp"
+   "file": "banners/b21.webp",
+   "ar": 15.87
   },
   {
    "id": 22,
    "name": "Призрачная роза",
-   "file": "banners/b22.webp"
+   "file": "banners/b22.webp",
+   "ar": 16.34
   },
   {
    "id": 23,
    "name": "Бабочки",
-   "file": "banners/b23.webp"
+   "file": "banners/b23.webp",
+   "ar": 16.34
   },
   {
    "id": 24,
    "name": "Руки",
-   "file": "banners/b24.webp"
+   "file": "banners/b24.webp",
+   "ar": 15.42
   },
   {
    "id": 25,
    "name": "Снежный барс",
-   "file": "banners/b25.webp"
+   "file": "banners/b25.webp",
+   "ar": 16.34
   },
   {
    "id": 26,
    "name": "Алый взгляд",
-   "file": "banners/b26.webp"
+   "file": "banners/b26.webp",
+   "ar": 15.64
   },
   {
    "id": 27,
    "name": "Белый волк",
-   "file": "banners/b27.webp"
+   "file": "banners/b27.webp",
+   "ar": 14.8
   },
   {
    "id": 28,
    "name": "Когти",
-   "file": "banners/b28.webp"
+   "file": "banners/b28.webp",
+   "ar": 13.52
   }
  ]
 }

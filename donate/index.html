@@ -20,6 +20,7 @@
             --glass-line: rgba(255, 255, 255, 0.85);
             --glass-shadow: 0 24px 70px rgba(70, 60, 150, 0.20), inset 0 1px 0 rgba(255, 255, 255, 0.9);
             --holo: linear-gradient(100deg, #ff7cc8, #a98bff 16%, #5fd8ff 33%, #72f7c2 50%, #ffe36e 66%, #ff9b7a 83%, #ff7cc8);
+            --holo-conic: conic-gradient(#ff7cc8, #a98bff, #5fd8ff, #72f7c2, #ffe36e, #ff9b7a, #ff7cc8);
             --holo-ink: linear-gradient(100deg, #ff2f9a, #7c4dff 16%, #00a8ff 33%, #00c27a 50%, #f0a000 66%, #ff5a36 83%, #ff2f9a);
 
             --n-bg: linear-gradient(90deg, #fff, #a855f7);
@@ -220,20 +221,63 @@
         .round-dark:hover { transform: rotate(180deg); }
         .round-dark .material-icons-round { font-size: 22px; }
 
-        /* ползунки с точками */
-        .dials { display: flex; flex-direction: column; gap: 8px; }
-        .dial { position: relative; height: 56px; border-radius: 999px; overflow: hidden; display: flex; align-items: center; padding: 0 22px;
-            background: rgba(255,255,255,0.35); border: 1px solid var(--glass-line); box-shadow: inset 0 1px 0 #fff; }
-        .dial .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 50%; border-radius: 999px; background: rgba(255,255,255,0.85);
-            box-shadow: 0 8px 20px rgba(70, 60, 150, 0.15), inset 0 1px 0 #fff; transition: width 0.08s; }
-        .dial .fill::after { content: ''; position: absolute; right: 18px; top: 50%; width: 2px; height: 20px; margin-top: -10px; border-radius: 2px; background: var(--ink); }
-        .dial .dots { position: absolute; left: 160px; right: 80px; top: 50%; height: 4px; margin-top: -2px;
-            background: radial-gradient(circle, rgba(16,21,36,0.3) 1.6px, transparent 2px) 0 0 / 14.28% 100% repeat-x; }
-        .dial span, .dial output { position: relative; z-index: 2; pointer-events: none; font-size: 15px; }
-        .dial span { display: flex; align-items: center; gap: 8px; font-weight: 500; color: var(--ink); }
-        .dial span .material-icons-round { font-size: 18px; color: var(--ink-2); }
-        .dial output { margin-left: auto; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ink); }
-        .dial input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: ew-resize; z-index: 3; margin: 0; }
+        /* угол: круглый регулятор, скорость и масштаб: жемчужные ползунки */
+        .controls { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: center; }
+        .knob-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .knob { position: relative; width: 148px; height: 148px; border-radius: 50%; touch-action: none; cursor: grab; user-select: none;
+            background: rgba(255,255,255,0.45); border: 1px solid var(--glass-line);
+            box-shadow: 0 16px 40px rgba(70, 60, 150, 0.2), inset 0 1px 0 #fff, inset 0 -10px 24px rgba(124, 77, 255, 0.08); }
+        .knob:active { cursor: grabbing; }
+        .knob .ticks { position: absolute; inset: 6px; border-radius: 50%;
+            background: repeating-conic-gradient(from -1deg, rgba(16,21,36,0.28) 0 2deg, transparent 2deg 15deg);
+            -webkit-mask: radial-gradient(circle, transparent 61%, #000 62%, #000 70%, transparent 71%);
+                    mask: radial-gradient(circle, transparent 61%, #000 62%, #000 70%, transparent 71%); }
+        .knob .ring { position: absolute; inset: 6px; border-radius: 50%; background: var(--holo-conic);
+            -webkit-mask: radial-gradient(circle, transparent 70%, #000 71%, #000 74%, transparent 75%);
+                    mask: radial-gradient(circle, transparent 70%, #000 71%, #000 74%, transparent 75%); opacity: 0.9; }
+        .knob .disc { position: absolute; inset: 30px; border-radius: 50%; background: var(--n-bg);
+            box-shadow: inset 0 0 0 3px rgba(255,255,255,0.85), inset -6px -10px 20px rgba(0,0,0,0.18), 0 8px 18px rgba(40, 30, 110, 0.25); }
+        .knob .disc::after { content: ''; position: absolute; inset: 0; border-radius: 50%;
+            background: radial-gradient(circle at 34% 26%, rgba(255,255,255,0.75) 0 10%, rgba(255,255,255,0) 40%); }
+        .knob .arm { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform: rotate(var(--a, 180deg)); }
+        .knob .arm::before { content: ''; position: absolute; left: -1px; top: -66px; width: 2px; height: 22px; border-radius: 2px; background: var(--ink); }
+        .knob .bead { position: absolute; left: -12px; top: -76px; width: 24px; height: 24px; border-radius: 50%;
+            background: radial-gradient(circle at 32% 28%, #fff 0 12%, rgba(255,255,255,0) 40%), conic-gradient(#ffb3dd, #c9b6ff, #9feaff, #b8ffd9, #fff0a3, #ffc2b0, #ffb3dd);
+            box-shadow: 0 4px 12px rgba(60, 40, 150, 0.35), inset -2px -3px 6px rgba(80, 60, 160, 0.3); transition: transform 0.2s; }
+        .knob:active .bead { transform: scale(1.25); }
+        .knob .val { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none;
+            font-size: 22px; font-weight: 900; color: #fff; text-shadow: 0 1px 8px rgba(0,0,0,0.45); font-variant-numeric: tabular-nums; }
+        .knob-label { font-size: 12px; font-weight: 600; color: var(--ink-3); display: flex; align-items: center; gap: 4px; }
+        .knob-label .material-icons-round { font-size: 15px; }
+        .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+        .sliders { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+        .sl { padding: 14px 18px 18px; border-radius: 24px; background: rgba(255,255,255,0.45); border: 1px solid var(--glass-line);
+            box-shadow: 0 10px 26px rgba(70, 60, 150, 0.12), inset 0 1px 0 #fff; }
+        .sl-head { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-size: 14px; font-weight: 600; }
+        .sl-head .material-icons-round { font-size: 18px; color: var(--ink-2); }
+        .sl-head output { margin-left: auto; font-weight: 800; font-variant-numeric: tabular-nums; }
+        .sl-head small { font-size: 11px; font-weight: 600; color: var(--ink-3); }
+        .slide { position: relative; height: 30px; touch-action: none; }
+        .slide .track { position: absolute; left: 0; right: 0; top: 50%; height: 12px; margin-top: -6px; border-radius: 999px;
+            background: rgba(16, 21, 36, 0.07); box-shadow: inset 0 2px 4px rgba(16, 21, 36, 0.12); overflow: hidden; }
+        .slide .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 50%; border-radius: 999px; background: var(--fill, var(--holo));
+            box-shadow: inset 0 -2px 3px rgba(0,0,0,0.12), inset 0 2px 2px rgba(255,255,255,0.5); }
+        .slide .marks { position: absolute; left: 15px; right: 15px; top: 50%; height: 2px; margin-top: 12px;
+            background: radial-gradient(circle, rgba(16,21,36,0.25) 1.2px, transparent 1.6px) 0 0 / calc(100% / 9) 100% repeat-x; }
+        .slide .thumb { position: absolute; top: 50%; left: 50%; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; pointer-events: none;
+            background: radial-gradient(circle at 32% 26%, #fff 0 10%, rgba(255,255,255,0.4) 20%, rgba(255,255,255,0) 40%),
+                        conic-gradient(from var(--spin, 0deg), #ffb3dd, #c9b6ff, #9feaff, #b8ffd9, #fff0a3, #ffc2b0, #ffb3dd);
+            box-shadow: 0 6px 16px rgba(60, 40, 150, 0.35), inset -3px -4px 8px rgba(80, 60, 160, 0.3), 0 0 0 4px rgba(255,255,255,0.85);
+            transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.5); }
+        .slide .bubble { position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%) translateY(6px) scale(0.8); opacity: 0; pointer-events: none;
+            padding: 5px 10px; border-radius: 999px; background: var(--ink); color: #fff; font-size: 12px; font-weight: 700; white-space: nowrap;
+            transition: opacity 0.15s, transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.5); }
+        .slide .bubble::after { content: ''; position: absolute; left: 50%; top: 100%; margin-left: -5px; border: 5px solid transparent; border-top-color: var(--ink); }
+        .slide input { position: absolute; inset: -6px 0; width: 100%; height: calc(100% + 12px); opacity: 0; margin: 0; cursor: pointer; z-index: 3; }
+        .slide.drag .thumb, .slide:hover .thumb { transform: scale(1.18); }
+        .slide.drag .bubble, .slide input:focus-visible ~ .bubble { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+        .slide input:focus-visible ~ .thumb { box-shadow: 0 6px 16px rgba(60, 40, 150, 0.35), 0 0 0 4px #7c4dff; }
 
         /* кнопки-кружки */
         .orbs { display: grid; grid-template-columns: repeat(6, 52px); justify-content: center; gap: 12px 14px; }
@@ -253,11 +297,10 @@
         .orb:hover .orb-tip { opacity: 1; transform: translateX(-50%); }
 
         /* пресеты */
-        .presets { position: relative; margin: 0 -18px; }
-        .presets::before, .presets::after { content: ''; position: absolute; top: 0; bottom: 0; width: 40px; z-index: 2; pointer-events: none; }
-        .presets::before { left: 0; background: linear-gradient(to right, rgba(255,255,255,0.7), transparent); }
-        .presets::after { right: 0; background: linear-gradient(to left, rgba(255,255,255,0.7), transparent); }
-        .ribbon { display: flex; gap: 10px; overflow-x: auto; padding: 6px 30px 10px; scrollbar-width: none; scroll-behavior: smooth; }
+        .presets { position: relative; overflow: hidden; border-radius: 999px; }
+        .ribbon { display: flex; gap: 10px; overflow-x: auto; padding: 6px 22px 12px; scrollbar-width: none; scroll-behavior: smooth;
+            -webkit-mask: linear-gradient(to right, transparent, #000 22px, #000 calc(100% - 22px), transparent);
+                    mask: linear-gradient(to right, transparent, #000 22px, #000 calc(100% - 22px), transparent); }
         .ribbon::-webkit-scrollbar { display: none; }
         .preset { flex: 0 0 48px; height: 48px; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center;
             box-shadow: inset -4px -6px 12px rgba(0,0,0,0.25), 0 8px 18px rgba(60, 50, 140, 0.22); transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.4); }
@@ -304,7 +347,8 @@
             .copy-btn { height: 62px; padding: 0 22px; font-size: 15px; gap: 8px; }
             .side-btn { width: 52px; height: 52px; flex: 0 0 52px; }
             .actions { gap: 8px; }
-            .presets { margin: 0 -14px; }
+            .controls { grid-template-columns: 1fr; }
+            .knob-wrap { flex-direction: row; justify-content: center; gap: 14px; }
         }
         @media (prefers-reduced-motion: reduce) {
             .pearl, .title-3d, .fp-logo, .fp-logo .glow, .input-wrap::before, .preview::before, .orb.active::before, .copy-btn::before, .heading h1 b { animation: none !important; }
@@ -395,13 +439,34 @@
                     </div>
                 </div>
 
-                <div class="dials">
-                    <label class="dial"><i class="fill"></i><i class="dots"></i><span><span class="material-icons-round">rotate_right</span>Угол</span><output id="o-angle">180°</output>
-                        <input type="range" id="angle" min="0" max="360" value="180" aria-label="Угол градиента"></label>
-                    <label class="dial"><i class="fill"></i><i class="dots"></i><span><span class="material-icons-round">zoom_out_map</span>Масштаб</span><output id="o-scale">100%</output>
-                        <input type="range" id="scale" min="50" max="300" value="100" aria-label="Масштаб градиента"></label>
-                    <label class="dial"><i class="fill"></i><i class="dots"></i><span><span class="material-icons-round">speed</span>Скорость</span><output id="o-speed">3 с</output>
-                        <input type="range" id="speed" min="1" max="10" value="3" dir="rtl" aria-label="Скорость анимации"></label>
+                <div class="controls">
+                    <div class="knob-wrap">
+                        <div class="knob" id="knob" role="slider" tabindex="0" aria-label="Угол градиента" aria-valuemin="0" aria-valuemax="360" aria-valuenow="180">
+                            <i class="ring"></i><i class="ticks"></i><i class="disc"></i>
+                            <i class="arm"><i class="bead"></i></i>
+                            <span class="val" id="o-angle">180°</span>
+                        </div>
+                        <div class="knob-label"><span class="material-icons-round">rotate_right</span>Угол: крути</div>
+                        <input type="range" class="sr" id="angle" min="0" max="360" value="180" tabindex="-1" aria-hidden="true">
+                    </div>
+                    <div class="sliders">
+                        <div class="sl">
+                            <div class="sl-head"><span class="material-icons-round">zoom_out_map</span>Масштаб<small>для коротких ников</small><output id="o-scale">100%</output></div>
+                            <div class="slide" data-fill="nick">
+                                <i class="track"><i class="fill"></i></i><i class="marks"></i>
+                                <input type="range" id="scale" min="50" max="300" value="100" aria-label="Масштаб градиента">
+                                <i class="thumb"></i><span class="bubble"></span>
+                            </div>
+                        </div>
+                        <div class="sl">
+                            <div class="sl-head"><span class="material-icons-round">speed</span>Скорость<small>вправо быстрее</small><output id="o-speed">3 с</output></div>
+                            <div class="slide">
+                                <i class="track"><i class="fill"></i></i><i class="marks"></i>
+                                <input type="range" id="speed" min="1" max="10" value="3" dir="rtl" aria-label="Скорость анимации">
+                                <i class="thumb"></i><span class="bubble"></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div>
@@ -573,12 +638,46 @@ void main(){
             const a = [...document.querySelectorAll('.eff.active')].map((b) => b.dataset.val).filter((v) => v !== 'none');
             return a.length ? a : ['none'];
         }
-        function setDial(input) {
+        function setSlide(input, text) {
+            const sl = input.closest('.slide');
             const min = +input.min, max = +input.max, v = +input.value;
             let pct = (v - min) / (max - min);
             if (input.dir === 'rtl') pct = 1 - pct;
-            input.closest('.dial').querySelector('.fill').style.width = `calc(150px + (100% - 220px) * ${pct.toFixed(3)})`;
+            const x = `calc(15px + (100% - 30px) * ${pct.toFixed(4)})`;
+            sl.querySelector('.thumb').style.left = x;
+            sl.querySelector('.bubble').style.left = x;
+            sl.querySelector('.fill').style.width = `calc(15px + (100% - 30px) * ${pct.toFixed(4)})`;
+            sl.querySelector('.thumb').style.setProperty('--spin', (pct * 360).toFixed(0) + 'deg');
+            sl.querySelector('.bubble').textContent = text;
+            if (sl.dataset.fill === 'nick') sl.style.setProperty('--fill', 'var(--n-bg)');
         }
+        document.querySelectorAll('.slide input').forEach((inp) => {
+            const sl = inp.closest('.slide');
+            inp.addEventListener('pointerdown', () => sl.classList.add('drag'));
+            addEventListener('pointerup', () => sl.classList.remove('drag'));
+        });
+
+        // круглый регулятор угла: тянуть по кругу, колесо мыши и стрелки тоже работают
+        const knob = $('knob');
+        function setAngle(deg) {
+            deg = Math.round(((deg % 360) + 360) % 360);
+            if (+angle.value === deg) return;
+            angle.value = deg;
+            render();
+        }
+        function knobFromEvent(e) {
+            const r = knob.getBoundingClientRect();
+            const a = Math.atan2(e.clientX - (r.left + r.width / 2), -(e.clientY - (r.top + r.height / 2))) * 180 / Math.PI;
+            setAngle(e.shiftKey ? Math.round(a / 15) * 15 : a);
+        }
+        knob.addEventListener('pointerdown', (e) => { knob.setPointerCapture(e.pointerId); knobFromEvent(e); });
+        knob.addEventListener('pointermove', (e) => { if (knob.hasPointerCapture(e.pointerId)) knobFromEvent(e); });
+        knob.addEventListener('wheel', (e) => { e.preventDefault(); setAngle(+angle.value + (e.deltaY > 0 ? 5 : -5)); }, { passive: false });
+        knob.addEventListener('keydown', (e) => {
+            const step = e.shiftKey ? 15 : 5;
+            if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { e.preventDefault(); setAngle(+angle.value + step); }
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { e.preventDefault(); setAngle(+angle.value - step); }
+        });
 
         function render() {
             d1.style.setProperty('--c', c1.value); d2.style.setProperty('--c', c2.value);
@@ -596,7 +695,11 @@ void main(){
             $('o-angle').textContent = angle.value + '°';
             $('o-scale').textContent = scale.value + '%';
             $('o-speed').textContent = speed.value + ' с';
-            [angle, scale, speed].forEach(setDial);
+            knob.style.setProperty('--a', angle.value + 'deg');
+            knob.querySelector('.arm').style.setProperty('--a', angle.value + 'deg');
+            knob.setAttribute('aria-valuenow', angle.value);
+            setSlide(scale, scale.value + '%');
+            setSlide(speed, speed.value + ' с');
             document.querySelectorAll('.ov').forEach((b) => b.classList.toggle('active', b.dataset.val === currentOverlay));
             ovCvs.style.zIndex = ['smoke', 'snow', 'matrix', 'stars'].includes(currentOverlay) ? '1' : '10';
         }

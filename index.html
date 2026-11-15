@@ -20,7 +20,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@600;700;800&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="home.css">
     <link rel="icon" href="assets/favicon.png" type="image/png">
@@ -51,6 +51,9 @@
     </script>
 </head>
 <body>
+<canvas class="liquid" id="liquid" aria-hidden="true"></canvas>
+<div class="page-veil" aria-hidden="true"></div>
+<div class="pearls" id="pearls" aria-hidden="true"></div>
 
 <header class="nav" id="nav">
     <a href="#top" class="brand" aria-label="FunPay Tools">
@@ -72,6 +75,7 @@
 <!-- ================================================= HERO -->
 <section class="hero" id="top" data-platform="windows">
     <div class="hero-bg" aria-hidden="true">
+        <div class="liquid-veil"></div>
         <div class="layer dots" data-depth="-6"></div>
         <div class="layer blob blob-a" data-depth="18"></div>
         <div class="layer blob blob-b" data-depth="-14"></div>

@@ -264,6 +264,13 @@
                     </svg>
                     <span class="pname"><b class="top">FunPay Tools</b><b class="fit">Android</b></span>
                 </div>
+                <div class="big-card" onclick="openPlugins('iphone')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="6" y="2" width="12" height="20" rx="3"></rect>
+                        <line x1="10.5" y1="4.6" x2="13.5" y2="4.6"></line>
+                    </svg>
+                    <span class="pname"><b class="top">FunPay Tools</b><b class="fit">iPhone</b></span>
+                </div>
             </div>
         </div>
     </div>
@@ -367,6 +374,12 @@
                 json: '/catalog/verifiedplugins.json',
                 docs: 'https://funpay.tools/DAI.md',
                 title: 'Плагины для приложения на Android',
+            },
+            // приложение для iPhone запускает те же плагины, что и Android
+            iphone: {
+                json: '/catalog/verifiedplugins.json',
+                docs: 'https://funpay.tools/DAI.md',
+                title: 'Плагины для приложения на iPhone',
             },
         };
         let platform = 'android';

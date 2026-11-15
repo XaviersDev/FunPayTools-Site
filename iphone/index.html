@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FunPay Tools для iPhone: скачать IPA и инструкция по установке</title>
+    <meta name="description" content="FunPay Tools для iPhone и iPad: чаты FunPay, автоподнятие, автовыдача, лоты, продажи, плагины и пуш-уведомления. Файл .ipa для iOS 15+ и пошаговая инструкция по подписи и установке.">
+    <meta name="keywords" content="funpay iphone, funpay tools ios, funpay tools ipa, fp tools iphone, фп тулс айфон, фанпей айфон, funpay приложение ios, funpay ipa скачать">
+    <link rel="canonical" href="https://funpay.tools/iphone">
+    <meta property="og:title" content="FunPay Tools для iPhone: скачать IPA и инструкция по установке">
+    <meta property="og:description" content="Приложение FunPay Tools для iOS: чаты, автоматизация, лоты, продажи и плагины.">
+    <meta property="og:url" content="https://funpay.tools/iphone">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://funpay.tools/assets/hero-iphone.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;900&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+
+    <link rel="stylesheet" href="../style.css">
+    <link rel="icon" href="../logo.svg" type="image/svg+xml">
+
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"SoftwareApplication","name":"FunPay Tools iPhone","url":"https://funpay.tools/iphone","operatingSystem":"iOS 15.0+","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"RUB"},"downloadUrl":"https://github.com/XaviersDev/FunPay-Tools-iOS/releases/latest"}
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "Как установить FunPay Tools на iPhone",
+      "step": [
+        { "@type": "HowToStep", "name": "Скачайте файл FunPayTools.ipa" },
+        { "@type": "HowToStep", "name": "Подпишите .ipa своим сертификатом" },
+        { "@type": "HowToStep", "name": "Установите приложение через Sideloadly, AltStore, ESign или сервис подписи" },
+        { "@type": "HowToStep", "name": "Разрешите запуск: доверьте профиль разработчика и включите режим разработчика" },
+        { "@type": "HowToStep", "name": "Войдите в аккаунт FunPay" }
+      ]
+    }
+    </script>
+
+    <style>
+        .sub-hero { padding: 130px 0 50px; text-align: center; }
+        .sub-hero h1 { font-family: var(--font-head); font-size: clamp(1.8rem, 4.5vw, 3.2rem); font-weight: 900; line-height: 1.15; margin-bottom: 18px; }
+        .sub-hero .hero-sub { font-size: 1.1rem; color: var(--text2); max-width: 680px; margin: 0 auto 36px; line-height: 1.7; }
+        .breadcrumb { font-size: 0.85rem; color: var(--text3); margin-bottom: 20px; }
+        .breadcrumb a { color: var(--text3); text-decoration: none; transition: color 0.2s; }
+        .breadcrumb a:hover { color: var(--text); }
+        .breadcrumb span { margin: 0 8px; opacity: 0.5; }
+        .meta-pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 32px; }
+        .meta-pill { background: var(--bg2); border: 1px solid var(--border); border-radius: 30px; padding: 6px 16px; font-size: 0.85rem; color: var(--text2); font-family: var(--font-mono); }
+
+        /* скриншоты iPhone выше андроидных */
+        .hero-phones.ios .hphone { aspect-ratio: 828 / 1792; }
+        .hero-phones.ios .hphone img { height: 100%; object-fit: cover; }
+
+        .feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin-top: 36px; }
+        .feat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 22px; }
+        .feat-card .material-icons-round { color: var(--accent); font-size: 26px; margin-bottom: 12px; }
+        .feat-card h3 { font-size: 1rem; font-family: var(--font-head); font-weight: 600; margin-bottom: 8px; }
+        .feat-card p { font-size: 0.88rem; color: var(--text2); line-height: 1.6; }
+
+        .steps-col { display: flex; flex-direction: column; gap: 14px; margin-top: 40px; max-width: 860px; margin-left: auto; margin-right: auto; }
+        .step-line { display: flex; gap: 18px; align-items: flex-start; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 24px; }
+        .step-num { width: 40px; height: 40px; border-radius: 50%; background: var(--grad); color: #fff; font-family: var(--font-head); font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .step-line h3 { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+        .step-line p { font-size: 0.9rem; color: var(--text2); line-height: 1.6; }
+        .step-line p + p { margin-top: 8px; }
+        .step-line code { font-family: var(--font-mono); font-size: 0.82rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 1px 6px; }
+
+        .sign-box { max-width: 860px; margin: 28px auto 0; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; }
+        .sign-box h3 { font-family: var(--font-head); font-size: 1.1rem; font-weight: 600; margin-bottom: 10px; }
+        .sign-box > p { font-size: 0.92rem; color: var(--text2); line-height: 1.65; }
+        .sign-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-top: 20px; }
+        .sign-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); text-decoration: none; color: var(--text); transition: border-color 0.2s, transform 0.2s; }
+        .sign-item:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .sign-item .material-icons-round { color: var(--accent); font-size: 22px; }
+        .sign-item b { display: block; font-size: 0.92rem; font-weight: 600; }
+        .sign-item small { display: block; font-size: 0.78rem; color: var(--text3); margin-top: 2px; }
+        .sign-note { margin-top: 18px; font-size: 0.82rem; color: var(--text3); line-height: 1.6; }
+
+        .diff-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 36px; }
+        .diff-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; }
+        .diff-card h3 { font-size: 0.98rem; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .diff-card h3 .material-icons-round { font-size: 20px; color: var(--accent); }
+        .diff-card p { font-size: 0.87rem; color: var(--text2); line-height: 1.6; }
+    </style>
+</head>
+<body>
+
+    <header class="site-header" id="site-header">
+        <div class="container">
+            <nav class="main-nav">
+                <a href="/" class="logo"><img src="../logo.svg" alt="FunPay Tools" width="30" height="30"><span>FunPay<b> Tools</b></span></a>
+                <ul class="nav-links" id="nav-links">
+                    <li><a href="/android" class="nav-link">Android</a></li>
+                    <li><a href="/iphone" class="nav-link active">iPhone</a></li>
+                    <li><a href="/extension" class="nav-link">Расширение Chrome</a></li>
+                    <li><a href="/catalog" class="nav-link">Каталог</a></li>
+                    <li><a href="https://t.me/fptools" target="_blank" rel="noopener" class="nav-link">Сообщество</a></li>
+                </ul>
+                <div class="nav-actions">
+                    <a href="#install" class="btn btn-primary btn-sm"><span class="material-icons-round">download</span>Скачать IPA</a>
+                    <button class="burger" id="burger" aria-label="Меню"><span></span><span></span><span></span></button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="mobile-menu" id="mobile-menu">
+        <ul>
+            <li><a href="/android">Android</a></li>
+            <li><a href="/iphone">iPhone</a></li>
+            <li><a href="/extension">Расширение Chrome</a></li>
+            <li><a href="/catalog">Каталог</a></li>
+            <li><a href="https://t.me/fptools" target="_blank" rel="noopener">Сообщество</a></li>
+        </ul>
+        <div class="mobile-menu-cta">
+            <a href="#install" class="btn btn-primary">Скачать IPA</a>
+        </div>
+    </div>
+
+    <main>
+        <section class="sub-hero">
+            <div class="container">
+                <div class="breadcrumb"><a href="/">FunPay Tools</a><span>›</span>iPhone</div>
+                <div class="hero-badge-row" style="justify-content: center;">
+                    <span class="badge badge-open">iOS 15+</span>
+                    <span class="badge badge-free">Бесплатно</span>
+                </div>
+                <h1>FunPay Tools<br><span class="gradient-text">для iPhone</span></h1>
+                <p class="hero-sub">Приложение для продавцов FunPay на iOS: чаты, автоматизация, лоты, продажи и плагины. Распространяется файлом .ipa вне App Store. Перед установкой файл нужно подписать своим сертификатом, ниже описано, как это сделать.</p>
+
+                <div class="hero-cta" style="justify-content: center;">
+                    <a href="https://github.com/XaviersDev/FunPay-Tools-iOS/releases/latest/download/FunPayTools.ipa" class="btn btn-primary btn-xl ipa-download-btn">
+                        <span class="material-icons-round">download</span> Скачать FunPayTools.ipa
+                    </a>
+                    <a href="#install" class="btn btn-ghost btn-xl">
+                        <span class="material-icons-round">menu_book</span> Инструкция по установке
+                    </a>
+                </div>
+
+                <div class="meta-pills">
+                    <span class="meta-pill">iOS / iPadOS 15.0+</span>
+                    <span class="meta-pill">~23 МБ</span>
+                    <span class="meta-pill"><span class="ipa-version">последняя версия</span></span>
+                    <span class="meta-pill">Без джейлбрейка</span>
+                </div>
+            </div>
+        </section>
+
+        <section style="padding:0 0 70px">
+            <div class="container">
+                <div class="hero-phones ios">
+                    <div class="hphone hphone-left"><img src="../assets/iphone/chats.jpg" alt="Чаты FunPay Tools на iPhone" loading="eager"></div>
+                    <div class="hphone hphone-center"><img src="../assets/iphone/account.jpg" alt="Аккаунт FunPay Tools на iPhone" loading="eager"></div>
+                    <div class="hphone hphone-right"><img src="../assets/iphone/sales.jpg" alt="Продажи FunPay на iPhone" loading="eager"></div>
+                </div>
+            </div>
+        </section>
+
+        <section style="padding:0 0 80px">
+            <div class="container">
+                <div class="section-header reveal">
+                    <div class="label-tag">Возможности</div>
+                    <h2 class="section-title">Что умеет <span class="gradient-text">FunPay Tools</span> на iPhone</h2>
+                    <p class="section-sub">Функции те же, что в приложении для Android</p>
+                </div>
+                <div class="feat-grid reveal">
+                    <div class="feat-card"><span class="material-icons-round">forum</span><h3>Чаты</h3><p>Личные и игровые чаты, общий чат FunPay Tools, папки, метки, поиск, ответы на сообщения, фото и шаблоны с переменными.</p></div>
+                    <div class="feat-card"><span class="material-icons-round">autorenew</span><h3>Автоматизация</h3><p>Автоподнятие, автовыдача, автоответы, демпер цен, вечный онлайн, просьба и бонус за отзыв, ответы на отзывы с ИИ.</p></div>
+                    <div class="feat-card"><span class="material-icons-round">inventory_2</span><h3>Лоты и продажи</h3><p>Менеджер лотов с редактором, история заказов, статистика продаж, баланс: сколько доступно к выводу и когда разморозятся деньги.</p></div>
+                    <div class="feat-card"><span class="material-icons-round">manage_accounts</span><h3>Аккаунт FunPay Tools</h3><p>Вход через Telegram, PRO, цветные ники, рамки для аватарок и баннеры профиля. Покупки общие с Android, Windows и расширением.</p></div>
+                    <div class="feat-card"><span class="material-icons-round">extension</span><h3>Плагины</h3><p>Запускаются те же плагины, что на Android. Готовые проверенные плагины лежат в <a href="/catalog?view=plugins&amp;platform=iphone">каталоге</a>.</p></div>
+                    <div class="feat-card"><span class="material-icons-round">notifications_active</span><h3>Уведомления и виджеты</h3><p>Пуш-уведомления о новых сообщениях и заказах с ответом прямо из уведомления, виджеты баланса и профиля на главном экране.</p></div>
+                </div>
+            </div>
+        </section>
+
+        <section style="padding:0 0 80px" id="install">
+            <div class="container">
+                <div class="section-header reveal">
+                    <div class="label-tag">Установка</div>
+                    <h2 class="section-title">Как установить <span class="gradient-text">.ipa</span> на iPhone</h2>
+                    <p class="section-sub">iOS запускает приложения не из App Store только после подписи сертификатом. Это делается один раз на каждую установку.</p>
+                </div>
+
+                <div class="steps-col reveal">
+                    <div class="step-line"><div class="step-num">1</div><div>
+                        <h3>Скачайте файл</h3>
+                        <p>Нажмите «Скачать FunPayTools.ipa». Файл загрузится с GitHub. Если скачиваете на iPhone, он окажется в приложении «Файлы», в папке «Загрузки».</p>
+                    </div></div>
+                    <div class="step-line"><div class="step-num">2</div><div>
+                        <h3>Получите сертификат</h3>
+                        <p>Подойдёт любой из вариантов: бесплатный Apple ID (приложение работает 7 дней, затем подпись нужно обновить), платный аккаунт разработчика Apple или сертификат от сервиса подписи, обычно на год. Список сервисов ниже.</p>
+                    </div></div>
+                    <div class="step-line"><div class="step-num">3</div><div>
+                        <h3>Подпишите и установите</h3>
+                        <p>С компьютером: установите <b>Sideloadly</b> или <b>AltStore</b>, подключите iPhone кабелем, выберите FunPayTools.ipa и войдите своим Apple ID.</p>
+                        <p>Без компьютера: откройте .ipa в приложении для подписи, например <b>ESign</b>, с сертификатом от сервиса и нажмите «Установить». Многие сервисы подписывают файл сами и присылают ссылку на установку.</p>
+                    </div></div>
+                    <div class="step-line"><div class="step-num">4</div><div>
+                        <h3>Разрешите запуск</h3>
+                        <p>Если при запуске появится «Ненадёжный разработчик», откройте <code>Настройки → Основные → VPN и управление устройством</code>, выберите профиль и нажмите «Доверять».</p>
+                        <p>На iOS 16 и новее включите <code>Настройки → Конфиденциальность и безопасность → Режим разработчика</code> и перезагрузите iPhone, если система попросит.</p>
+                    </div></div>
+                    <div class="step-line"><div class="step-num">5</div><div>
+                        <h3>Войдите в аккаунт</h3>
+                        <p>Через Golden Key или вход на сайте FunPay внутри приложения. Затем разрешите уведомления, чтобы получать сообщения и заказы.</p>
+                    </div></div>
+                </div>
+
+                <div class="sign-box reveal">
+                    <h3>Где взять сертификат</h3>
+                    <p>Сертификаты для подписи .ipa можно найти в интернете. Ниже несколько сервисов, которые мы нашли сами. Они не принадлежат FunPay Tools и никак с нами не связаны, условия и цены у каждого свои. Это может выйти дороже, чем хотелось бы, зато сертификат обычно действует год.</p>
+                    <div class="sign-list">
+                        <a class="sign-item" href="https://www.iguides.ru/main/other/trollstore_svoboda_ot_app_store_chto_eto_takoe_kak_ustanovit_kakie_fishki_dayet_polzovatelyam_iphone/" target="_blank" rel="noopener nofollow"><span class="material-icons-round">article</span><span><b>TrollStore</b><small>Статья iGuides: что это и как установить</small></span></a>
+                        <a class="sign-item" href="https://t.me/appboxsignbot" target="_blank" rel="noopener nofollow"><span class="material-icons-round">send</span><span><b>@appboxsignbot</b><small>Telegram-бот</small></span></a>
+                        <a class="sign-item" href="https://orissert.ru" target="_blank" rel="noopener nofollow"><span class="material-icons-round">verified</span><span><b>orissert.ru</b><small>Сервис сертификатов</small></span></a>
+                        <a class="sign-item" href="https://appbank.pw/signum/" target="_blank" rel="noopener nofollow"><span class="material-icons-round">verified</span><span><b>appbank.pw/signum</b><small>Сервис сертификатов</small></span></a>
+                        <a class="sign-item" href="https://lazyshop.app/order/?no_login=1" target="_blank" rel="noopener nofollow"><span class="material-icons-round">verified</span><span><b>lazyshop.app</b><small>Сервис сертификатов</small></span></a>
+                    </div>
+                    <p class="sign-note">TrollStore работает только на определённых версиях iOS, подробности в статье. Перед покупкой сертификата уточните у продавца, на какой срок он выдаётся и что будет при его отзыве. Если сертификат отзовут или срок закончится, приложение перестанет открываться: подпишите и установите .ipa заново.</p>
+                </div>
+
+                <div style="text-align:center;margin-top:34px">
+                    <a href="https://github.com/XaviersDev/FunPay-Tools-iOS/releases/latest/download/FunPayTools.ipa" class="btn btn-primary btn-xl ipa-download-btn"><span class="material-icons-round">download</span>Скачать FunPayTools.ipa</a>
+                </div>
+            </div>
+        </section>
+
+        <section style="padding:0 0 80px">
+            <div class="container">
+                <div class="section-header reveal">
+                    <div class="label-tag">Особенности iOS</div>
+                    <h2 class="section-title">Чем версия для iPhone <span class="gradient-text">отличается</span></h2>
+                </div>
+                <div class="diff-grid reveal">
+                    <div class="diff-card"><h3><span class="material-icons-round">bedtime</span>Работа в фоне</h3><p>iOS строже Android к фоновым приложениям. FunPay Tools продолжает работать в фоне, но система может приостановить его, например при нехватке памяти. Если нужна автоматизация круглые сутки, надёжнее Android или программа для Windows.</p></div>
+                    <div class="diff-card"><h3><span class="material-icons-round">system_update</span>Обновления</h3><p>Приложение не обновляется само. Скачайте новый .ipa и установите его поверх старой версии тем же способом. Аккаунты и настройки сохранятся, если не удалять приложение.</p></div>
+                    <div class="diff-card"><h3><span class="material-icons-round">widgets</span>Виджеты</h3><p>Виджеты баланса и профиля добавляются как обычно: долгое нажатие на главном экране, «+», FunPay Tools. С некоторыми способами подписи виджеты могут не получать данные.</p></div>
+                    <div class="diff-card"><h3><span class="material-icons-round">extension</span>Плагины</h3><p>Плагины для Android подходят и для iPhone. Функции, которых на iOS нет, например работа с системными настройками Android, в плагинах просто не срабатывают.</p></div>
+                </div>
+            </div>
+        </section>
+
+        <section style="padding:0 0 80px">
+            <div class="container">
+                <div class="section-header reveal">
+                    <div class="label-tag">FAQ</div>
+                    <h2 class="section-title">Частые вопросы про <span class="gradient-text">версию для iPhone</span></h2>
+                </div>
+                <div class="faq-list reveal">
+                    <div class="faq-item">
+                        <button class="faq-q">Почему приложения нет в App Store?<span class="material-icons-round">expand_more</span></button>
+                        <div class="faq-a">Сейчас приложение распространяется только файлом .ipa, вне App Store. Так же устанавливаются многие программы, которых нет в магазине Apple.</div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-q">Нужен ли джейлбрейк?<span class="material-icons-round">expand_more</span></button>
+                        <div class="faq-a">Нет. Достаточно подписать .ipa сертификатом и установить одним из способов из инструкции.</div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-q">Приложение перестало открываться, что делать?<span class="material-icons-round">expand_more</span></button>
+                        <div class="faq-a">Скорее всего, закончился срок подписи или сертификат отозвали. При бесплатном Apple ID подпись действует 7 дней. Подпишите и установите .ipa заново, данные останутся на месте, если приложение не удаляли.</div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-q">Не приходят уведомления, что проверить?<span class="material-icons-round">expand_more</span></button>
+                        <div class="faq-a">Включите уведомления в настройках самого приложения и разрешите их в <code>Настройки → Уведомления → FunPay Tools</code>. Уведомления приходят, пока приложение работает в фоне. Если iOS его выгрузила, просто откройте приложение снова.</div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-q">Где хранится мой Golden Key?<span class="material-icons-round">expand_more</span></button>
+                        <div class="faq-a">Только на вашем iPhone, в данных приложения. FunPay Tools не отправляет ключ на сторонние серверы. Сервис подписи получает только файл .ipa, а не ваши данные из приложения.</div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-q">Работает ли на iPad?<span class="material-icons-round">expand_more</span></button>
+                        <div class="faq-a">Да, на iPadOS 15 и новее. Интерфейс тот же, что на iPhone.</div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-q">Бесплатно ли приложение?<span class="material-icons-round">expand_more</span></button>
+                        <div class="faq-a">Да, как и версия для Android. Часть функций открывает PRO, его можно купить во вкладке «Аккаунт FunPay Tools» или через бота <a href="https://t.me/fptoolsbot" target="_blank" rel="noopener">@FPToolsBot</a>. Сертификат для подписи к FunPay Tools не относится и оплачивается отдельно, если вы выбираете платный вариант.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="final-cta">
+            <div class="container">
+                <div class="final-cta-inner reveal">
+                    <h2>FunPay Tools для iPhone</h2>
+                    <p>iOS 15+ · Файл .ipa · Подпись своим сертификатом</p>
+                    <div class="final-cta-buttons">
+                        <a href="https://github.com/XaviersDev/FunPay-Tools-iOS/releases/latest/download/FunPayTools.ipa" class="btn btn-primary btn-xl ipa-download-btn"><span class="material-icons-round">download</span>Скачать FunPayTools.ipa</a>
+                        <a href="#install" class="btn btn-ghost btn-xl"><span class="material-icons-round">menu_book</span>Инструкция</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="/" class="logo"><img src="../logo.svg" alt="FunPay Tools" width="28" height="28"><span>FunPay<b> Tools</b></span></a>
+                    <p>Инструменты для продавцов на FunPay.</p>
+                </div>
+                <div class="footer-links-col">
+                    <h5>Продукты</h5>
+                    <a href="/android">Android</a>
+                    <a href="/iphone">iPhone</a>
+                    <a href="/extension">Расширение Chrome</a>
+                    <a href="https://t.me/fptoolsbot" target="_blank" rel="noopener">Telegram Bot</a>
+                    <a href="/catalog">Каталог</a>
+                </div>
+                <div class="footer-links-col">
+                    <h5>Ресурсы</h5>
+                    <a href="#install">Инструкция по установке</a>
+                    <a href="/catalog?view=plugins&amp;platform=iphone">Плагины</a>
+                    <a href="/#faq">FAQ</a>
+                </div>
+                <div class="footer-links-col">
+                    <h5>Сообщество</h5>
+                    <a href="https://t.me/fptools" target="_blank" rel="noopener">Telegram канал</a>
+                    <a href="https://t.me/AlliSighs" target="_blank" rel="noopener">Поддержка</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 FunPay Tools</p>
+                <p class="disclaimer">Неофициальное ПО для FunPay, не связано с администрацией FunPay и Apple.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js" defer></script>
+    <script>
+    // ссылка на последний .ipa и номер версии с GitHub
+    fetch('https://api.github.com/repos/XaviersDev/FunPay-Tools-iOS/releases/latest')
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(d => {
+            const ipa = (d.assets || []).find(a => /\.ipa$/i.test(a.name));
+            if (ipa) {
+                document.querySelectorAll('.ipa-download-btn').forEach(a => a.href = ipa.browser_download_url);
+                const mb = Math.round(ipa.size / 1048576);
+                document.querySelectorAll('.meta-pill').forEach(p => { if (/МБ$/.test(p.textContent.trim())) p.textContent = '~' + mb + ' МБ'; });
+            }
+            const v = (d.tag_name || '').replace(/^ios-/, '').replace(/-build(\d+)$/, ' (сборка $1)');
+            if (v) document.querySelectorAll('.ipa-version').forEach(s => s.textContent = v);
+        })
+        .catch(() => {});
+    </script>
+</body>
+</html>

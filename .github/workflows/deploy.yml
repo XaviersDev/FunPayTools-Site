@@ -1,0 +1,35 @@
+# Выкладка сайта на Vercel.
+# Автодеплой Vercel на каждый коммит выключен в vercel.json: бот ников и украшений
+# коммитит donaters.json и decor.json сотни раз в день и съедал лимит Hobby (100 деплоев в сутки).
+# Приложения и программа читают эти файлы с GitHub напрямую, деплой для них не нужен.
+# Сайт выкладывается, только когда меняется что-то кроме этих файлов, плюс раз в сутки
+# и вручную (Actions → Deploy → Run workflow).
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - donaters.json
+      - decor.json
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: vercel-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Вызвать Deploy Hook
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "::error::Нет секрета VERCEL_DEPLOY_HOOK (Settings → Secrets and variables → Actions)"
+            exit 1
+          fi
+          curl -fsS -X POST "$HOOK"

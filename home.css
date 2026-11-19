@@ -484,7 +484,7 @@ img { display: block; max-width: 100%; height: auto; }
 /* ---------------------------------------------------------------- телефон и планшет */
 /* четыре кнопки скачивания: на средних экранах чуть плотнее */
 @media (max-width: 1180px) {
-    .seg { padding: 16px 20px; gap: 9px; }
+    .seg { padding: 16px 18px; gap: 9px; }
     .f-cols { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 /* скриншоты iPhone выше, чем у Android: показываем целиком */

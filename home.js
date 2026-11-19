@@ -11,6 +11,7 @@
         android: hero.querySelector('.art-android'),
         chrome: hero.querySelector('.art-chrome'),
         iphone: hero.querySelector('.art-iphone'),
+        firefox: hero.querySelector('.art-firefox'),
     };
     const hints = [...document.querySelectorAll('.hint-text')];
     const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -53,10 +54,10 @@
 
     // платформа посетителя по умолчанию
     const ua = navigator.userAgent;
-    const start = /Android/i.test(ua) ? 'android' : /iPhone|iPad|iPod/i.test(ua) ? 'iphone' : /Windows/i.test(ua) ? 'windows' : 'chrome';
+    const start = /Android/i.test(ua) ? 'android' : /iPhone|iPad|iPod/i.test(ua) ? 'iphone' : /Windows/i.test(ua) ? 'windows' : /Firefox\//i.test(ua) ? 'firefox' : 'chrome';
 
     // пока посетитель ничего не трогал, платформы сменяются сами
-    const order = ['windows', 'chrome', 'android', 'iphone'];
+    const order = ['windows', 'chrome', 'firefox', 'android', 'iphone'];
     let auto = !still;
     let autoTimer = null;
     function scheduleAuto() {

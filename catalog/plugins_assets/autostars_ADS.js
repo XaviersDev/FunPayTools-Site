@@ -1,7 +1,7 @@
 // @name AutoStars
 // @author @AntiDoxService | Telegram
-// @version 0.6.5
-// @description AutoStars — автоматическая выдача Telegram Stars и Premium по оплаченным заказам FunPay прямо в FP Tools. Установите плагин, активируйте ключ и подключите Fragment — Удобно !>
+// @version 0.6.8
+// @description AutoStars: полный плагин FP Tools с лицензией, автоматической обработкой оплат и серверной выдачей Stars/Premium.
 // Распространение разрешает @AntiDoxService | TG @AntiDoxService. Перед публикацией требуется проверка на устройстве.
 (function () {
     "use strict";
@@ -33,8 +33,39 @@
 // FunPay authentication stays in the native app. Only minimal order facts leave it.
 "use strict";
 var alive = true, running = false, settings = null, orders = [], lastError = "";
+var lastErrorCode = "", errorRevision = 0;
 var callback = prefix.replace(/[^A-Za-z0-9_]/g, "_") + "runtime";
-var queue=Promise.resolve(),hints={},lastDetected="";
+var queue = Promise.resolve();
+var hintLimit = 100, hintLifetime = 24 * 60 * 60 * 1000;
+var hintStorageKey = prefix + "pending_orders_v1_" + license.licenseId;
+var hints = restoreHints();
+var lastDetected = Object.keys(hints).slice(-1)[0] || "";
+function restoreHints() {
+    var result = {};
+    try {
+        var stored = JSON.parse(fpt.storage.get(hintStorageKey) || "{}");
+        if (!stored || typeof stored !== "object" || Array.isArray(stored)) return result;
+        Object.keys(stored).slice(0, hintLimit).forEach(function (id) {
+            var hint = stored[id];
+            if (!/^[A-Z0-9]{6,16}$/.test(id) || !hint || !Number.isSafeInteger(hint.expiresAt) || hint.expiresAt <= Date.now()) return;
+            result[id] = { chatId: chatNode(hint.chatId), expiresAt: hint.expiresAt, nextAt: 0 };
+        });
+    } catch (ignored) { /* Continue with new events if local storage is unavailable. */ }
+    return result;
+}
+function saveHints() {
+    if (!fpt.storage) return;
+    try { fpt.storage.set(hintStorageKey, JSON.stringify(hints)); }
+    catch (ignored) { fpt.app.log("AutoStars: не удалось сохранить ожидающие заказы в FP Tools."); }
+}
+function removeHint(id) { delete hints[id]; saveHints(); }
+function pruneHints() {
+    var now = Date.now();
+    var expired = Object.keys(hints).filter(function (id) { return hints[id].expiresAt <= now; });
+    if (!expired.length) return;
+    expired.forEach(function (id) { delete hints[id]; });
+    saveHints();
+}
 function enqueue(work){
     queue=queue.catch(function(){}).then(function(){if(!alive)return;running=true;return work();}).catch(error).then(function(){running=false;if(alive)render(false);});
     return queue;
@@ -85,7 +116,15 @@ function explanation(value) {
     };
     return messages[value]||value;
 }
-function error(err) { lastError = explanation(String(err.code || err.message || "Сервис недоступен")).slice(0, 250); fpt.app.log("AutoStars @AntiDoxService: " + lastError); }
+function clearError() { lastError = ""; lastErrorCode = ""; }
+function error(err) {
+    lastErrorCode = String(err.code || ""); errorRevision++;
+    var detail = lastErrorCode === "LOCAL_TEMPORARY"
+        ? "LOCAL_TEMPORARY: " + (err.message && err.message !== lastErrorCode ? err.message : "FP Tools временно не вернул данные профиля или не завершил локальную проверку.") + " Проверка повторится автоматически. Откройте FP Tools и нужный профиль FunPay."
+        : explanation(String(err.code || err.message || "Сервис недоступен"));
+    lastError = detail.replace(/\b(?:UBK|SES)-[A-Za-z0-9_-]+/g, "[ключ скрыт]").replace(/[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g, "[данные скрыты]").slice(0, 350);
+    fpt.app.log("AutoStars @AntiDoxService: " + lastError);
+}
 function readFunpay(orderId, keys) {
     if (!alive || !/^[A-Z0-9]{6,16}$/.test(orderId)) throw new Error("Проверка заказа остановлена.");
     request.checkProfile();
@@ -109,6 +148,7 @@ function checked(orderId, chatId, purpose) {
     return request("prepare", { orderId: orderId, purpose: purpose }).then(function (check) {
         if (!alive) return;
         var data = { orderId: orderId, chatId: chatId, checkToken: check.checkToken };
+        var retryMs = 60000;
         try {
             data.evidence = readFunpay(orderId, check.fieldKeys);
             var actualChat=chatNode(data.evidence.chat.node_name),eventChat=chatNode(chatId);
@@ -119,10 +159,15 @@ function checked(orderId, chatId, purpose) {
             if(!actualChat)throw new Error("FunPay не вернул чат заказа #"+orderId+". Проверка повторится автоматически.");
             data.chatId=eventChat&&!sameChat(eventChat,actualChat)?eventChat:actualChat;
         }
-        catch (err) { error(err); data.unavailable = true; }
+        catch (err) {
+            if (err.code === "LOCAL_TEMPORARY") retryMs = 15000;
+            error(err); data.unavailable = true;
+        }
         if (!alive) return;
         request.checkAccount();
-        return request("report", data).then(function(result){return data.unavailable&&purpose==="register"?{retryLater:true}:result;});
+        return request("report", data).then(function (result) {
+            return data.unavailable && purpose === "register" ? { retryMs: retryMs } : result;
+        });
     });
 }
 function render(reset) {
@@ -141,8 +186,9 @@ function render(reset) {
         text(settings.live ? "Серверная выдача доступна." : "Тестовый режим: списания Fragment на сервере отключены."),
         text(settings.enabled?"Автоподхват новых оплат включён.":"Автовыдача выключена. Включите галочку и сохраните настройки."),
         text(lastDetected?"Последний обнаруженный заказ: #"+lastDetected:"Ожидаем новую оплату от FP Tools."),
+        Object.keys(hints).length ? text("Ожидают проверки FunPay: " + Object.keys(hints).length, 12.0) : { type: "Spacer", size: 0 },
         text("Товар, количество и получатель определяются из заказа FunPay автоматически. Stars: от 50 звёзд, по username. Premium: 3, 6 или 12 месяцев, подарком без входа в аккаунт. Другие категории и способы доставки пропускаются.", 12.0),
-        text("Обрабатываются новые оплаты, полученные работающим FP Tools. Старые пропущенные заказы здесь не добавляются. Если получатель не указан через @, плагин запросит его у покупателя.", 12.0),
+        text("Обрабатываются новые оплаты, полученные работающим FP Tools. Старые пропущенные заказы здесь не добавляются. В поле получателя заказа @ можно пропустить: например, AntiDoxService будет обработан как @AntiDoxService. Получатель всегда берётся из вашего заказа. Если юзернейм пустой или некорректный, плагин запросит его у покупателя.", 12.0),
         { type: "Checkbox", text: "Включить автовыдачу Telegram Stars / Premium", stateKey: prefix + "enabled" },
         input("currency", "Валюта Fragment: ton или usdt_ton"),
         { type: "Checkbox", text: "Показывать отправителя", stateKey: prefix + "sender" },
@@ -179,11 +225,19 @@ function refresh(send) {
     return request("orders", {}).then(function (result) { if (!alive) return; orders = result.orders; settings.live = result.live; if (send) return deliverMessages(); });
 }
 function cycle() {
-    return refresh(false).then(function () {
+    var recoveryRevision = errorRevision;
+    return Promise.resolve().then(function () {
+        // A successful orders response alone does not prove that the native
+        // profile recovered. Re-read it before clearing a local diagnostic.
+        if (lastErrorCode === "LOCAL_TEMPORARY") request.checkProfile();
+        return refresh(false);
+    }).then(function () {
         if (!alive || !settings.enabled) return;
         var due = orders.filter(function (order) { return order.needsCheck; })[0];
         if (due) return checked(due.orderId, due.chatId, "deliver");
-    }).then(function () { if (alive) return refresh(true); });
+    }).then(function () { if (alive) return refresh(true); }).then(function () {
+        if (alive && lastErrorCode === "LOCAL_TEMPORARY" && errorRevision === recoveryRevision) clearError();
+    });
 }
 window[callback] = function (action) {
     if (!alive || !settings) return;
@@ -191,27 +245,36 @@ window[callback] = function (action) {
         if (action === "save") {
             var texts = {}; Object.keys(settings.texts).forEach(function (key) { texts[key] = get("text_" + key).replace(/\\n/g, "\n"); });
             var config = { enabled: get("enabled") === "true", currency: get("currency").trim(), showSender: get("sender") === "true", autoProducts: true, rules: [], texts: texts };
-            return request("settings", { settings: config, fragmentJwt: get("jwt").trim().replace(/^JWT\s+/i, ""), acceptServerStorage: get("consent") === "true" }).then(function (result) { result.live = settings.live; settings = result; lastError = ""; render(true); fpt.app.toast("AutoStars: настройки сохранены"); });
+            return request("settings", { settings: config, fragmentJwt: get("jwt").trim().replace(/^JWT\s+/i, ""), acceptServerStorage: get("consent") === "true" }).then(function (result) {
+                result.live = settings.live; settings = result;
+                if (!settings.enabled) clearHints();
+                clearError(); render(true); fpt.app.toast("AutoStars: настройки сохранены");
+            });
         }
         if (typeof action === "string" && /^cancel:[A-Z0-9]{6,16}$/.test(action)) return request("cancel", { orderId: action.slice(7) }).then(function () { fpt.app.toast("Автовыдача заказа остановлена."); return refresh(true); });
-        if(action === "refresh")return cycle().then(function () { render(false); });
+        if (action === "refresh") return drainHints(true).then(cycle);
     });
 };
-function drainHints(){
+function clearHints() {
+    if (!Object.keys(hints).length) return;
+    hints = {}; saveHints();
+}
+function drainHints(force){
     if(!alive||!settings)return Promise.resolve();
-    if(!settings.enabled){hints={};return Promise.resolve();}
+    if (!settings.enabled) { clearHints(); return Promise.resolve(); }
+    pruneHints();
     return Object.keys(hints).slice(0,20).reduce(function(chain,id){return chain.then(function(){
         if(!alive||!settings.enabled)return;
-        var hint=hints[id];if(!hint||hint.nextAt>Date.now())return;
+        var hint=hints[id];if(!hint||(!force&&hint.nextAt>Date.now()))return;
         return checked(id,hint.chatId,"register").then(function(result){
             if(!alive)return;
-            if(result&&result.retryLater){hint.nextAt=Date.now()+60000;return;}
-            delete hints[id];
-            if(result&&!result.ignored){lastError="";return cycle();}
+            if (result && result.retryMs) { hint.nextAt = Date.now() + result.retryMs; return; }
+            removeHint(id);
+            if(result&&!result.ignored){clearError();return cycle();}
         }).catch(function(err){
             // A forged notification must not reserve another buyer's ID.
-            if(/ORDER_(?:CHAT|OWNERSHIP)_MISMATCH|ORDER_BELONGS_TO_PREVIOUS_LICENSE/.test(String(err.code||err.message)))delete hints[id];
-            else hint.nextAt=Date.now()+60000;
+            if(/ORDER_(?:CHAT|OWNERSHIP)_MISMATCH|ORDER_BELONGS_TO_PREVIOUS_LICENSE/.test(String(err.code||err.message)))removeHint(id);
+            else hint.nextAt = Date.now() + (err.code === "LOCAL_TEMPORARY" ? 15000 : 60000);
             error(err);
         });
     });},Promise.resolve());
@@ -222,9 +285,11 @@ function onOrder(order) {
     var id=orderId(order.orderId)||paymentId(order.text),chat=chatNode(order.chatId);
     if(!id){error(new Error("Не удалось распознать номер заказа в событии FP Tools. Ожидаем уведомление об оплате в чате."));render(false);return;}
     lastDetected=id;
+    pruneHints();
     if(hints[id])return;
-    if(Object.keys(hints).length>=100){error(new Error("Слишком много ожидающих уведомлений. Проверьте подключение к серверу."));render(false);return;}
-    hints[id]={chatId:chat,nextAt:0};
+    if(Object.keys(hints).length>=hintLimit){error(new Error("Слишком много ожидающих уведомлений. Проверьте подключение к серверу."));render(false);return;}
+    hints[id] = { chatId: chat, nextAt: 0, expiresAt: Date.now() + hintLifetime };
+    saveHints();
     if(settings)enqueue(drainHints);
 }
 fpt.on("onNewOrder", onOrder);
@@ -265,7 +330,7 @@ function loadSettings() {
     return request("settings", {}).then(function (result) {
         if (!alive) return;
         if(result.automaticProducts!=="telegram-v1")throw new Error("Для автоматического определения товара обновите сервер AutoStars до 0.10.2 или новее.");
-        settings = result; lastError = ""; return refresh(true);
+        settings = result; clearError(); return refresh(true);
     }).then(function () {
         if (alive){render(true);return drainHints();}
     }).catch(function (err) {
@@ -308,7 +373,7 @@ return { stop: function () { alive = false; hints={};clearInterval(timer); delet
             .replace(/[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g, "[данные скрыты]").slice(0, 300);
     }
     function notice(text, toast) {
-        try { if (fpt.app && fpt.app.log) fpt.app.log("AutoStars 0.6.5: " + text); } catch (ignored) {}
+        try { if (fpt.app && fpt.app.log) fpt.app.log("AutoStars 0.6.8: " + text); } catch (ignored) {}
         try { if (toast && fpt.app && fpt.app.toast) fpt.app.toast(text); } catch (ignored) {}
     }
     function progress(text) {
@@ -433,13 +498,21 @@ return { stop: function () { alive = false; hints={};clearInterval(timer); delet
     }
     function readAccount() {
         var active;
-        try { active = fpt.accounts.getActive(); } catch (ignored) {}
+        try { active = nativeObject(fpt.accounts.getActive()); } catch (ignored) {}
         if (!active || !active.id) throw localError("LOCAL_TEMPORARY", "Приложение пока не вернуло активный аккаунт FunPay.");
         return active;
     }
+    function nativeObject(value) {
+        // Native bridges may serialize their result. Do not cache identity or
+        // substitute a previous account when the current response is missing.
+        if (typeof value === "string" && value.length <= 100000) {
+            try { value = JSON.parse(value); } catch (ignored) { return null; }
+        }
+        return value && typeof value === "object" && !Array.isArray(value) ? value : null;
+    }
     function readProfile() {
         var profile;
-        try { profile = fpt.users.getProfile(); } catch (ignored) {}
+        try { profile = nativeObject(fpt.users.getProfile()); } catch (ignored) {}
         if (!profile || !/^[1-9]\d*$/.test(String(profile.id || "")) || !String(profile.username || "").trim()) throw localError("LOCAL_TEMPORARY", "Профиль FunPay временно недоступен.");
         return profile;
     }
@@ -524,13 +597,13 @@ return { stop: function () { alive = false; hints={};clearInterval(timer); delet
         try { hasLegacy = hasLegacy || !!fpt.storage.get("settings_v1") || !!fpt.storage.get("orders_v1"); } catch (ignored) {}
         fpt.ui.setSlot(PLUGIN_SLOT_KEY, { type: "Card", children: [
             { type: "Text", text: "AutoStars · @AntiDoxService", bold: true, fontSize: 18.0 },
-            { type: "Text", text: "AutoStars 0.6.5 · Telegram → @AntiDoxService", fontSize: 12.0 },
+            { type: "Text", text: "AutoStars 0.6.8 · Telegram → @AntiDoxService", fontSize: 12.0 },
             { type: "Text", text: text || "Введите ключ лицензии. Первая активация привяжет его к этой установке.", fontSize: 14.0 },
             { type: "Text", text: "Купить ключ: " + BOT_URL + "\nОткройте бота в Telegram, выберите тариф и вставьте полученный ключ ниже.", fontSize: 12.0 },
             { type: "Input", stateKey: prefix + "key", label: "Лицензионный ключ (пусто — использовать сохранённый)", singleLine: true },
             { type: "Button", text: "Проверить ключ", onClick: "window." + activateName + "()" },
             hasLegacy ? { type: "Button", text: "Переход со старой версии", onClick: "window." + migrationName + "('preview')" } : { type: "Spacer", size: 0 },
-            text ? { type: "Button", text: "Диагностика", onClick: "fpt.app.toast('Проверка AutoStars 0.6.5'); window." + diagnosticName + "()" } : { type: "Spacer", size: 0 },
+            text ? { type: "Button", text: "Диагностика", onClick: "fpt.app.toast('Проверка AutoStars 0.6.8'); window." + diagnosticName + "()" } : { type: "Spacer", size: 0 },
             { type: "Text", text: "Для работы нужен интернет. Очистка данных приложения может потребовать переноса лицензии через @AntiDoxService.", fontSize: 12.0 },
             { type: "Text", text: "Копирование и распространение без разрешения @AntiDoxService запрещены.", fontSize: 12.0 }
         ] });
@@ -628,7 +701,7 @@ return { stop: function () { alive = false; hints={};clearInterval(timer); delet
         } catch (error) { failed(error); }
     };
     window[diagnosticName] = function () {
-        var report = "Проверка AutoStars 0.6.5. Кнопка и обработчик работают.\n";
+        var report = "Проверка AutoStars 0.6.8. Кнопка и обработчик работают.\n";
         try {
             report += "WebCrypto: " + (window.crypto && window.crypto.subtle ? "есть" : "нет") + "\n";
             report += "IndexedDB: " + (window.indexedDB ? "есть" : "нет") + "\n";

@@ -2,6 +2,7 @@
 // @author @AntiDoxService | Telegram
 // @version 0.6.8
 // @description AutoStars: полный плагин FP Tools с лицензией, автоматической обработкой оплат и серверной выдачей Stars/Premium.
+// @banner https://raw.githubusercontent.com/XaviersDev/FunPayTools-Site/main/catalog/plugins_assets/autostars_ADS_banner.png
 // Распространение разрешает @AntiDoxService | TG @AntiDoxService. Перед публикацией требуется проверка на устройстве.
 (function () {
     "use strict";

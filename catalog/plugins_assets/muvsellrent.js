@@ -1,7 +1,7 @@
 // @name MUVSell Rent
 // @author @MUVSell
-// @version 1.2.17.1
-// @description Перепродажа аренды Steam-аккаунтов MUVSell: выдача логина и пароля после оплаты, коды Steam Guard, продления, оффлайн-игры навсегда, автовыставление лотов, наличие, цены и статистика.
+// @version 1.2.29
+// @description Перепродажа аренды Steam и GTA 6 на PS5 с MUVSell: выдача логина и пароля после оплаты, запрос кода входа PS5, коды Steam Guard, продления, оффлайн-игры навсегда, автовыставление лотов, наличие, цены и статистика.
 // @banner https://raw.githubusercontent.com/XaviersDev/FunPayTools-Site/refs/heads/main/catalog/plugins_assets/muvsellrent_banner.png
 // @updateUrl https://raw.githubusercontent.com/XaviersDev/FunPayTools-Site/refs/heads/main/catalog/plugins_assets/muvsellrent.js
 
@@ -305,12 +305,18 @@
         return rows;
     }
 
-    // ---------------------------------------------------------------- MUVSell Rent (по версии 1.2.17 для FunPay Cardinal)
-    // Покупатель оплачивает лот на FunPay, плагин арендует Steam-аккаунт на muvsell.store с вашего баланса и присылает логин и пароль.
+    // ---------------------------------------------------------------- MUVSell Rent (по версии 1.2.29 для FunPay Cardinal)
+    // Покупатель оплачивает лот на FunPay, плагин арендует Steam-аккаунт на muvsell.store с вашего баланса и присылает логин и пароль,
+    // а для GTA 6 на PS5 берёт аренду и принимает от покупателя код входа с консоли.
     var SITE = "https://muvsell.store", API_BASE = SITE + "/api/v1";
     var MIRROR = "https://cold-band-9582.manimanimanimani4444.workers.dev";   // запасной адрес MUVSell (только /api и /downloads)
     var MIN_HOURS = 1, MAX_HOURS = 720;
     var STEAM_SUB = 89, OTHER_SUB = 451, OFF_SUB = 1405;      // Steam "Аккаунты с играми", "Прочие игры", Steam "Оффлайн активации"
+    var OTHER_MISC = 2046;          // "Прочие игры" → "Прочее": туда встают лоты продления игр из "Прочих игр"
+    var GTA_GAME_ID = "gta6-ps5", GTA_FUNPAY_SUB = 4827, GTA_NAME = "GTA 6 (PS5)";   // GTA 6 на PS5: аренда через /psn, код входа присылает покупатель
+    var GTA_SAMPLE = ["GTA 6 Ultimate Edition (PS5)", 1, 1];
+    var PSN_PRICE_UNAVAILABLE = "цена срока PS5 временно недоступна";
+    var QUOTE_BATCH = 50;           // позиций в одном /rental/quote (больше сервер не примет)
     var MANUAL = { steam: [STEAM_SUB, "Steam \"Аккаунты с играми\""], other: [OTHER_SUB, "\"Прочие игры\""] };
     var LOT_AMOUNT = 1000;          // "Наличие" лотов плагина: FunPay вычитает купленные штуки и на нуле выключает лот
     var API_DOWN_SEC = 300;         // MUVSell не отвечает столько подряд: лоты плагина снимаются с продажи
@@ -318,6 +324,8 @@
     var EN_RATIO = 0.6;             // английское описание намного короче русского FunPay тоже не принимает
     var EN_SHORT_HINT = "FunPay не принял английское описание: оно намного короче русского. Допишите его во вкладке \"Сообщения\".";
     var TAG_RX = /\brentM-\d+\b/ig;
+    var GTA_SAVES_RU = "На аккаунте есть подписка PS Plus (PlayStation Plus). Во время аренды можно сохранять игровой прогресс и загружать сохранения в облако PS Plus. Облако привязано к общему аккаунту, поэтому другие арендаторы могут перезаписать сохранения.";
+    var GTA_SAVES_EN = "The account includes a PS Plus (PlayStation Plus) subscription. During the rental, you can save your progress and upload your saves to PS Plus cloud storage. Cloud storage belongs to the shared account, so another renter may overwrite those saves.";
 
     var TEXTS = {
         delivery: "🎮 {game}: аккаунт готов!\n\n👤 Логин: {login}\n🔑 Пароль: {password}\n⏳ Срок: {hours} ч., до {expires}\n\n🔐 Код Steam Guard: {guard}\n⌛ Сколько осталось: !время\n📋 Все команды: !помощь\n\n🔄 Продлить этот аккаунт: {word} 3 на 3 ч, {word} 2д на 2 дня.\n🛒 Новая покупка лота выдаст другой аккаунт. Хорошей игры! 🎯",
@@ -355,6 +363,20 @@
         ap_title_en: "{game} | Steam rental {time} | Auto delivery",
         ap_desc_ru: "🎮 Лицензионный Steam-аккаунт {game} в аренду на {time}.\n⚡ Логин и пароль придут в чат сами, сразу после оплаты, круглосуточно.\n🔄 Продлить тот же аккаунт можно командой в чате (ниже). Новая покупка лота выдаст другой аккаунт.\n🔢 Количество в заказе добавляет время на один аккаунт: 4 шт. лота на 1 день = 1 аккаунт на 4 дня. Нужно несколько аккаунтов? Оформите отдельные заказы.\n\n📋 Команды в чате заказа:\n{commands}\n\n⏳ Когда срок выйдет, доступ закроется автоматически.",
         ap_desc_en: "Licensed Steam account {game} for rent for {time}. Login and password arrive in the chat automatically right after payment, 24/7. Chat commands: !code - Steam Guard code, !time - time left, !extend 3 - add 3 hours to the same account, !help - all commands. Buying the offer again gives you a new account. The quantity in one order adds time to a single account: 4 pieces of a 1-day offer = 1 account for 4 days. For several accounts, place separate orders.",
+        gta_title_ru: "GTA 6 Ultimate Edition PS5 | {time}",
+        gta_title_en: "GTA 6 Ultimate Edition PS5 | {time}",
+        gta_desc_ru: "🎮 GTA 6 Ultimate Edition для PlayStation 5, аренда на {time}.\n\n📩 После оплаты на PS5 выберите \"Добавить пользователя\" ➧ \"Играть как гость\" ➧ \"Войти другим способом\". Пришлите в чат заказа 6 цифр с экрана консоли или ссылку из QR-кода. Оставьте экран входа открытым до подтверждения. Обычно это занимает около минуты.\n\n💾 " + GTA_SAVES_RU + "\n\n⏱ Срок аренды начинается сразу после выдачи доступа. По окончании аренды доступ закроется автоматически.\n\nДля игры нужны PS5 и интернет. Не меняйте настройки арендованного аккаунта, не совершайте на нём покупки и не присылайте пароль от своего PSN.",
+        gta_desc_en: "Grand Theft Auto VI Ultimate Edition for PlayStation 5, rented for {time}.\n\nAfter payment, choose Add User > Play as a Guest > Sign In Another Way on your PS5. Send the six-digit code shown on your console or the link from the QR code in the order chat. Keep the sign-in screen open until we confirm your login. This usually takes about a minute.\n\n" + GTA_SAVES_EN + "\n\nYour rental starts as soon as access is granted. Access ends automatically when the rental expires.\n\nYou need a PS5 and an internet connection. Do not change the rented account settings or make purchases on it. Never send the password for your personal PSN account.",
+        psn_prompt: "🎮 GTA 6 на PS5: заказ принят.\n\nТеперь на консоли нажмите \"Добавить пользователя\" ➧ \"Играть как гость\" ➧ \"Войти другим способом\".\nПришлите сюда 6 цифр с экрана PS5 или ссылку QR-кода входа. Не закрывайте экран входа, пока мы не подтвердим код.\n\nПодтверждение обычно занимает около минуты. Срок аренды начнётся сразу после выдачи доступа. Не отправляйте пароль от своего PSN-аккаунта.\n\n💾 " + GTA_SAVES_RU,
+        psn_checking: "🔐 Проверяю код и подтверждаю вход на PS5. Обычно это занимает около минуты, оставьте экран входа открытым.",
+        psn_code_bad: "⚠️ Код не принят: {reason}\nПроверьте, что код ещё действует, и пришлите новый код или QR-ссылку.",
+        psn_code_later: "⚠️ Сейчас не могу проверить код. Попробуйте ещё раз через минуту.",
+        psn_retry: "⚠️ Вход не подтвердился. На PS5 обновите код и пришлите новый код или QR-ссылку в этот чат.",
+        psn_active: "✅ Вход подтверждён, GTA 6 готова к запуску. Аренда началась{until}.",
+        psn_already: "✅ Вход в GTA 6 уже подтверждён. Аренда активна{until}.",
+        psn_approving: "🔐 Код уже принят, проверяю вход на PS5. Оставьте экран входа открытым.",
+        psn_timeout: "⌛ Время для входа истекло, аренда отменена. Если оплата FunPay ещё не вернулась, напишите продавцу.",
+        psn_done: "⌛ Время аренды GTA 6 закончилось. Аккаунт будет выведен с консоли.",
         off_title_ru: "{game} | Оффлайн-активация Steam навсегда | Автовыдача 24/7",
         off_title_en: "{game} | Steam offline activation forever | Auto delivery 24/7",
         off_desc_ru: "✅ Автовыдача 24/7: сразу после оплаты бот пришлёт в чат логин и пароль Steam-аккаунта с игрой {game}, навсегда.\n\n🎮 Как играть:\n1. Войдите в аккаунт в Steam. Код Steam Guard: команда {code} в чате заказа.\n2. Скачайте игру и один раз запустите её.\n3. Steam → \"Перейти в автономный режим\", и играйте без интернета.\n\n🔁 Логин и пароль ещё раз: команда !офлайн.\n\n⚠️ Аккаунт общий: не меняйте пароль и почту, не выходите в онлайн во время игры. Это не ключ и не личный аккаунт: игра в автономном режиме Steam.",
@@ -388,6 +410,16 @@
         off_none: "🔎 I don't see any offline games for you. If you've just paid, wait a minute and try again.",
         off_code_limit: "⏳ Can't give a code for {login} right now: the daily code limit is reached. Please try later.",
         off_no_guard: "🔓 {login} doesn't need a Steam Guard code, just log in with the login and password.",
+        psn_prompt: "🎮 GTA 6 on PS5: order accepted.\n\nOn your console choose Add User > Play as a Guest > Sign In Another Way.\nSend the six digits shown on your PS5 or the sign-in QR link here. Keep the sign-in screen open until we confirm the code.\n\nConfirmation usually takes about a minute. Your rental starts as soon as access is granted. Never send the password for your own PSN account.\n\n💾 " + GTA_SAVES_EN,
+        psn_checking: "🔐 Checking the code and confirming the sign-in on your PS5. This usually takes about a minute, keep the sign-in screen open.",
+        psn_code_bad: "⚠️ The code was not accepted: {reason}\nMake sure the code is still valid and send a new code or QR link.",
+        psn_code_later: "⚠️ I can't check the code right now. Please try again in a minute.",
+        psn_retry: "⚠️ The sign-in was not confirmed. Refresh the code on your PS5 and send the new code or QR link to this chat.",
+        psn_active: "✅ Sign-in confirmed, GTA 6 is ready to play. Your rental has started{until}.",
+        psn_already: "✅ Your GTA 6 sign-in is already confirmed. The rental is active{until}.",
+        psn_approving: "🔐 The code is accepted, confirming the sign-in on your PS5. Keep the sign-in screen open.",
+        psn_timeout: "⌛ The sign-in time ran out and the rental was cancelled. If your FunPay payment has not been returned yet, message the seller.",
+        psn_done: "⌛ Your GTA 6 rental has ended. The account will be signed out of your console.",
     };
     var TEXT_LABELS = {
         delivery: "Выдача аккаунта", extended: "Аренда продлена (после оплаты)", ext_lot_ready: "Лот для продления готов", ext_lot_fail: "Лот продления создать не удалось",
@@ -398,6 +430,10 @@
         off_delivery: "Выдача оффлайн-игры (навсегда)", off_creds: "Данные оффлайн-игры (!офлайн)", off_none: "Нет оффлайн-игр", off_code_limit: "Лимит кодов оффлайн-игры", off_no_guard: "Оффлайн-аккаунт без Steam Guard",
         ap_title_ru: "Лот аренды: название (рус.)", ap_title_en: "Лот аренды: название (англ.)", ap_desc_ru: "Лот аренды: описание (рус.)", ap_desc_en: "Лот аренды: описание (англ.)",
         ext_title_ru: "Лот продления: название (рус.)", ext_title_en: "Лот продления: название (англ.)", ext_desc_ru: "Лот продления: описание (рус.)", ext_desc_en: "Лот продления: описание (англ.)",
+        gta_title_ru: "Лот GTA 6 (PS5): название (рус.)", gta_title_en: "Лот GTA 6 (PS5): название (англ.)", gta_desc_ru: "Лот GTA 6 (PS5): описание (рус.)", gta_desc_en: "Лот GTA 6 (PS5): описание (англ.)",
+        psn_prompt: "GTA 6: запрос кода входа PS5", psn_checking: "GTA 6: код получен, проверяю", psn_code_bad: "GTA 6: код не принят", psn_code_later: "GTA 6: код сейчас не проверить",
+        psn_retry: "GTA 6: вход не подтвердился", psn_active: "GTA 6: вход подтверждён", psn_already: "GTA 6: вход уже был подтверждён", psn_approving: "GTA 6: код уже принят",
+        psn_timeout: "GTA 6: время на вход вышло", psn_done: "GTA 6: аренда закончилась",
     };
     var TEXT_KEYS = Object.keys(TEXT_LABELS);
     var HUMAN = {
@@ -405,17 +441,19 @@
         no_stock: "на MUVSell нет свободных аккаунтов", not_found: "игра или аренда не найдена на MUVSell",
         forbidden: "ключ не привязан к аккаунту или аккаунт заблокирован", bad_request: "MUVSell отклонил запрос", wait: "слишком часто",
         no_account: "аренда создана, но аккаунт не выдан, выдайте вручную с сайта",
-        not_covered: "игра не оплачена на MUVSell: нет лицензии на неё и подписки продавца (режим \"только оплаченные\")",
+        not_covered: "игра не оплачена на MUVSell: не куплена навсегда и нет подписки на оффлайн-игры (режим \"только оплаченные\")",
+        bad_key_chars: "в API-ключе недопустимые символы, похоже, сохранён сокращённый ключ с сайта (с \"…\"). Скопируйте полный ключ на muvsell.store и сохраните заново",
+        term_limit: "срок аренды GTA 6 не может превышать 720 часов, уменьшите срок или количество",
         net: "нет связи с MUVSell ни напрямую, ни через запасной адрес",
     };
     var ERRORS = { 400: "bad_request", 401: "bad_key", 402: "balance", 403: "forbidden", 404: "not_found", 409: "no_stock", 429: "wait" };
-    var HIDE_WHY = { stock: "нет аккаунтов", balance: "низкий баланс", api: "MUVSell не отвечает", manual: "\"Скрыть все лоты\"", cover: "выдача не оплачена" };
+    var HIDE_WHY = { stock: "нет аккаунтов", balance: "низкий баланс", api: "MUVSell не отвечает", manual: "\"Скрыть все лоты\"", cover: "выдача не оплачена", short: "срок короче минимума игры" };
     var DEFAULTS = {
         enabled: true, key: "", pay: "rub",
         markup: 50, catMarkup: {}, volDiscount: true, minPrice: 1,
         fpEdit: true, hideNoStock: true, hideLowBalance: false, hideApiDown: true, lotsPaused: false, balanceMin: 0,
         autoRefund: false, reviewBonus: false, bonusHours: 2, bonusStars: 5,
-        notifyEnd: true, warnMin: 30, extCmd: true, extWord: "!продление", codeWord: "!код", enMsgs: true, extMinutes: 10, buyerCmds: true,
+        notifyEnd: true, warnMin: 30, extCmd: true, extWord: "!продление", codeWord: "!код", enMsgs: true, extMinutes: 10, extOther: true, buyerCmds: true,
         pollSec: 60, priceMin: 5, notifySales: true, notifyNews: true, texts: {},
         apDurations: [1, 3, 6, 12, 24, 72, 168, 336, 720], lotCap: 20, apOwn: null, apActive: true, apFilter: "", steamRegion: "Россия",
         offMode: "all", offPrice: 10, offMarkup: 30, offAuto: false,
@@ -438,6 +476,7 @@
     var OFF = load("off", []);          // оффлайн-лоты: {lotId, subcat, titles, gameId, game, auto, price, autohide}
     var OBUY = load("offbuys", {});     // чат → [оффлайн-покупки]
     var LANG = load("langs", {});       // чат → "en", если покупатель пишет английские команды
+    var PSN = load("psn_orders", {});   // заказ FunPay → аренда GTA 6 на PS5: {psnId, order, buyer, chat, game, gameId, hours, status, exp, lastError, lot, at}
     var lastApiError = "";
 
     function saveS() { save("settings", S); }
@@ -528,7 +567,8 @@
     function siteGet(url) { return siteReq("GET", url, null, { "Accept": "application/json" }, true); }
     function api(method, path, body) {
         if (!String(S.key || "").trim()) return { data: null, err: "no_key" };
-        var headers = { "X-API-Key": String(S.key).trim(), "Accept": "application/json", "User-Agent": "MUVSellRent-FunPayTools/1.2.17" };
+        if (/[^\x21-\x7E]/.test(String(S.key).trim())) { lastApiError = ""; return { data: null, err: "bad_key_chars" }; }    // ключ с "…" с сайта: такой заголовок не уйдёт
+        var headers = { "X-API-Key": String(S.key).trim(), "Accept": "application/json", "User-Agent": "MUVSellRent-FunPayTools/1.2.29" };
         var repeatable = method === "GET" || !!(body && body.requestId);     // MUVSell выполняет запрос с requestId один раз
         for (var attempt = 0; attempt < 3; attempt++) {
             var r = siteReq(method, API_BASE + path, body, headers, repeatable);
@@ -556,7 +596,7 @@
         }
         return r;
     }
-    var cache = { products: [0, null], bal: [0, null], rate: [0, 90], costs: {}, offcat: [0, null] };
+    var cache = { products: [0, null], bal: [0, null], rate: [0, 90], costs: {}, offcat: [0, null], psn: null };
     function balance(force) {
         if (force || !cache.bal[1] || now() - cache.bal[0] > 60) {
             var r = api("GET", "/account/balance");
@@ -587,26 +627,105 @@
         if (!String(S.key || "").trim()) return null;
         if (force || !cache.products[1] || now() - cache.products[0] > 300) {
             var r = api("GET", "/rental/products");
-            if (r.data) cache.products = [now(), r.data.products || []];
+            if (r.data) {
+                var list = (r.data.products || []).slice(), gta = psnProduct();
+                if (gta) cache.psn = [now(), gta];
+                else if (cache.psn && now() - cache.psn[0] < 1800) gta = cache.psn[1];      // /psn моргнул: полчаса держим прошлые данные, чтобы лоты GTA не снимались зря
+                if (gta) list.push(gta);
+                cache.products = [now(), list];
+            }
         }
         return cache.products[1];
     }
+    // GTA 6 на PS5 в виде товара каталога: наличие, тарифы и минимальный срок берём из /psn
+    function psnProduct() {
+        var info = api("GET", "/psn").data;
+        if (!info || typeof info !== "object") return null;
+        var terms = Array.isArray(info.terms) ? info.terms : [], lim = info.limits || {}, hour = null;
+        terms.forEach(function (t0) { if (int(t0.hours, 0) === 1 && t0.priceRub !== undefined && t0.priceRub !== null) hour = num(t0.priceRub); });
+        return {
+            id: GTA_GAME_ID, name: GTA_NAME, altName: "Grand Theft Auto VI PS5", psn: true,
+            available: !!info.available, inStock: int(info.availableCount, 0),
+            pricePerHourRub: hour, pricePerHourUsd: Math.round(num(hour) / (num(info.usdRateRub) || 90) * 10000) / 10000,
+            minHours: int(lim.minHours, 1) || 1, maxHours: int(lim.maxHours, MAX_HOURS) || MAX_HOURS,
+            prices: terms.map(function (t0) { return { key: t0.id, hours: int(t0.hours, 0), label: t0.title, priceRub: t0.priceRub }; }),
+        };
+    }
+    function isPsn(x) { return !!x && (!!x.psn || x.gameId === GTA_GAME_ID || x.game_id === GTA_GAME_ID || x.id === GTA_GAME_ID); }
+    // Минимальный срок аренды игры (Dead by Daylight от 120 ч: на коротких арендах банят). Старый сайт поля не отдаёт: общий минимум.
+    function minHours(prod) { return Math.max(MIN_HOURS, int((prod || {}).minHours, MIN_HOURS) || MIN_HOURS); }
+    // Сроки из "Длительностей" (или hours), которые игра принимает
+    function gameDurs(prod, hours) { var lo = minHours(prod); return (hours || S.apDurations || []).filter(function (h) { return int(h, 0) >= lo; }); }
     function product(gameId) {
         var list = products() || [];
         for (var i = 0; i < list.length; i++) if (list[i].id === gameId) return list[i];
         return null;
     }
     function stockMap(prods) { var out = {}; (prods || []).forEach(function (p) { out[p.id] = p.available ? int(p.inStock, 0) : 0; }); return out; }
+    // Запасной расчёт цены срока PS5 по тарифам каталога (как на сайте): между соседними тарифами по прямой
+    function psnCatalogCost(prod, hours) {
+        var tiers = (prod.prices || []).filter(function (p) { return p.hours && p.priceRub !== undefined && p.priceRub !== null; })
+            .map(function (p) { return [int(p.hours, 0), num(p.priceRub)]; }).sort(function (a, b) { return a[0] - b[0]; });
+        for (var i = 0; i + 1 < tiers.length; i++) {
+            var lo = tiers[i], hi = tiers[i + 1];
+            if (lo[0] < hours && hours < hi[0]) return Math.floor(lo[1] + (hi[1] - lo[1]) * (hours - lo[0]) / (hi[0] - lo[0]) + 0.5);
+        }
+        return null;
+    }
+    // База цены: стоимость срока на MUVSell, ₽. null: цену срока PS5 сейчас не узнать
     function cost(prod, hours) {
-        if (!S.volDiscount && prod.pricePerHourRub !== undefined && prod.pricePerHourRub !== null) return Math.round(num(prod.pricePerHourRub) * hours * 100) / 100;
+        if (!prod.psn && !S.volDiscount && prod.pricePerHourRub !== undefined && prod.pricePerHourRub !== null) return Math.round(num(prod.pricePerHourRub) * hours * 100) / 100;
         var prices = prod.prices || [];
-        for (var i = 0; i < prices.length; i++) if (prices[i].hours === hours && prices[i].priceRub !== undefined && prices[i].priceRub !== null) return num(prices[i].priceRub);
+        for (var i = 0; i < prices.length; i++) if (int(prices[i].hours, 0) === hours && prices[i].priceRub !== undefined && prices[i].priceRub !== null) return num(prices[i].priceRub);
         var key = prod.id + ":" + hours, hit = cache.costs[key];
         if (hit && now() - hit[0] < 900) return hit[1];
-        var q = api("POST", "/rental/quote", { gameId: prod.id, durationKey: hours + "h", qty: 1 });
-        var value = q.data && q.data.totalRub !== undefined && q.data.totalRub !== null ? num(q.data.totalRub) : Math.round(num(prod.pricePerHourRub) * hours * 100) / 100;
+        var value;
+        if (prod.psn) {
+            var pq = api("POST", "/psn/quote", { term: hours + "h" });
+            value = pq.data && pq.data.priceRub !== undefined && pq.data.priceRub !== null ? num(pq.data.priceRub) : psnCatalogCost(prod, hours);
+            if (value === null) return null;
+        } else {
+            var q = api("POST", "/rental/quote", { gameId: prod.id, durationKey: hours + "h", qty: 1 });
+            value = q.data && q.data.totalRub !== undefined && q.data.totalRub !== null ? num(q.data.totalRub) : Math.round(num(prod.pricePerHourRub) * hours * 100) / 100;
+        }
         cache.costs[key] = [now(), value];
         return value;
+    }
+    function needsQuote(prod, hours) {
+        if (prod.psn || (!S.volDiscount && prod.pricePerHourRub !== undefined && prod.pricePerHourRub !== null)) return false;
+        if ((prod.prices || []).some(function (p) { return int(p.hours, 0) === hours && p.priceRub !== undefined && p.priceRub !== null; })) return false;
+        var hit = cache.costs[prod.id + ":" + hours];
+        return !(hit && now() - hit[0] < 900);
+    }
+    // Стоимость сроков пачками по QUOTE_BATCH в одном запросе, а не запрос на каждую пару игра+срок: при сотнях лотов пересчёт цен съедал лимит ключа
+    function prefetchCosts(pairs) {
+        if (!hasKey()) return 0;
+        var need = [], seen = {}, calls = 0;
+        (pairs || []).forEach(function (pr) {
+            var prod = pr[0], h = int(pr[1], 0), key = prod && prod.id + ":" + h;
+            if (!prod || !h || seen[key] || !needsQuote(prod, h)) return;
+            seen[key] = 1;
+            need.push([prod, h]);
+        });
+        function ask(chunk) {
+            calls++;
+            var r = api("POST", "/rental/quote", { items: chunk.map(function (x) { return { gameId: x[0].id, durationKey: x[1] + "h", qty: 1 }; }) });
+            var items = r.data && Array.isArray(r.data.items) ? r.data.items : null;
+            if (items && items.length === chunk.length) {
+                chunk.forEach(function (x, i) {
+                    var it = items[i] || {}, v = it.lineTotalRub !== undefined && it.lineTotalRub !== null ? it.lineTotalRub : it.unitPriceRub;
+                    if (v !== undefined && v !== null) cache.costs[x[0].id + ":" + x[1]] = [now(), num(v)];
+                });
+                return;
+            }
+            if (r.err !== "bad_request") return;        // нет связи или лимит: оставшееся cost() спросит по одной позже
+            if (chunk.length === 1) { cache.costs[chunk[0][0].id + ":" + chunk[0][1]] = [now(), Math.round(num(chunk[0][0].pricePerHourRub) * chunk[0][1] * 100) / 100]; return; }
+            var half = Math.floor(chunk.length / 2);    // одна позиция с ошибкой валит всю пачку: делим, пока не найдём её
+            ask(chunk.slice(0, half));
+            ask(chunk.slice(half));
+        }
+        for (var i = 0; i < need.length; i += QUOTE_BATCH) ask(need.slice(i, i + QUOTE_BATCH));
+        return calls;
     }
     // Наценка: своя у привязки → раздела FunPay → общая
     function markupOf(m) {
@@ -618,15 +737,35 @@
     function markupSrc(m) { return m.markup !== undefined && m.markup !== null ? "своя" : (S.catMarkup[String(m.subcat)] !== undefined ? "раздела" : "общая"); }
     // Цена лота вверх до копейки: до целого рубля наценка на копеечных сроках выходила в сотни процентов
     function priceFor(prod, hours, m) {
-        var v = Math.max(num(S.minPrice) || 1, cost(prod, hours) * (1 + markupOf(m) / 100));
+        var base = cost(prod, hours);
+        if (base === null) return null;
+        var v = Math.max(num(S.minPrice) || 1, base * (1 + markupOf(m) / 100));
         return Math.ceil(Math.round(v * 100 * 1e6) / 1e6) / 100;
     }
     function autoPrice(m) { return m.reprice === undefined || m.reprice === null ? !!m.auto : !!m.reprice; }
     function hideOn(m) { return m.autohide === undefined || m.autohide === null ? !!S.hideNoStock : !!m.autohide; }
     function bonusOn(m) { return !m || m.bonus === undefined || m.bonus === null ? !!S.reviewBonus : !!m.bonus; }
+    function bonusHours(m) { var own = int((m || {}).bonusHours, 0); return own > 0 ? own : int(S.bonusHours, 2); }     // свои часы бонуса у привязки или общие
     function mapByLot(lotId) { for (var i = 0; i < MAPS.length; i++) if (String(MAPS[i].lotId) === String(lotId)) return MAPS[i]; return null; }
     function offByLot(lotId) { for (var i = 0; i < OFF.length; i++) if (String(OFF[i].lotId) === String(lotId)) return OFF[i]; return null; }
     function mapLabel(m) { return m.offline ? m.game + " навсегда" : m.game + " " + shortDur(int(m.hours, 1)); }
+    // Строки уведомления: одна на раздел (игру), а не на каждый лот; durs: дописать сроки лотов
+    function sections(list, durs, limit) {
+        var groups = {}, order = [];
+        limit = limit || 15;
+        list.forEach(function (m) {
+            var name = m.offline ? m.game + " навсегда" : String(m.game || "?");
+            if (!groups[name]) { groups[name] = []; order.push(name); }
+            groups[name].push(m);
+        });
+        var out = order.slice(0, limit).map(function (name) {
+            var hs = {};
+            if (durs) groups[name].forEach(function (m) { if (!m.offline) hs[int(m.hours, 0)] = 1; });
+            var keys = Object.keys(hs).map(Number).sort(function (a, b) { return a - b; });
+            return name + (keys.length ? " (" + keys.map(shortDur).join(", ") + ")" : "");
+        });
+        return out.join("; ") + (order.length > limit ? " и ещё " + (order.length - limit) : "");
+    }
     function note(title, text) { notify("MUVSell Rent: " + title, text || ""); }
 
     // --- аренды и журнал продаж
@@ -694,7 +833,7 @@
         if (!sendTo(chatId, t("delivery", lang, { game: m.game, login: rec.login, password: acc.password || "", hours: first + extra.added, expires: whenTz(rec.exp, lang) }) + tail)) {
             note("покупателю не ушли данные аккаунта", "Заказ #" + order.id + ", " + order.buyerName + ". FunPay не принял сообщение, отправьте вручную: логин " + rec.login + ", пароль " + (acc.password || ""));
         }
-        if (sold && bonusOn(m) && SALES.filter(function (s) { return s.order === order.id; }).length === 1) sendTo(chatId, t("review_offer", lang, { bonus: S.bonusHours, stars: S.bonusStars }));
+        if (sold && bonusOn(m) && SALES.filter(function (s) { return s.order === order.id; }).length === 1) sendTo(chatId, t("review_offer", lang, { bonus: bonusHours(m), stars: S.bonusStars }));
         if (S.notifySales) note("выдан " + rec.login, m.game + ", " + (first + extra.added) + " ч, покупатель " + order.buyerName + ", заказ #" + order.id);
         return { rec: rec };
     }
@@ -716,11 +855,103 @@
     function fail(order, chatId, err, m) {
         if (LATE[order.id]) return note("заказ #" + order.id + " из простоя не выдан", human(err) + ". Проверьте чат: выдайте вручную или оформите возврат.");
         sendTo(chatId, t("problem", langOf(chatId)));
-        var refund = S.autoRefund && (err === "no_stock" || err === "balance" || err === "not_covered");
+        var refund = S.autoRefund && (err === "no_stock" || err === "balance" || err === "not_covered" || err === "term_limit");
         note("заказ #" + order.id + " не выдан", (m && m.offline ? "Оффлайн-игра: " : "") + human(err) + (refund ? ". Оформляю возврат." : ""));
         if (!refund) return;
         if (!refundOrder(order.id)) return note("возврат не прошёл", "Заказ #" + order.id + lastErr());
         if (m) sale("new", { gameId: m.gameId, game: m.game, lot: m.lotId }, m.hours, 0, order, true);
+    }
+    // GTA 6 на PS5: аренда создаётся сразу, а вход покупатель подтверждает кодом с консоли в чате заказа
+    function savePsn() { save("psn_orders", PSN); }
+    function psnUntil(rec, lang) { return rec.exp ? (lang === "en" ? " until " : " до ") + whenTz(rec.exp, lang) : ""; }
+    function newPsnRental(m, order, chatId, hours) {
+        if (hours < MIN_HOURS || hours > MAX_HOURS) return { err: "term_limit" };
+        var r = paid("/psn/buy", { term: hours + "h", payWith: payWith(), requestId: "fp-" + order.id });
+        if (r.err) return { err: r.err === "http_503" ? "no_stock" : r.err };
+        var o = (r.data || {}).order || {};
+        if (!o.id) return { err: "no_account" };
+        var lang = langOf(chatId);
+        var rec = { psnId: o.id, order: String(order.id), buyer: order.buyerName || "", chat: chatId, game: GTA_NAME, gameId: GTA_GAME_ID, lot: m.lotId || "",
+            hours: int(o.hours, hours) || hours, status: o.status || "await_code", exp: ts(o.endsAt), lastError: o.error || null, at: now() };
+        PSN[rec.order] = rec;
+        savePsn();
+        var sold = sale("new", { gameId: GTA_GAME_ID, game: GTA_NAME, lot: rec.lot, id: rec.psnId, buyer: rec.buyer }, rec.hours, num(o.priceRub), order);
+        if (rec.status === "await_code") {
+            if (!sendTo(chatId, t("psn_prompt", lang))) note("GTA 6: инструкция не ушла покупателю", "Заказ #" + order.id + ", " + rec.buyer + ". FunPay не принял сообщение, отправьте инструкцию по входу на PS5 вручную.");
+            if (S.notifySales) note("GTA 6 на PS5: жду код входа", "Заказ #" + order.id + ", покупатель " + rec.buyer + ", " + dur(rec.hours));
+        } else if (rec.status === "active") sendTo(chatId, t("psn_already", lang, { until: psnUntil(rec, lang) }));
+        else if (rec.status === "approving") sendTo(chatId, t("psn_approving", lang));
+        else if (rec.status === "refunded") sendTo(chatId, t("psn_timeout", lang));
+        return { rec: rec };
+    }
+    // Код с экрана PS5 (6-8 цифр) или ссылка QR-кода входа от покупателя с ожидающим заказом GTA 6. → true, если сообщение наше
+    var PSN_LINK_RX = /^https?:\/\/id\.sonyentertainmentnetwork\.com\/id\/PSsignin/i;
+    function psnCodeMessage(chatId, text) {
+        text = String(text || "").trim();
+        var digits = text.replace(/[\s-]/g, "");
+        var code = /^\d{6,8}$/.test(digits) ? digits : (PSN_LINK_RX.test(text) ? text.split(/\s+/)[0] : "");
+        if (!code) return false;
+        var rec = null;
+        Object.keys(PSN).forEach(function (k) { var x = PSN[k]; if (String(x.chat) === String(chatId) && x.status === "await_code" && (!rec || num(x.at) >= num(rec.at))) rec = x; });
+        if (!rec) return false;
+        var lang = langOf(chatId);
+        if (!hasKey()) { sendTo(chatId, t("psn_code_later", lang)); return true; }
+        var r = api("POST", "/psn/orders/" + encodeURIComponent(String(rec.psnId)) + "/code", { code: code });
+        if (r.err) {
+            if (r.err === "net") sendTo(chatId, t("psn_code_later", lang));
+            else sendTo(chatId, t("psn_code_bad", lang, { reason: lastApiError || human(r.err) }));
+            return true;
+        }
+        var o = (r.data || {}).order || {};
+        rec.status = o.status || "approving";
+        rec.lastError = null;
+        savePsn();
+        sendTo(chatId, t("psn_checking", lang));
+        return true;
+    }
+    // Сверяет код, вход, таймауты и окончание аренд PS5 (в том числе после перезапуска)
+    function psnTick() {
+        var live = Object.keys(PSN).filter(function (k) { return PSN[k].status !== "done" && PSN[k].status !== "refunded"; });
+        var changed = false, cutoff = now() - 3 * 86400;
+        Object.keys(PSN).forEach(function (k) {     // завершённые заказы держим трое суток, потом убираем
+            var x = PSN[k];
+            if ((x.status === "done" || x.status === "refunded") && Math.max(num(x.exp), num(x.at)) < cutoff) { delete PSN[k]; changed = true; }
+        });
+        if (!live.length || !hasKey()) { if (changed) savePsn(); return; }
+        var r = api("GET", "/psn/orders");
+        var orders = r.data && Array.isArray(r.data.orders) ? r.data.orders : null;
+        if (!orders) { if (changed) savePsn(); return; }
+        var byId = {};
+        orders.forEach(function (o) { byId[String(o.id)] = o; });
+        live.forEach(function (k) {
+            var rec = PSN[k], o = byId[String(rec.psnId)];
+            if (!o) return;
+            var prev = rec.status, oldExp = rec.exp, status = o.status || prev, lang = langOf(rec.chat);
+            rec.status = status;
+            rec.exp = ts(o.endsAt) || rec.exp;
+            if (status === "await_code" && o.error && o.error !== rec.lastError) {
+                rec.lastError = o.error;
+                changed = true;
+                sendTo(rec.chat, t("psn_retry", lang));
+            } else if (status === "active" && prev !== "active") {
+                sendTo(rec.chat, t("psn_active", lang, { until: psnUntil(rec, lang).replace(/^ до /, ", до ").replace(/^ until /, ", until ") }));
+                if (S.notifySales) note("GTA 6 запущена", (rec.buyer || "") + ", заказ #" + rec.order + ", срок " + dur(int(rec.hours, 1)));
+            } else if (status === "refunded" && prev !== "refunded") {
+                var refunded = false;
+                if (S.autoRefund) {
+                    refunded = refundOrder(rec.order);
+                    if (refunded) SALES.forEach(function (s) { if (s.order === rec.order && !s.refunded) s.refunded = true; });
+                    if (refunded) save("sales", SALES);
+                }
+                sendTo(rec.chat, t("psn_timeout", lang));
+                note("заказ GTA 6 #" + rec.order + " отменён на MUVSell", refunded ? "Покупатель не подтвердил вход вовремя. Возврат на FunPay оформлен." : "Покупатель не подтвердил вход вовремя. Проверьте возврат на FunPay" + (S.autoRefund ? ": автоматически не прошёл" + lastErr() : "") + ".");
+            } else if (status === "done" && prev !== "done" && prev !== "refunded") {
+                if (S.notifyEnd) sendTo(rec.chat, t("psn_done", lang));
+                log("аренда GTA 6 закончилась: заказ #" + rec.order + ", " + (rec.buyer || ""));
+            }
+            if (status !== prev || rec.exp !== oldExp) changed = true;
+        });
+        if (changed) savePsn();
     }
     // Полный возврат денег: аренда этого заказа заканчивается сразу
     function endRefunded(orderId) {
@@ -848,6 +1079,12 @@
                 rec.exp = 0;
                 saveRent();
             }
+        }
+        if (isPsn(m)) {             // GTA 6 на PS5: аренда, потом код входа от покупателя
+            var pr = newPsnRental(m, order, chatId, hours);
+            if (pr.err) return fail(order, chatId, pr.err, m);
+            if (m.auto) refill(m, qty);
+            return;
         }
         var res = newRental(m, order, chatId, hours);
         if (res.err) return fail(order, chatId, res.err, m);
@@ -1158,7 +1395,7 @@
             if (!stars || stars < int(S.bonusStars, 5)) return;
             rec.bonus = true;                    // отмечаем до продления: изменение отзыва не даст второй бонус
             saveRent();
-            var hours = int(S.bonusHours, 2);
+            var hours = bonusHours(mapByLot(rec.lot));
             var err = extend(rec, hours, rec.chat, orderId, "review_bonus", "bonus");
             if (err) return note("бонус за отзыв не начислен", human(err));
             note("бонус за отзыв", rec.login + " +" + hours + " ч за отзыв " + stars + "★");
@@ -1177,7 +1414,14 @@
             }
             return;
         }
-        if (m.mine || !isCmd(m.text)) return;
+        if (m.mine) return;
+        if (Object.keys(PSN).length && /^\s*(https?:|[\d\s-]{6,12}\s*$)/i.test(m.text)) {      // код входа PS5 для GTA 6
+            try {
+                if (!DESKTOP && /^\s*https?:/i.test(m.text)) m = fullMsg(m);       // на Android в событии длинная ссылка обрезана
+                if (psnCodeMessage(m.chatId, m.text)) return;
+            } catch (e1) { log("код PS5: " + e1); }
+        }
+        if (!isCmd(m.text)) return;
         try { onCommand(m.chatId, m.text); } catch (e) { log("ошибка команды: " + e); }
     });
     // --- лоты FunPay: создание, правка и удаление через форму сайта (одинаково на Android и на компьютере)
@@ -1284,6 +1528,17 @@
         for (var k = 0; k < list.length; k++) if (!avoided(list[k][1])) return list[k][0];
         return list.length ? list[0][0] : "";
     }
+    // Форма лота GTA 6: тип "Аренда", платформа PS, издание Ultimate Edition. Значение ищем по подписи варианта или по самому значению.
+    function gtaLotFields(selects) {
+        var need = { "fields[type]": ["Аренда", "Rent", "Rental"], "fields[platform]": ["PS", "PS5", "PlayStation", "PlayStation 5"], "fields[type2]": ["Ultimate Edition"] }, out = {};
+        for (var name in need) {
+            var want = need[name].map(function (x) { return x.toLowerCase(); });
+            var hit = (selects[name] || []).filter(function (o) { return o[0] && (want.indexOf(String(o[1]).trim().toLowerCase()) >= 0 || want.indexOf(String(o[0]).trim().toLowerCase()) >= 0); })[0];
+            if (!hit) return { err: "в форме лота GTA 6 на FunPay не найден вариант \"" + need[name][0] + "\"" };
+            out[name] = hit[0];
+        }
+        return { fields: out };
+    }
     // Создаёт лот. → {id} или {err, rate}
     function createLot(sub, mapFields, game, texts, price, active, amount) {
         var before = myLotsIn(sub);
@@ -1292,6 +1547,11 @@
         if (f.err) return { err: f.err, rate: f.rate, lost: f.lost };
         var fields = f.fields, selects = f.selects, name;
         for (name in (mapFields || {})) if (mapFields[name]) fields[name] = String(mapFields[name]);
+        if (Number(sub) === GTA_FUNPAY_SUB) {
+            var gf = gtaLotFields(selects);
+            if (gf.err) return { err: gf.err };
+            for (name in gf.fields) fields[name] = gf.fields[name];
+        }
         var region = norm(S.steamRegion), want = Number(sub) === STEAM_SUB ? ["аренда", region] : [];    // Steam: тип и регион выбираем по подписи варианта
         if (want.length) {
             var hasRegion = false, regions = [];
@@ -1533,33 +1793,39 @@
 
     // --- тексты лотов автовыставления
     function tpl(key) { return (S.texts || {})[key] || TEXTS[key]; }
-    function usesStock() { return ["ap_title_ru", "ap_title_en", "ap_desc_ru", "ap_desc_en"].some(function (k) { return tpl(k).indexOf("{stock}") >= 0; }); }
-    // stock для {stock}; неизвестно: "?", фоновая сверка допишет число
-    function lotTexts(game, hours, stock) {
-        function make(key, lang) {
-            return tpl(key).split("{game}").join(game).split("{time}").join(dur(hours, lang)).split("{stock}").join(stock === null || stock === undefined ? "?" : String(stock)).split("{commands}").join(commandsText("ru"));
+    function apPrefix(gta) { return gta ? "gta_" : "ap_"; }
+    function usesStock(gta) { var p = apPrefix(gta); return [p + "title_ru", p + "title_en", p + "desc_ru", p + "desc_en"].some(function (k) { return tpl(k).indexOf("{stock}") >= 0; }); }
+    // stock для {stock}; неизвестно: "?", фоновая сверка допишет число. gta: шаблоны лотов GTA 6 на PS5
+    function lotTexts(game, hours, stock, gta) {
+        var p = apPrefix(gta);
+        function make(text, lang) {
+            text = String(text).split("{game}").join(game).split("{time}").join(dur(hours, lang)).split("{stock}").join(stock === null || stock === undefined ? "?" : String(stock));
+            return gta ? text : text.split("{commands}").join(commandsText("ru"));
         }
-        var ru = make("ap_title_ru", "ru"), en = ascii(make("ap_title_en", "en"));
-        if (!en) en = ascii(game + " Steam account rental " + durEn(hours) + " auto delivery");
-        var descEn = ascii(make("ap_desc_en", "en"));
-        if (descEn.length < EN_MIN) descEn = ascii(descEn + " " + TEXTS.ap_desc_en.split("{game}").join(game).split("{time}").join(durEn(hours)));
-        return [ru.slice(0, 100).trim(), en.slice(0, 100).trim(), make("ap_desc_ru", "ru"), descEn];     // длиннее 100 символов FunPay название не принимает
+        function cleanEn(text) { return gta ? text.split("\n").map(ascii).join("\n").replace(/\n{3,}/g, "\n\n").trim() : ascii(text); }      // у GTA абзацы сохраняем
+        var ru = make(tpl(p + "title_ru"), "ru"), en = ascii(make(tpl(p + "title_en"), "en"));
+        if (!en) en = ascii(gta ? make(TEXTS.gta_title_en, "en") : game + " Steam account rental " + durEn(hours) + " auto delivery");
+        var descEn = cleanEn(make(tpl(p + "desc_en"), "en"));
+        if (descEn.length < EN_MIN) descEn = cleanEn(descEn + (gta ? "\n\n" : " ") + make(TEXTS[p + "desc_en"], "en"));
+        return [ru.slice(0, 100).trim(), en.slice(0, 100).trim(), make(tpl(p + "desc_ru"), "ru"), descEn];     // длиннее 100 символов FunPay название не принимает
     }
     function enWarning(descRu, descEn) {
         if (descEn.length >= descRu.length * EN_RATIO) return "";
         return "Английское описание (" + descEn.length + ") намного короче русского (" + descRu.length + "): FunPay может не принять лот. Допишите английское хотя бы до " + (Math.floor(descRu.length * EN_RATIO) + 1) + " символов.";
     }
     // Название и описание лота автовыставления по текущим шаблонам. → как у lotDo
-    function retext(m, stock) {
-        var tx = lotTexts(m.game, int(m.hours, 1), stock);
+    // gtaFields: ещё и издание/платформа/тип в форме и "Наличие" (кнопка "Обновить лоты GTA 6")
+    function retext(m, stock, gtaFields) {
+        var gta = isPsn(m), tx = lotTexts(m.game, int(m.hours, 1), stock, gta);
         var res = lotDo(m, function (f) {
             f["fields[summary][ru]"] = tx[0];
             f["fields[summary][en]"] = tx[1];
             f["fields[desc][ru]"] = withTag(tx[2], m);
             f["fields[desc][en]"] = withTag(tx[3], m);
+            if (gtaFields) { for (var k in gtaFields) f[k] = gtaFields[k]; f.amount = String(LOT_AMOUNT); }
             return true;
         });
-        if (res === "ok") { m.titles = [tx[0], tx[1]]; m.stock = usesStock() ? (stock === undefined ? null : stock) : null; }
+        if (res === "ok") { m.titles = [tx[0], tx[1]]; m.stock = usesStock(gta) ? (stock === undefined ? null : stock) : null; }
         return res;
     }
 
@@ -1601,6 +1867,14 @@
         for (var i = 0; i < tags.length; i++) if (new RegExp("#" + tags[i] + "(?![A-Za-z0-9])", "i").test(text)) return tags[i];
         return "";
     }
+    // Раздел "Прочее" для лота продления: у игры из карты её "Прочее", у "Прочих игр" их "Прочее". Нет такого: null, лот встаёт в раздел аренды.
+    function extMisc(sub, g) {
+        if (!S.extOther || !sub) return null;
+        if (int(sub, 0) === OTHER_SUB) return OTHER_MISC;
+        var fp = (g || {}).funpay || {};
+        if (fp.other_subcategory_id && String(fp.subcategory_id) === String(sub)) return int(fp.other_subcategory_id, 0) || null;
+        return null;
+    }
     var extBusy = {};
     function makeExtLot(chatId, rec, m, hours) {
         if (extBusy[rec.id]) return;
@@ -1610,13 +1884,24 @@
             var g = fpGame(rec.gameId), prod = product(rec.gameId);
             var sub = (m && m.subcat) || (g && g.funpay && g.funpay.subcategory_id);
             var err = "нет раздела FunPay или игры в каталоге MUVSell", lotId = "", price = 0, tag = "";
-            if (prod && sub) {
-                price = priceFor(prod, hours, m || { subcat: sub });
+            if (prod && sub) price = priceFor(prod, hours, m || { subcat: sub });
+            if (prod && sub && price === null) err = PSN_PRICE_UNAVAILABLE;
+            else if (prod && sub) {
                 var abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
                 for (var i = 0; i < 5; i++) tag += abc.charAt(Math.floor(Math.random() * abc.length));
-                var res = createLot(int(sub, 0), g && g.funpay ? g.funpay.fields : null, rec.game, extTexts(rec.game, hours, tag), price, true, 1);
-                lotId = res.id || "";
-                err = res.err || "";
+                var texts = extTexts(rec.game, hours, tag), misc = extMisc(sub, g), saved = false, res;
+                if (misc) {                 // "Прочее" игры: поля формы там свои, поля раздела аренды из карты не подходят
+                    res = createLot(misc, null, rec.game, texts, price, true, 1);
+                    lotId = res.id || "";
+                    err = res.err || "";
+                    saved = !lotId && /^лот создан/.test(err);        // лот уже на FunPay: второй не ставим
+                    if (!lotId && !saved) log("лот продления в \"Прочем\" (раздел " + misc + ") не создан, ставлю в раздел аренды: " + err);
+                }
+                if (!lotId && !saved) {
+                    res = createLot(int(sub, 0), g && g.funpay ? g.funpay.fields : null, rec.game, texts, price, true, 1);
+                    lotId = res.id || "";
+                    err = res.err || "";
+                }
             }
             if (!lotId) {
                 sendTo(chatId, t("ext_lot_fail", langOf(chatId)));
@@ -1681,7 +1966,7 @@
         var have = {}, out = [];
         MAPS.forEach(function (m) { if (!m.ext && !m.manual && !stale(m)) have[m.gameId + ":" + int(m.hours, 0)] = 1; });
         sellable().forEach(function (gp) {
-            (durations || S.apDurations || []).forEach(function (h) { if (!have[gp[0].game_id + ":" + h]) out.push({ g: gp[0], prod: gp[1], hours: h }); });
+            gameDurs(gp[1], durations).forEach(function (h) { if (!have[gp[0].game_id + ":" + h]) out.push({ g: gp[0], prod: gp[1], hours: h }); });
         });
         return out;
     }
@@ -1703,6 +1988,7 @@
         var m = { lotId: String(lotId), subcat: sub, titles: titles, gameId: g.game_id, game: g.name, hours: hours, auto: true, price: price, markup: S.apOwn, reprice: true, stock: stock === undefined ? null : stock };
         for (var k in (extra || {})) m[k] = extra[k];
         if (g.manual) m.manual = g.manual;
+        if (g.psn || (g.funpay && g.funpay.psn) || g.game_id === GTA_GAME_ID) m.psn = true;
         MAPS.push(m);
         CREATED[ckey(g, hours)] = { lotId: String(lotId), subcat: sub, titles: titles };
         saveMaps();
@@ -1714,12 +2000,12 @@
         var g = fpGame(prod.id);
         return { game_id: prod.id, name: (g || prod).name, manual: kind, funpay: { subcategory_id: MANUAL[kind][0], fields: {} } };
     }
-    // В Steam любая игра каталога, в "Прочие игры" только без своего раздела в карте. Без цены на сайте нельзя: аренда не прошла бы.
-    function manualGames(kind) { return (products() || []).filter(function (p) { return p.available && (kind !== "other" || !fpGame(p.id)); }); }
+    // В Steam любая игра каталога, в "Прочие игры" только без своего раздела в карте. Без цены на сайте нельзя: аренда не прошла бы. GTA 6 на PS5 сюда не ставим.
+    function manualGames(kind) { return (products() || []).filter(function (p) { return p.available && !p.psn && (kind !== "other" || !fpGame(p.id)); }); }
     function manualTodo(kind, gameId) {
         var have = {};
         MAPS.forEach(function (m) { if (m.gameId === gameId && m.manual === kind && !stale(m)) have[int(m.hours, 0)] = 1; });
-        return (S.apDurations || []).filter(function (h) { return !have[h]; });
+        return gameDurs(product(gameId)).filter(function (h) { return !have[h]; });
     }
 
     // --- долгие задачи: по одному шагу за такт, чтобы FunPay не посчитал это спамом
@@ -1779,7 +2065,7 @@
     // Название точно по шаблону; цифры могут отличаться только в {stock}
     function byTemplate(fields, g, hours) {
         function shape(s) { return norm(s).replace(/\d+|\?/g, "#"); }
-        var texts = lotTexts(g.name, hours).slice(0, 2).map(shape);
+        var texts = lotTexts(g.name, hours, null, g.game_id === GTA_GAME_ID).slice(0, 2).map(shape);
         return [fields["fields[summary][ru]"], fields["fields[summary][en]"]].some(function (x) { return x && texts.indexOf(shape(x)) >= 0; });
     }
     function adoptGames() {
@@ -1958,6 +2244,7 @@
         dropStale(g, hours);        // лот удалён с FunPay или стоит в чужом разделе: создаём заново
         if (MAPS.some(function (m) { return mkey(m) === gkey(g, hours) && !m.ext; })) return;
         var price = priceFor(it.prod, hours, { subcat: sub, markup: S.apOwn });
+        if (price === null) { c.failed++; c.reasons[PSN_PRICE_UNAVAILABLE] = (c.reasons[PSN_PRICE_UNAVAILABLE] || 0) + 1; return; }
         var old = CREATED[key];
         if (old && !mapByLot(old.lotId)) {      // привязку удаляли, а лот на FunPay остался: возвращаем привязку, дубль не создаём
             var f = lotForm("offer=" + old.lotId);
@@ -1966,8 +2253,8 @@
             delete CREATED[key];
         }
         if (pluginLots(sub) >= cap(sub)) { c.skipped++; return; }
-        var n = int(it.prod.inStock, 0), texts = lotTexts(g.name, hours, n);
-        var res = createLot(sub, g.funpay.fields, g.name, texts, price, !!S.apActive, LOT_AMOUNT);
+        var gta = g.game_id === GTA_GAME_ID, n = int(it.prod.inStock, 0), texts = lotTexts(g.name, hours, n, gta);
+        var res = createLot(sub, g.funpay.fields, g.name, texts, price, !!S.apActive && (n > 0 || !it.prod.psn), LOT_AMOUNT);     // GTA без свободных слотов: лот выключенным
         if (res.lost) return loginLost();
         if (res.rate) {
             if (!retried) {         // короткий антифлуд FunPay за минуту проходит, а настоящий лимит ответит тем же ещё раз
@@ -1981,7 +2268,7 @@
             c.full[sub] = [MANUAL_NAMES[sub] || "раздел \"" + g.name + "\"", res.err || "лимит", 1];
             return;
         }
-        if (res.id) { newMap(g, res.id, hours, [texts[0], texts[1]], price, usesStock() ? n : null); c.created++; c.streak = 0; }
+        if (res.id) { newMap(g, res.id, hours, [texts[0], texts[1]], price, usesStock(gta) ? n : null); c.created++; c.streak = 0; }
         else {
             c.failed++;
             c.reasons[res.err] = (c.reasons[res.err] || 0) + 1;
@@ -1997,6 +2284,7 @@
         j.todo.push(function () {
             var items = planFn();
             if (!items.length) { c.nothing = true; return; }
+            prefetchCosts(items.map(function (it) { return [it.prod, it.hours]; }));
             adoptSteps(j, items, function (res) {       // лоты плана могут уже стоять на FunPay без привязки: привязываем, дублей не создаём
                 c.bound = res.bound.length;
                 if (res.limited) { c.limited = res.limited; return; }
@@ -2021,10 +2309,14 @@
         if (!j) return;
         var prods = {}, c = { updated: 0, same: 0, failed: 0, limited: false };
         (products(true) || []).forEach(function (p) { prods[p.id] = p; });
-        MAPS.filter(function (m) { return autoPrice(m) && prods[m.gameId] && !m.ext; }).forEach(function (m) {
+        var mine = MAPS.filter(function (m) { return autoPrice(m) && prods[m.gameId] && !m.ext; });
+        prefetchCosts(mine.map(function (m) { return [prods[m.gameId], int(m.hours, 1)]; }));
+        mine.forEach(function (m) {
             j.todo.push(function () {
                 if (c.limited) return;
-                var res = setPrice(m, priceFor(prods[m.gameId], int(m.hours, 1), m));
+                var price = priceFor(prods[m.gameId], int(m.hours, 1), m);
+                if (price === null) { c.failed++; return; }
+                var res = setPrice(m, price);
                 if (res === "rate") { c.limited = true; j.todo = []; }
                 else if (res === "ok") c.updated++; else if (res === "same") c.same++; else c.failed++;
             });
@@ -2053,21 +2345,29 @@
         });
         j.finish = function () { return "Названия обновлены. Прочитано: " + c.ok + ", ошибок: " + c.failed + "."; };
     }
+    // gtaOnly: только лоты GTA 6, а заодно издание, платформа, тип и "Наличие" в форме
     function jobRetext(r) {
-        var j = startJob("Перезапись текстов", r || { kind: "retext" });
+        var gtaOnly = !!(r && r.gtaOnly), title = gtaOnly ? "Обновление лотов GTA 6" : "Перезапись текстов";
+        var targets = MAPS.filter(function (m) { return m.auto && (!gtaOnly || isPsn(m)); }), gtaFields = null;
+        if (gtaOnly && targets.length) {
+            var f = lotForm("node=" + GTA_FUNPAY_SUB), gf = f.err ? { err: f.err } : gtaLotFields(f.selects);
+            if (gf.err) { toast("Не удалось проверить форму лотов GTA 6: " + gf.err); return; }
+            gtaFields = gf.fields;
+        }
+        var j = startJob(title, r || { kind: "retext" });
         if (!j) return;
         var stock = stockMap(products()), c = { done: 0, failed: 0, limited: false, rejected: false };
-        MAPS.filter(function (m) { return m.auto; }).forEach(function (m) {
+        targets.forEach(function (m) {
             j.todo.push(function () {
                 if (c.limited || c.rejected) return;
-                var res = retext(m, stock[m.gameId]);
+                var res = retext(m, stock[m.gameId], gtaFields);
                 if (res === "rate") { c.limited = true; j.todo = []; }
                 else if (res === "text") { c.rejected = true; c.failed++; j.todo = []; }        // шаблон у всех лотов один: остальные FunPay отклонит так же
                 else if (res === "ok") c.done++; else c.failed++;
             });
         });
         j.finish = function () {
-            return (c.limited ? "FunPay временно ограничил изменения, повторите позже. " : c.rejected ? EN_SHORT_HINT + " " : "Тексты переписаны. ") + "Обновлено: " + c.done + ", ошибок: " + c.failed + ".";
+            return (c.limited ? "FunPay временно ограничил изменения, повторите позже. " : c.rejected ? EN_SHORT_HINT + " " : (gtaOnly ? "Лоты GTA 6 обновлены. " : "Тексты переписаны. ")) + "Обновлено: " + c.done + ", ошибок: " + c.failed + ".";
         };
     }
     // lots: удалять и сами лоты с FunPay, иначе только привязки
@@ -2108,7 +2408,7 @@
         }
         return offCat[1];
     }
-    // Подписка продавца и лицензии на игры
+    // Подписка на оффлайн-игры и игры, купленные навсегда
     function offAccess(force) {
         if (force || !offAcc[1] || now() - offAcc[0] > 120) {
             var r = api("GET", "/offline/access");
@@ -2293,12 +2593,15 @@
         syncLog = null;
         if (!L) return;
         function names(list, why) { return list.filter(function (x) { return x[1] === why; }).map(function (x) { return mapLabel(x[0]); }); }
-        var a = names(L.hid, "stock"), b = names(L.shown, "stock");
-        if (a.length) note("сняты с продажи", "Нет аккаунтов на MUVSell: " + a.slice(0, 15).join("; "));
-        if (b.length) note("снова в продаже", "Аккаунты появились: " + b.slice(0, 15).join("; "));
-        a = names(L.hid, "cover"); b = names(L.shown, "cover");
-        if (a.length) note("оффлайн-лоты сняты с продажи", "Выдача не оплачена (нет лицензии на игру, подписка продавца не действует): " + a.slice(0, 15).join("; "));
-        if (b.length) note("оффлайн-лоты снова в продаже", "Выдача оплачена: " + b.slice(0, 15).join("; "));
+        function secs(list, why, durs) { return sections(list.filter(function (x) { return x[1] === why; }).map(function (x) { return x[0]; }), durs); }
+        var a = secs(L.hid, "stock"), b = secs(L.shown, "stock");
+        if (a) note("сняты с продажи", "Нет аккаунтов на MUVSell: " + a);
+        if (b) note("снова в продаже", "Аккаунты появились: " + b);
+        a = secs(L.hid, "short", true);
+        if (a) note("сняты с продажи: срок короче минимального у игры", a + ". MUVSell такую аренду не выдаст. Лоты можно удалить во вкладке \"Привязки\".");
+        a = secs(L.hid, "cover"); b = secs(L.shown, "cover");
+        if (a.length) note("оффлайн-лоты сняты с продажи", "Выдача не оплачена (игра не куплена навсегда, подписка на оффлайн-игры не действует): " + a + ". Вернуть: вкладка \"Оффлайн\", подписка или покупка игры.");
+        if (b.length) note("оффлайн-лоты снова в продаже", "Выдача оплачена: " + b);
         var n = names(L.shown, "api").length;
         if (n) note("MUVSell снова отвечает", "Вернул в продажу " + lotsWord(n) + ".");
         n = names(L.hid, "manual").length;
@@ -2358,6 +2661,12 @@
                         if (why === "cover" || (why === "stock" && hideOn(m))) want[String(m.lotId)] = why;
                     } else if (hideOn(m) && !(stock[m.gameId] > 0)) want[String(m.lotId)] = "stock";
                 });
+                var mins = {};      // срок лота короче минимума игры (Dead by Daylight от 120 ч): сайт аренду не выдаст, покупатель ушёл бы в возврат
+                prods.forEach(function (p) { if (minHours(p) > MIN_HOURS) mins[p.id] = minHours(p); });
+                lots.forEach(function (m) {
+                    var lid = String(m.lotId);
+                    if (!want[lid] && !m.offline && mins[m.gameId] && m.hours && int(m.hours, 0) < mins[m.gameId]) want[lid] = "short";
+                });
             }
         }
         var dirty = false;
@@ -2402,11 +2711,12 @@
     }
     // {stock} в шаблонах лотов: переписывает лоты автовыставления, у которых число свободных аккаунтов изменилось. Снятые с продажи ждут возврата.
     function syncStockTexts(limit) {
-        if (!S.fpEdit || !usesStock() || Q.length) return;
+        var uses = { steam: usesStock(false), gta: usesStock(true) };
+        if (!S.fpEdit || !(uses.steam || uses.gta) || Q.length) return;
         var prods = products();
         if (!prods) return;
         var stock = stockMap(prods);
-        MAPS.filter(function (m) { return m.auto && m.lotId && !m.off && !HIDDEN[String(m.lotId)] && stock[m.gameId] !== undefined && m.stock !== stock[m.gameId]; }).slice(0, limit || 20).forEach(function (m) {
+        MAPS.filter(function (m) { return m.auto && m.lotId && !m.off && !HIDDEN[String(m.lotId)] && uses[isPsn(m) ? "gta" : "steam"] && stock[m.gameId] !== undefined && m.stock !== stock[m.gameId]; }).slice(0, limit || 20).forEach(function (m) {
             later(function () {
                 var res = retext(m, stock[m.gameId]);
                 if (res === "ok") saveMaps();
@@ -2422,10 +2732,14 @@
         if (Q.length) return;
         var prods = {}, changes = [];
         (products(true) || []).forEach(function (p) { prods[p.id] = p; });
-        var targets = MAPS.filter(function (m) { return autoPrice(m) && prods[m.gameId] && !m.off && !m.ext && num(m.price) !== priceFor(prods[m.gameId], int(m.hours, 1), m); });
+        var mine = MAPS.filter(function (m) { return autoPrice(m) && prods[m.gameId] && !m.off && !m.ext; });
+        prefetchCosts(mine.map(function (m) { return [prods[m.gameId], int(m.hours, 1)]; }));
+        var targets = mine.filter(function (m) { var p = priceFor(prods[m.gameId], int(m.hours, 1), m); return p !== null && num(m.price) !== p; });
         targets.slice(0, 30).forEach(function (m) {
             later(function () {
-                var old = m.price, price = priceFor(prods[m.gameId], int(m.hours, 1), m), res = setPrice(m, price);
+                var old = m.price, price = priceFor(prods[m.gameId], int(m.hours, 1), m);
+                if (price === null) return;
+                var res = setPrice(m, price);
                 if (res === "rate") { Q = []; return; }
                 if (res === "ok") changes.push(mapLabel(m) + ": " + (old ? old + "₽" : "?") + " → " + price + "₽");
                 if (res) saveMaps();
@@ -2482,21 +2796,21 @@
             return true;
         });
     }
-    // Подписка продавца: за 3 дня до конца и когда закончилась, по одному уведомлению
+    // Подписка на оффлайн-игры: за 3 дня до конца и когда закончилась, по одному уведомлению
     function offSubWarn(acc) {
         var sub = acc.subscription || {}, end = ts(sub.endsAt);
         if (!end) return;
         var left = end - now(), only = S.offMode === "covered", key, text;
         if (sub.active && left < 3 * 86400) {
             key = "3:" + end;
-            text = "Подписка продавца на оффлайн-игры закончится " + whenTz(end) + ". Продлить можно во вкладке \"Оффлайн\". " + (only ? "Без неё лоты игр без лицензии снимутся с продажи." : "Без неё выдачи игр без лицензии снова станут платными.");
+            text = "Подписка на оффлайн-игры закончится " + whenTz(end) + ". Продлить можно во вкладке \"Оффлайн\". " + (only ? "Без неё лоты некупленных игр снимутся с продажи." : "Без неё выдачи некупленных игр снова станут платными.");
         } else if (!sub.active && left > -2 * 86400) {
             key = "0:" + end;
-            text = "Подписка продавца на оффлайн-игры закончилась. " + (only ? "Лоты игр без лицензии сняты с продажи." : "Выдачи игр без лицензии теперь по цене MUVSell, цены их лотов подняты по наценке.");
+            text = "Подписка на оффлайн-игры закончилась. " + (only ? "Лоты некупленных игр сняты с продажи." : "Выдачи некупленных игр теперь по цене MUVSell, цены их лотов подняты по наценке.");
         } else return;
         if (state.offWarned[key]) return;
         state.offWarned[key] = 1;
-        note("подписка продавца", text);
+        note("подписка на оффлайн-игры", text);
     }
     // Раз в OFF_TICK: уведомления о подписке продавца, цены оффлайн-лотов автовыставления и автодобавление лотов новых игр
     function offTick() {
@@ -2559,6 +2873,7 @@
         state.pollAt = now();
         if (!S.enabled) return;
         endNotices();
+        try { psnTick(); } catch (e0) { log("заказы GTA 6: " + e0); }
         syncLots();
         if (job) return;
         tagLots(10);
@@ -2671,18 +2986,21 @@
                 T("Вкладка \"Оффлайн\": продажа игры навсегда (общий Steam-аккаунт, игра в автономном режиме).")
             ));
             kids.push(hint("Команды покупателя: " + codeWord() + ", !время, !данные, " + extWord() + ", !кик, !пароль, !офлайн, !помощь. Английские команды (!code, !help) переключают ответы на английский."));
+            kids.push(hint("GTA 6 на PS5: после оплаты плагин берёт аренду на MUVSell и просит у покупателя код входа с консоли (6 цифр или ссылку QR-кода). Код плагин передаёт на MUVSell сам, срок идёт с момента входа."));
         } else if (view === "maps") {
             MAPS.forEach(function (m, n) {
-                var prod = product(m.gameId), lid = String(m.lotId), p = PROBLEMS[lid];
+                var prod = product(m.gameId), lid = String(m.lotId), p = PROBLEMS[lid], unit = isPsn(m) ? " слотов" : " акк.";
                 kids.push({ type: "Card", children: [
                     T(mapLabel(m) + (m.ext ? " · лот продления" : "") + (m.manual ? " · " + (m.manual === "steam" ? "Steam" : "Прочие игры") : "") + (m.off ? " · выключена" : ""), { bold: true }),
                     T("Лот " + lid + (m.tag ? " · " + m.tag : "") + ((m.titles || [])[0] ? " · " + m.titles[0] : "")),
                     T("Наценка: " + markupOf(m) + "% (" + markupSrc(m) + ") · цена: " + (autoPrice(m) ? "следует за MUVSell" : "не меняется") + (m.price ? " · " + m.price + "₽" : "") +
-                        (prod ? " · на MUVSell " + int(prod.inStock, 0) + " акк." : "") + (HIDDEN[lid] ? " · снят с продажи: " + (HIDE_WHY[HIDDEN[lid]] || HIDDEN[lid]) : "") + (p ? " · ошибка FunPay: " + p.err : "")),
+                        (prod ? " · на MUVSell " + int(prod.inStock, 0) + unit : " · игры нет в каталоге MUVSell") + (HIDDEN[lid] ? " · снят с продажи: " + (HIDE_WHY[HIDDEN[lid]] || HIDDEN[lid]) : "") + (p ? " · ошибка FunPay: " + p.err : "") +
+                        (bonusOn(m) ? " · бонус за отзыв +" + bonusHours(m) + " ч" : "")),
                     Row(Btn(autoPrice(m) ? "Не менять цену" : "Вести цену", "window.mvsMap('reprice'," + n + ")", true), Btn(m.off ? "Включить" : "Выключить", "window.mvsMap('off'," + n + ")", true)),
                     Row(Btn("Скрывать без аккаунтов: " + tri(m.autohide, S.hideNoStock), "window.mvsMap('hide'," + n + ")", true), Btn("Бонус за отзыв: " + tri(m.bonus, S.reviewBonus), "window.mvsMap('bonus'," + n + ")", true)),
                     In("Своя наценка, % (пусто: раздела или общая)", "mm_" + n, m.markup === undefined || m.markup === null ? "" : m.markup),
-                    Row(Btn("Сохранить наценку", "window.mvsMap('markup'," + n + ")", true), Btn(sure === "mapdel:" + n ? "Точно удалить?" : "Удалить привязку", "window.mvsMap('del'," + n + ")", true)),
+                    In("Часов бонуса за отзыв на этот лот (пусто: как в общих, " + int(S.bonusHours, 2) + ")", "mb_" + n, m.bonusHours ? m.bonusHours : ""),
+                    Row(Btn("Сохранить наценку и бонус", "window.mvsMap('markup'," + n + ")", true), Btn(sure === "mapdel:" + n ? "Точно удалить?" : "Удалить привязку", "window.mvsMap('del'," + n + ")", true)),
                 ] });
             });
             if (!MAPS.length) kids.push(hint("Привязок пока нет."));
@@ -2695,7 +3013,7 @@
                 nc.push(In("Название игры (или его часть)", "d_q", gs("d_q")));
                 nc.push(Row(Btn("Найти игру", "window.mvsDraftSearch()", false, "Ищу..."), Btn("Отмена", "window.mvsDraftCancel()", true)));
                 (draft.found || []).forEach(function (p, n) {
-                    nc.push(Row(T(p.name + " · " + int(p.inStock, 0) + " акк. · " + num(p.pricePerHourRub) + "₽/ч"), Btn("Выбрать", "window.mvsDraftGame(" + n + ")", true)));
+                    nc.push(Row(T(p.name + " · " + int(p.inStock, 0) + (p.psn ? " слотов" : " акк.") + " · " + num(p.pricePerHourRub) + "₽/ч" + (minHours(p) > MIN_HOURS ? " · от " + dur(minHours(p)) : "")), Btn("Выбрать", "window.mvsDraftGame(" + n + ")", true)));
                 });
                 if (draft.found && !draft.found.length) nc.push(hint("Ничего не найдено."));
             } else {
@@ -2707,8 +3025,15 @@
             kids.push({ type: "Card", children: nc });
             kids.push(hint("Плагин сам дописывает в конец описания каждого привязанного лота его ID (например rentM-1001) и находит оплаченный лот по нему, а не только по названию."));
         } else if (view === "rent") {
-            var act = allActive();
-            if (!act.length) kids.push(hint("Сейчас никто ничего не арендует."));
+            var act = allActive(), psnLive = Object.keys(PSN).map(function (k) { return PSN[k]; }).filter(function (x) { return x.status !== "done" && x.status !== "refunded"; });
+            if (!act.length && !psnLive.length) kids.push(hint("Сейчас никто ничего не арендует."));
+            var PSN_STATUS = { await_code: "ждёт код входа от покупателя", approving: "код получен, вход подтверждается", active: "идёт" };
+            psnLive.forEach(function (x) {
+                kids.push(Card(
+                    T(x.game + " · заказ #" + x.order, { bold: true }),
+                    T((x.buyer || "") + " · " + (PSN_STATUS[x.status] || x.status) + " · " + dur(int(x.hours, 1)) + (x.exp ? (x.status === "active" ? ", осталось " + leftText(x.exp - now()) : "") + ", до " + when(x.exp) : ""))
+                ));
+            });
             act.forEach(function (r) {
                 kids.push(Card(
                     T(r.game + " · " + r.login, { bold: true }),
@@ -2751,7 +3076,7 @@
             ));
             if (planShown) {
                 var pc = [T("К созданию: " + planShown.length + " " + plural(planShown.length, "лот", "лота", "лотов"), { bold: true })];
-                planShown.slice(0, 10).forEach(function (p) { pc.push(T(p.g.name + ", " + dur(p.hours) + ": " + priceFor(p.prod, p.hours, { subcat: p.g.funpay.subcategory_id, markup: S.apOwn }) + "₽ (раздел " + p.g.funpay.subcategory_id + ")")); });
+                planShown.slice(0, 10).forEach(function (p) { var pr = priceFor(p.prod, p.hours, { subcat: p.g.funpay.subcategory_id, markup: S.apOwn }); pc.push(T(p.g.name + ", " + dur(p.hours) + ": " + (pr === null ? PSN_PRICE_UNAVAILABLE : pr + "₽") + " (раздел " + p.g.funpay.subcategory_id + ")")); });
                 if (planShown.length > 10) pc.push(hint("и ещё " + (planShown.length - 10)));
                 kids.push({ type: "Card", children: pc });
             }
@@ -2762,13 +3087,20 @@
                 news ? Btn("Выставить новые игры (" + news + ")", "window.mvsAuto('news')", true) : hint("Перед созданием плагин сверяет лоты с FunPay: удалённые на сайте пересоздаются, уже стоящие привязываются, дубли не создаются."),
                 Row(Btn(sure === "retext" ? "Точно переписать?" : "Переписать тексты по шаблонам", "window.mvsAuto('retext')", true), Btn(sure === "delete" ? "Точно удалить " + autos + "?" : "Удалить их с FunPay", "window.mvsAuto('delete')", true))
             ));
+            var gtaProd = hasKey() ? product(GTA_GAME_ID) : null, gtaMaps = MAPS.filter(function (m) { return m.auto && isPsn(m); }).length;
+            if (gtaProd || gtaMaps) kids.push(Card(
+                T("GTA 6 на PS5", { bold: true }),
+                T(gtaProd ? "Свободно на MUVSell: " + int(gtaProd.inStock, 0) + " · аренда от " + dur(minHours(gtaProd)) + " · лотов плагина: " + gtaMaps : "GTA 6 сейчас нет в каталоге MUVSell · лотов плагина: " + gtaMaps),
+                hint("Лоты встают в раздел GTA 6 (Аренда, PS, Ultimate Edition) по своим шаблонам: вкладка \"Сообщения\", тексты \"Лот GTA 6 (PS5)\". Создаются кнопкой \"Создать недостающие\", как остальные игры."),
+                gtaMaps ? Btn(sure === "gta" ? "Точно обновить " + gtaMaps + "?" : "Обновить лоты GTA 6 (тексты, издание, наличие)", "window.mvsAuto('gta')", true) : hint("Лотов GTA 6 пока нет.")
+            ));
             var mc = [T("Общие разделы: Steam \"Аккаунты с играми\" и \"Прочие игры\"", { bold: true }),
                 hint("Сюда игра выставляется по вашему выбору, сразу на все сроки. В Steam можно любую игру, в \"Прочие игры\" только те, у которых на FunPay нет своего раздела. Лимит предложений в разделе общий на все игры."),
                 In("Название игры (или его часть)", "a_mq", gs("a_mq")),
                 Row(Btn("Найти для Steam", "window.mvsAuto('find','steam')", true, "Ищу..."), Btn("Найти для \"Прочих игр\"", "window.mvsAuto('find','other')", true, "Ищу..."))];
             if (manualFound) {
                 manualFound.list.forEach(function (p, n) {
-                    var left = manualTodo(manualFound.kind, p.id).length, total = (S.apDurations || []).length;
+                    var left = manualTodo(manualFound.kind, p.id).length, total = gameDurs(p).length;
                     mc.push(Row(T(p.name + " · " + (total - left) + "/" + total + " сроков · " + int(p.inStock, 0) + " акк."), left ? Btn("Выставить", "window.mvsAuto('manual'," + n + ")", true) : T("уже выставлена")));
                 });
                 if (!manualFound.list.length) mc.push(hint("Ничего не найдено."));
@@ -2782,28 +3114,28 @@
             var cat = hasKey() ? offCatalog() : null, acc = hasKey() ? offAccess() : null, byId = {}, covered = S.offMode === "covered";
             (cat || []).forEach(function (g) { byId[String(g.id)] = g; });
             var sub = (acc || {}).subscription || {}, head;
-            if (acc) head = "Подписка продавца: " + (sub.active ? "действует до " + whenTz(ts(sub.endsAt)) + ", за 24 часа выдано " + int(sub.usedToday, 0) + " из " + (sub.perDay === undefined ? "?" : sub.perDay) : "нет (" + num(sub.priceRub) + " ₽ за " + sub.days + " дн.)") + " · лицензий на игры: " + (acc.licenses || []).length;
-            else head = "Подписка и лицензии: MUVSell не ответил или не задан API-ключ.";
+            if (acc) head = "Подписка на оффлайн-игры: " + (sub.active ? "действует до " + whenTz(ts(sub.endsAt)) + ", за 24 часа выдано " + int(sub.usedToday, 0) + " из " + (sub.perDay === undefined ? "?" : sub.perDay) : "нет (" + num(sub.priceRub) + " ₽ за " + sub.days + " дн.)") + " · купленных навсегда игр: " + (acc.licenses || []).length;
+            else head = "Подписка и купленные игры: MUVSell не ответил или не задан API-ключ.";
             var planN = cat ? offPlan(cat).length : 0, homeless = cat ? offHomeless(cat).length : 0;
             kids.push(Card(
                 T("Чем оплачиваются выдачи", { bold: true }),
-                hint("Лицензия на игру: один раз, дальше её выдачи бесплатны навсегда. Подписка продавца: весь каталог бесплатно, пока действует. Без них: цена MUVSell за каждую выдачу."),
+                hint("Игра, купленная на MUVSell навсегда (здесь или на сайте): её выдачи бесплатны навсегда. Подписка на оффлайн-игры (та же, что на сайте): весь каталог бесплатно, пока действует. Без них: цена MUVSell за каждую выдачу. Отдельной подписки для продавцов нет."),
                 T(head),
                 Row(Btn(sure === "offsub" ? "Точно оплатить с баланса MUVSell?" : (sub.active ? "Продлить подписку" : "Оформить подписку") + (acc ? " за " + num(sub.priceRub) + " ₽" : ""), "window.mvsOff('sub')", true, "..."),
                     Btn("Режим: " + (covered ? "только оплаченные" : "все игры"), "window.mvsOff('mode')", true))
             ));
             kids.push(Card(
                 T("Цены и выставление", { bold: true }),
-                In("Цена лота, когда выдача оплачена (лицензия или подписка), ₽", "o_price", S.offPrice),
+                In("Цена лота, когда выдача оплачена (игра куплена или есть подписка), ₽", "o_price", S.offPrice),
                 In("Наценка на цену MUVSell, когда выдача не оплачена, %", "o_markup", S.offMarkup),
                 Sw("Сам выставлять оффлайн-лоты новых игр", "o_auto", S.offAuto, ""),
                 Row(Btn("Сохранить", "window.mvsOff('save')"), Btn(sure === "offcreate" ? "Точно выставить " + planN + "?" : "Выставить недостающие (" + planN + ")", "window.mvsOff('create')", true)),
                 hint("Лоты встают в раздел самой игры → \"Оффлайн активации\"." + (homeless ? " Без своего раздела на FunPay: " + homeless + ", их можно выставить только в Steam." : ""))
             ));
-            var fc = [T("Лицензии и Steam → \"Оффлайн активации\"", { bold: true }), In("Название игры (или его часть)", "o_q", gs("o_q")), Btn("Найти игру", "window.mvsOff('find')", true, "Ищу...")];
+            var fc = [T("Купить игру навсегда и Steam → \"Оффлайн активации\"", { bold: true }), In("Название игры (или его часть)", "o_q", gs("o_q")), Btn("Найти игру", "window.mvsOff('find')", true, "Ищу...")];
             (offFound || []).forEach(function (g, n) {
-                fc.push(T(g.name + " · " + (g.inStock ? "есть аккаунты" : "нет аккаунтов") + " · выдача " + num(g.priceRub) + " ₽" + (g.licensed ? " · лицензия есть" : "")));
-                fc.push(Row(g.licensed ? T("") : Btn(sure === "offlic:" + n ? "Точно купить за " + num(g.licensePriceRub) + " ₽?" : "Лицензия за " + num(g.licensePriceRub) + " ₽", "window.mvsOff('lic'," + n + ")", true, "..."),
+                fc.push(T(g.name + " · " + (g.inStock ? "есть аккаунты" : "нет аккаунтов") + " · выдача " + num(g.priceRub) + " ₽" + (g.licensed ? " · куплена, выдачи бесплатны" : "")));
+                fc.push(Row(g.licensed ? T("") : Btn(sure === "offlic:" + n ? "Точно купить за " + num(g.licensePriceRub) + " ₽?" : "Купить навсегда за " + num(g.licensePriceRub) + " ₽", "window.mvsOff('lic'," + n + ")", true, "..."),
                     Btn("Выставить в Steam", "window.mvsOff('steam'," + n + ")", true)));
             });
             if (offFound && !offFound.length) fc.push(hint("Ничего не найдено."));
@@ -2855,7 +3187,7 @@
             ));
             kids.push(Card(
                 T("Покупатель", { bold: true }),
-                Sw("Вернуть деньги, если нет аккаунтов или баланса", "s_refund", S.autoRefund, ""),
+                Sw("Вернуть деньги, если нет аккаунтов или баланса (и если покупатель GTA 6 не прислал код вовремя)", "s_refund", S.autoRefund, ""),
                 Sw("Бонус за отзыв", "s_bonus", S.reviewBonus, ""),
                 In("Часов за отзыв", "s_bh", S.bonusHours),
                 In("От скольки звёзд", "s_bs", S.bonusStars),
@@ -2864,6 +3196,7 @@
                 Sw("Продление по команде: временный лот на нужный срок", "s_extcmd", S.extCmd, ""),
                 In("Слово для продления", "s_word", S.extWord),
                 In("Сколько минут временный лот ждёт оплату", "s_extmin", S.extMinutes),
+                Sw("Лот продления ставить в раздел \"Прочее\" игры (нет такого: в раздел аренды)", "s_extother", S.extOther, ""),
                 In("Команда кода Steam Guard (если на !код отвечает ещё и другой плагин)", "s_code", S.codeWord),
                 Sw("Отвечать по-английски тем, кто пишет английские команды", "s_en", S.enMsgs, ""),
                 Sw("Разрешить покупателю !кик и !пароль", "s_cmds", S.buyerCmds, ""),
@@ -2879,15 +3212,17 @@
                 In("Текст", "t_text", (S.texts || {})[key] || TEXTS[key], true),
                 Row(Btn("Сохранить", "window.mvsTextSave()"), Btn("Вернуть стандартный", "window.mvsTextReset()", true))
             ));
-            kids.push(hint("Переменные: {game}, {login}, {password}, {hours}, {expires}, {left}, {code}, {ttl}, {word}, {guard}, {bonus}, {stars}, {reason}, {commands}. В текстах лотов: {game}, {time}, {stock}, {commands}, {tag}; в сообщении о лоте продления ещё {price}, {link}, {minutes}. Покупателям, которые пишут английские команды, уходят встроенные английские тексты. " + NL_HINT));
+            kids.push(hint("Переменные: {game}, {login}, {password}, {hours}, {expires}, {left}, {code}, {ttl}, {word}, {guard}, {bonus}, {stars}, {reason}, {commands}. В текстах лотов: {game}, {time}, {stock}, {commands}, {tag}; в сообщении о лоте продления ещё {price}, {link}, {minutes}. В лотах GTA 6: {game}, {time}, {stock}; в сообщениях GTA 6 о входе {until} (срок аренды). Покупателям, которые пишут английские команды, уходят встроенные английские тексты. " + NL_HINT));
         }
-        kids.push(hint("Автор оригинального плагина: @MUVSell. Версия по MUVSell Rent 1.2.17."));
+        kids.push(hint("Автор оригинального плагина: @MUVSell. Версия по MUVSell Rent 1.2.29."));
         show(kids);
     }
     window.mvsView = function (v) { view = v; sure = ""; render(); };
     window.mvsOn = function () { S.enabled = on("m_on"); saveS(); };
     window.mvsKey = function () {
-        S.key = gs("m_key").trim();
+        var key = gs("m_key").trim();
+        if (/…|\.\.\./.test(key)) { toast("Это сокращённый ключ с сайта (с \"…\"). На muvsell.store скопируйте полный ключ и вставьте его сюда."); return render(); }
+        S.key = key;
         saveS();
         cache.products = [0, null];
         cache.bal = [0, null];
@@ -2958,7 +3293,12 @@
         else if (act === "off") m.off = !m.off;
         else if (act === "hide") m.autohide = cycle(m.autohide);
         else if (act === "bonus") m.bonus = cycle(m.bonus);
-        else if (act === "markup") { var v = gs("mm_" + n).trim(); m.markup = v === "" ? null : num(v); state.priceAt = 0; }
+        else if (act === "markup") {
+            var v = gs("mm_" + n).trim(), bh = gs("mb_" + n).trim();
+            m.markup = v === "" ? null : num(v);
+            if (bh === "" || bh === "-") delete m.bonusHours; else m.bonusHours = clamp(int(bh, 0), MIN_HOURS, MAX_HOURS);
+            state.priceAt = 0;
+        }
         saveMaps();
         render();
     };
@@ -3004,7 +3344,7 @@
         S.extWord = cmdWord(gs("s_word"), "!продление", true);
         S.codeWord = cmdWord(gs("s_code"), "!код", false);
         S.buyerCmds = on("s_cmds"); S.notifySales = on("s_ntf"); S.notifyNews = on("s_news"); S.enMsgs = on("s_en");
-        S.extCmd = on("s_extcmd"); S.extMinutes = clamp(int(gs("s_extmin"), 10), 1, 120);
+        S.extCmd = on("s_extcmd"); S.extMinutes = clamp(int(gs("s_extmin"), 10), 1, 120); S.extOther = on("s_extother");
         if (DESKTOP) {
             var px = gs("s_proxy").trim();
             if (px !== String(S.proxy || "")) { S.proxy = px; routeDown = {}; }
@@ -3087,8 +3427,10 @@
         if (act === "adopt") { if (hasKey()) { products(true); fpMap(true); } runJob({ kind: "adopt" }); return render(); }
         var autos = MAPS.filter(function (m) { return m.auto; });
         if (!autos.length) { toast("Лотов автовыставления нет"); return render(); }
+        if (act === "gta" && !readyForLots()) return render();
         if (!ask(act)) return;
         if (act === "retext") jobRetext();
+        if (act === "gta") jobRetext({ kind: "retext", gtaOnly: true });
         if (act === "delete") jobDelete(autos, true);
         render();
     };
@@ -3098,7 +3440,7 @@
             S.offMode = S.offMode === "covered" ? "all" : "covered";
             saveS();
             state.offAt = 0; state.pollAt = 0;
-            toast(S.offMode === "covered" ? "Только оплаченные: продаются и выставляются игры с лицензией или по подписке, остальные лоты снимутся с продажи." : "Все игры: оплаченные выдачи бесплатны, остальные по цене MUVSell.");
+            toast(S.offMode === "covered" ? "Только оплаченные: продаются и выставляются купленные игры или все по подписке, остальные лоты снимутся с продажи." : "Все игры: оплаченные выдачи бесплатны, остальные по цене MUVSell.");
         } else if (act === "save") {
             S.offPrice = Math.max(1, num(gs("o_price")) || 1); S.offMarkup = Math.max(0, num(gs("o_markup"))); S.offAuto = on("o_auto");
             saveS();
@@ -3112,7 +3454,7 @@
             if (!ask("offsub")) return;
             r = paid("/offline/subscription", { payWith: payWith(), requestId: sureRid });      // двойное нажатие: тот же requestId
             if (r.err) toast("Не оплачено: " + human(r.err));
-            else { cache.bal = [0, null]; offAcc = [0, null]; offCat = [0, null]; state.offAt = 0; toast(r.data.replay ? "Уже оплачено" : "Подписка продавца оплачена"); }
+            else { cache.bal = [0, null]; offAcc = [0, null]; offCat = [0, null]; state.offAt = 0; toast(r.data.replay ? "Уже оплачено" : "Подписка на оффлайн-игры оплачена"); }
         } else if (act === "find") {
             var cat = offCatalog(true);
             if (!cat) toast("Оффлайн-каталог MUVSell не получен: " + human(hasKey() ? "net" : "no_key")); else offFound = searchGames(cat, gs("o_q"));
@@ -3120,7 +3462,7 @@
             if (!ask("offlic:" + arg)) return;
             r = paid("/offline/licenses", { gameId: g.id, payWith: payWith(), requestId: sureRid });
             if (r.err) toast("Не куплено: " + human(r.err));
-            else { cache.bal = [0, null]; offAcc = [0, null]; offCat = [0, null]; offFound = null; state.offAt = 0; toast(r.data.replay ? "Уже куплено" : "Лицензия на " + g.name + " куплена"); }
+            else { cache.bal = [0, null]; offAcc = [0, null]; offCat = [0, null]; offFound = null; state.offAt = 0; toast(r.data.replay ? "Уже куплено" : g.name + " куплена навсегда, её выдачи теперь бесплатны"); }
         } else if (act === "steam" && g) {
             if (!S.fpEdit) toast("В настройках выключено \"Плагин может менять цену, тексты и видимость лотов\""); else jobOffSteam(g.id);
         } else if (act === "hide" && OFF[arg]) { OFF[arg].autohide = cycle(OFF[arg].autohide); saveOff(); }
@@ -3158,10 +3500,12 @@
         saveS();
         var warn = "";
         if (/^ap_desc/.test(key)) { var tx = lotTexts("Counter-Strike 2", 24, 5); warn = enWarning(tx[2], tx[3]); }
+        if (/^gta_desc/.test(key)) { var tg = lotTexts(GTA_SAMPLE[0], GTA_SAMPLE[1], GTA_SAMPLE[2], true); warn = enWarning(tg[2], tg[3]); }
+        if (/^(ap|gta)_/.test(key)) state.enShort = false;
         toast(warn || "Сохранено");
     };
     window.mvsTextReset = function () { delete S.texts[TEXT_KEYS[textKey]]; saveS(); render(); };
 
     render();
-    log("запущен: привязок " + MAPS.length + ", оффлайн-лотов " + OFF.length + ", активных аренд " + allActive().length);
+    log("запущен: привязок " + MAPS.length + ", оффлайн-лотов " + OFF.length + ", активных аренд " + allActive().length + (Object.keys(PSN).length ? ", заказов GTA 6: " + Object.keys(PSN).length : ""));
 })();
